@@ -5,6 +5,13 @@ ngxphp -  Embedded php script into nginx-module
 Install
 -------
 ```sh
+git clone https://github.com/rryqszq4/ngxphp.git
+cd ngxphp
+
+wget 'http://nginx.org/download/nginx-1.6.3.tar.gz'
+tar -zxvf nginx-1.6.3.tar.gz
+cd nginx-1.6.3
+
 export PHP_BIN=/path/to/php/bin
 export PHP_INC=/path/to/php/include/php
 export PHP_LIB=/path/to/php/lib
@@ -16,7 +23,7 @@ export PHP_LIB=/path/to/php/lib
 
 Synopsis
 --------
-```php
+```nginx
 server {
 	location /php {
 		php_content_handler_code "
