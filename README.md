@@ -1,6 +1,6 @@
 ngxphp
 ======
-ngxphp -  Embedded php script into nginx-module
+ngxphp -  Embedded php script for nginx-module
 
 Install
 -------
