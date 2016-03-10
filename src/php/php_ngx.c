@@ -6,9 +6,52 @@
 
 #include "php_ngx.h"
 
+static int php_ngx_startup(sapi_module_struct *sapi_module)
+{
+	if (php_module_startup(sapi_module, NULL, 0) == FAILURE){
+		return FAILURE;
+	}
+	return SUCCESS;
+}
 
- /* {{{ sapi_module_struct php_ngx_module
- */
+static int php_ngx_deactivate(TSRMLS_D)
+{
+	return SUCCESS;
+}
+
+static int php_ngx_ub_write(const char *str, uint str_length TSRMLS_DC)
+{
+	return str_length;
+}
+
+static void php_ngx_flush(void *server_context)
+{
+}
+
+static void php_ngx_send_header(sapi_header_struct *sapi_header, void *server_context TSRMLS_DC)
+{
+}
+
+static int sapi_cgi_read_post(char *buffer, uint count_bytes TSRMLS_DC)
+{
+	return 0;
+}
+
+static char* php_ngx_read_cookies(TSRMLS_D)
+{
+}
+
+static void php_embed_register_variables(zval *track_vars_array TSRMLS_DC)
+{
+	php_import_environment_variables(track_vars_array TSRMLS_CC);
+}
+
+static void php_ngx_log_message(char *message)
+{
+}
+
+/* {{{ sapi_module_struct php_ngx_module
+*/
 extern sapi_module_struct php_ngx_module = {
 	"php-ngx",						/* name */
 	"Embed php nginx module",					/* pretty name */
@@ -28,7 +71,7 @@ extern sapi_module_struct php_ngx_module = {
 
 	NULL,							/* header handler */
 	NULL,							/* send headers handler */
-	php_ngx_send_headers,			/* send header handler */
+	php_ngx_send_header,			/* send header handler */
 
 	php_ngx_read_post,				/* read POST data */
 	php_ngx_read_cookies,			/* read Cookies */
@@ -52,7 +95,8 @@ static const zend_function_entry additional_functions[] = {
 	{NULL, NULL, NULL}
 };
 
-int php_ngx_module_init(TSRMLS_D){
+int php_ngx_module_init(TSRMLS_D)
+{
 	
 #ifdef ZTS
 	void ***tsrm_ls = NULL;
@@ -88,7 +132,8 @@ int php_ngx_module_init(TSRMLS_D){
   return SUCCESS;
 }
 
-int php_ngx_request_init(TSRMLS_D){
+int php_ngx_request_init(TSRMLS_D)
+{
 	if (php_request_startup(TSRMLS_C)==FAILURE) {
 		return FAILURE;
   	}
@@ -100,25 +145,24 @@ int php_ngx_request_init(TSRMLS_D){
   	return SUCCESS;
 }
 
-void php_ngx_request_shutdown(TSRMLS_D){
+void php_ngx_request_shutdown(TSRMLS_D)
+{
 	php_request_shutdown((void *)0);
 
-	return void;
 }
 
-void php_ngx_module_shutdown(TSRMLS_D){
+void php_ngx_module_shutdown(TSRMLS_D)
+{
 	php_request_shutdown((void *)0);
 	php_module_shutdown(TSRMLS_C);
 	sapi_shutdown();
 #ifdef ZTS
 	tsrm_shutdown();
 #endif
-	if (php_ngx_module.ini_entries){
-		free(php_ngx_module.ini_entries);
-		php_ngx_module.ini_entries = NULL;
-	}
-
-	return void;
+	//if (php_ngx_module.ini_entries){
+		//free(php_ngx_module.ini_entries);
+		//php_ngx_module.ini_entries = NULL;
+	//}
 }
 
 
