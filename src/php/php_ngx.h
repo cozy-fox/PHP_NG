@@ -9,6 +9,10 @@
 
 #include <php.h>
 #include <SAPI.h>
+#include <php_main.h>
+#include <php_variables.h>
+#include <php_ini.h>
+#include <zend_ini.h>
 #include <ext/standard/php_standard.h>
 
 
@@ -19,4 +23,5 @@ int php_ngx_request_init(TSRMLS_D);
 void php_ngx_request_shutdown(TSRMLS_D);
 
 extern sapi_module_struct php_ngx_module;
+
 #endif

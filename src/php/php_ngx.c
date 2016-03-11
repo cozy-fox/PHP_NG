@@ -32,16 +32,17 @@ static void php_ngx_send_header(sapi_header_struct *sapi_header, void *server_co
 {
 }
 
-static int sapi_cgi_read_post(char *buffer, uint count_bytes TSRMLS_DC)
+static int php_ngx_read_post(char *buffer, uint count_bytes TSRMLS_DC)
 {
 	return 0;
 }
 
 static char* php_ngx_read_cookies(TSRMLS_D)
 {
+	return NULL;
 }
 
-static void php_embed_register_variables(zval *track_vars_array TSRMLS_DC)
+static void php_ngx_register_variables(zval *track_vars_array TSRMLS_DC)
 {
 	php_import_environment_variables(track_vars_array TSRMLS_CC);
 }
@@ -52,14 +53,14 @@ static void php_ngx_log_message(char *message)
 
 /* {{{ sapi_module_struct php_ngx_module
 */
-extern sapi_module_struct php_ngx_module = {
+sapi_module_struct php_ngx_module = {
 	"php-ngx",						/* name */
 	"Embed php nginx module",					/* pretty name */
 
 	php_ngx_startup,				/* startup */
 	php_module_shutdown_wrapper,	/* shutdown */
 
-	NULL//php_ngx_activate,				/* activate */
+	NULL,//php_ngx_activate,				/* activate */
 	php_ngx_deactivate,				/* deactivate */
 
 	php_ngx_ub_write,				/* unbuffered write */
@@ -81,7 +82,33 @@ extern sapi_module_struct php_ngx_module = {
 	NULL,							/* Get request time */
 	NULL,							/* Child terminate */
 
-	STANDARD_SAPI_MODULE_PROPERTIES
+	NULL,
+
+	NULL,
+	NULL,
+
+	NULL,
+	NULL,
+	NULL,
+
+	1,
+
+	NULL,
+
+	NULL,
+
+	NULL,
+	NULL,
+
+	NULL,
+
+	NULL,
+	0,
+
+	NULL,
+	NULL,
+	NULL
+	//STANDARD_SAPI_MODULE_PROPERTIES
 };
 
 /* {{{ arginfo ext/standard/dl.c */
@@ -92,7 +119,7 @@ ZEND_END_ARG_INFO()
 
 static const zend_function_entry additional_functions[] = {
 	ZEND_FE(dl, arginfo_dl)
-	{NULL, NULL, NULL}
+	{NULL, NULL, NULL, 0, 0}
 };
 
 int php_ngx_module_init(TSRMLS_D)
@@ -119,6 +146,7 @@ int php_ngx_module_init(TSRMLS_D)
 #endif
 
   sapi_startup(&php_ngx_module);
+  php_ngx_module.php_ini_path_override = NULL;
 
 #ifdef PHP_WIN32
   _fmode = _O_BINARY;			/*sets default for file streams to binary */
@@ -127,7 +155,13 @@ int php_ngx_module_init(TSRMLS_D)
   setmode(_fileno(stderr), O_BINARY);		/* make the stdio mode be binary */
 #endif
 
-  php_embed_module.additional_functions = additional_functions;
+  php_ngx_module.additional_functions = additional_functions;
+
+  php_ngx_module.executable_location = NULL;
+
+  if (php_ngx_module.startup(&php_ngx_module) == FAILURE){
+  	return FAILURE;
+  }
 
   return SUCCESS;
 }
@@ -159,10 +193,10 @@ void php_ngx_module_shutdown(TSRMLS_D)
 #ifdef ZTS
 	tsrm_shutdown();
 #endif
-	//if (php_ngx_module.ini_entries){
-		//free(php_ngx_module.ini_entries);
-		//php_ngx_module.ini_entries = NULL;
-	//}
+	if (php_ngx_module.ini_entries){
+		free(php_ngx_module.ini_entries);
+		php_ngx_module.ini_entries = NULL;
+	}
 }
 
 
