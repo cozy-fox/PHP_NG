@@ -91,7 +91,7 @@ sapi_module_struct php_ngx_module = {
 	NULL,
 	NULL,
 
-	1,
+	0,
 
 	NULL,
 
@@ -146,7 +146,6 @@ int php_ngx_module_init(TSRMLS_D)
 #endif
 
   sapi_startup(&php_ngx_module);
-  php_ngx_module.php_ini_path_override = NULL;
 
 #ifdef PHP_WIN32
   _fmode = _O_BINARY;			/*sets default for file streams to binary */
