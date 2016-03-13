@@ -3,17 +3,19 @@ HTTP_MODULES="$HTTP_MODULES ngx_http_php_module"
 NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/src/ngx_http_php_module.c \
 				$ngx_addon_dir/src/ngx_http_php_core.c \
 				$ngx_addon_dir/src/ngx_http_php_directive.c \
+				$ngx_addon_dir/src/php/php_ngx.c \
 				"
 NGX_ADDON_DEPS="$NGX_ADDON_DEPS $ngx_addon_dir/src/ngx_http_php_module.h \
 				$ngx_addon_dir/src/ngx_http_php_core.h \
 				$ngx_addon_dir/src/ngx_http_php_directive.h \
+				$ngx_addon_dir/src/php/php_ngx.h \
 				"
 
 CORE_INCS="$CORE_INCS $PHP_INC $PHP_INC/main $PHP_INC/TSRM $PHP_INC/Zend $PHP_INC/ext $PHP_INC/ext/date/lib $PHP_INC/sapi/embed "
 
-CORE_LIBS="$CORE_LIBS `$PHP_BIN/php-config --ldflags` -L$PHP_LIB -lphp5 `$PHP_BIN/php-config --libs` -liconv"
+CORE_LIBS="$CORE_LIBS `$PHP_BIN/php-config --ldflags` -L$PHP_LIB -lphp5 `$PHP_BIN/php-config --libs` "
 
 
-#CORE_INCS="$CORE_INCS /usr/local/php/include/php /usr/local/php/include/php/main /usr/local/php/include/php/TSRM /usr/local/php/include/php/Zend /usr/local/php/include/php/ext /usr/local/php/include/php/ext/date/lib /usr/local/php/include/php/sapi/embed "
+#CORE_INCS="$CORE_INCS /usr/local/php53/include/php /usr/local/php53/include/php/main /usr/local/php53/include/php/TSRM /usr/local/php53/include/php/Zend /usr/local/php53/include/php/ext /usr/local/php53/include/php/ext/date/lib /usr/local/php53/include/php/sapi/embed "
 
-#CORE_LIBS="$CORE_LIBS `/usr/local/php/bin/php-config --ldflags` -L/usr/local/php/lib -lphp5 `/usr/local/php/bin/php-config --libs` -liconv"
+#CORE_LIBS="$CORE_LIBS `/usr/local/php53/bin/php-config --ldflags` -L/usr/local/php53/lib -lphp5 `/usr/local/php/bin/php-config --libs` "

@@ -10,6 +10,8 @@
 #include <ngx_conf_file.h>
 #include <nginx.h>
 
+#include "php/php_ngx.h"
+
 #include "ngx_http_php_module.h"
 #include "ngx_http_php_directive.h"
 
@@ -20,7 +22,18 @@ static ngx_int_t ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_
 static void *ngx_http_php_create_loc_conf(ngx_conf_t *cf);
 static char *ngx_http_php_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child); 
 
-ngx_int_t ngx_php_run(ngx_http_request_t *r, ngx_http_php_code_t *code);
+// function init
+static ngx_int_t ngx_http_php_init_worker(ngx_cycle_t *cycle);
+static void ngx_http_php_exit_worker(ngx_cycle_t *cycle);
+
+// php_ngx
+ngx_int_t ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code);
+ngx_int_t ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_code_t *code);
+
+static int ngx_http_php_code_ub_write(const char *str, unsigned int str_length TSRMLS_DC);
+static void ngx_http_php_code_flush(void *server_context);
+static void ngx_http_code_log_message(char *message);
+
 
 // handler
 ngx_int_t ngx_http_php_content_handler(ngx_http_request_t *r);
@@ -43,17 +56,17 @@ static ngx_command_t ngx_http_php_commands[] = {
 };
 
 static ngx_http_module_t ngx_http_php_module_ctx = {
-	NULL,
-	ngx_http_php_init,
+	NULL,							/* preconfiguration */
+	ngx_http_php_init,				/* postconfiguration */
 
-	NULL,
-	NULL,
+	NULL,							/* create main configuration */
+	NULL,							/* init main configuration */
 
-	NULL,
-	NULL,
+	NULL,							/* create server configuration */
+	NULL,							/* merge server configuration */
 
-	ngx_http_php_create_loc_conf,
-	ngx_http_php_merge_loc_conf
+	ngx_http_php_create_loc_conf,	/* create location configuration */
+	ngx_http_php_merge_loc_conf		/* merge location configuration */
 
 };
 
@@ -65,10 +78,10 @@ ngx_module_t ngx_http_php_module = {
     NGX_HTTP_MODULE,               /* module type */
     NULL,                          /* init master */
     NULL,                          /* init module */
-    NULL,                          /* init process */
+    ngx_http_php_init_worker,      /* init process */
     NULL,                          /* init thread */
     NULL,                          /* exit thread */
-    NULL,                          /* exit process */
+    ngx_http_php_exit_worker,      /* exit process */
     NULL,                          /* exit master */
     NGX_MODULE_V1_PADDING
 };
@@ -149,6 +162,23 @@ ngx_http_php_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 	return NGX_CONF_OK;
 }
 
+static ngx_int_t 
+ngx_http_php_init_worker(ngx_cycle_t *cycle)
+{
+	php_ngx_module.ub_write = ngx_http_php_code_ub_write;
+	php_ngx_module.flush = ngx_http_php_code_flush;
+	php_ngx_module.log_message = ngx_http_code_log_message;
+	php_ngx_module.php_ini_path_override = "/usr/local/php/etc/php.ini";
+	php_ngx_module_init(TSRMLS_C);
+
+	return NGX_OK;
+}
+
+static void 
+ngx_http_php_exit_worker(ngx_cycle_t *cycle)
+{
+	php_ngx_module_shutdown(TSRMLS_C);
+}
 
 static int ngx_http_php_code_ub_write(const char *str, unsigned int str_length TSRMLS_DC)
 {
@@ -200,18 +230,50 @@ static void
 ngx_http_php_code_flush(void *server_context)
 {
 	
-	return ;
 }
 
-ngx_int_t 
-ngx_php_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
+static void ngx_http_code_log_message(char *message)
 {
 	
+
+}
+
+
+ngx_int_t 
+ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
+{
+
 	php_embed_module.ub_write = ngx_http_php_code_ub_write;
 	php_embed_module.flush = ngx_http_php_code_flush;
+	php_ngx_module.php_ini_path_override = "/usr/local/php/etc/php.ini";
 	PHP_EMBED_START_BLOCK(0, NULL);
-		zend_eval_string_ex(code->code.string, NULL, "Command line run code", 1 TSRMLS_CC);
+		zend_eval_string_ex(code->code.string, NULL, "php_ngx run code", 1 TSRMLS_CC);
 	PHP_EMBED_END_BLOCK();
+
+	return 0;
+}
+
+ngx_int_t
+ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
+{
+	php_ngx_request_init(TSRMLS_C);
+
+	zend_first_try {
+
+		zend_eval_string_ex(code->code.string, NULL, "php_ngx run code", 1 TSRMLS_CC);
+
+		/*zend_file_handle file_handle;
+		file_handle.type = ZEND_HANDLE_FP;
+		file_handle.filename = "/home/www/index.php";
+		file_handle.opened_path = NULL;
+		file_handle.free_filename = 0;
+		file_handle.handle.fp = fopen(file_handle.filename, "rb");
+		php_execute_script(&file_handle TSRMLS_CC);*/
+	} zend_catch {
+		/* int exit_status = EG(exit_status); */
+	} zend_end_try();
+
+	php_ngx_request_shutdown(TSRMLS_C);
 
 	return 0;
 }
@@ -243,7 +305,8 @@ ngx_http_php_content_inline_handler(ngx_http_request_t *r)
 
 	ngx_php_request = r;
 
-	ngx_php_run(r, plcf->content_inline_code);
+	//ngx_php_embed_run(r, plcf->content_inline_code);
+	ngx_php_ngx_run(r, plcf->content_inline_code);
 
 	ngx_int_t rc;
 
