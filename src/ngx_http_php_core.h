@@ -45,6 +45,6 @@ ngx_int_t ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_code_t *code);
 
 int ngx_http_php_code_ub_write(const char *str, unsigned int str_length TSRMLS_DC);
 void ngx_http_php_code_flush(void *server_context);
-void ngx_http_code_log_message(char *message);
+void ngx_http_php_code_log_message(char *message);
 
 #endif

@@ -162,7 +162,7 @@ ngx_http_php_init_worker(ngx_cycle_t *cycle)
 {
 	php_ngx_module.ub_write = ngx_http_php_code_ub_write;
 	php_ngx_module.flush = ngx_http_php_code_flush;
-	php_ngx_module.log_message = ngx_http_code_log_message;
+	php_ngx_module.log_message = ngx_http_php_code_log_message;
 	php_ngx_module.php_ini_path_override = "/usr/local/php/etc/php.ini";
 	php_ngx_module_init(TSRMLS_C);
 
