@@ -14,6 +14,7 @@
 
 #include "ngx_http_php_module.h"
 #include "ngx_http_php_directive.h"
+#include "ngx_http_php_handler.h"
 
 // http init
 static ngx_int_t ngx_http_php_init(ngx_conf_t *cf);
@@ -26,22 +27,16 @@ static char *ngx_http_php_merge_loc_conf(ngx_conf_t *cf, void *parent, void *chi
 static ngx_int_t ngx_http_php_init_worker(ngx_cycle_t *cycle);
 static void ngx_http_php_exit_worker(ngx_cycle_t *cycle);
 
-// php_ngx
-ngx_int_t ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code);
-ngx_int_t ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_code_t *code);
-
-static int ngx_http_php_code_ub_write(const char *str, unsigned int str_length TSRMLS_DC);
-static void ngx_http_php_code_flush(void *server_context);
-static void ngx_http_code_log_message(char *message);
-
-
-// handler
-ngx_int_t ngx_http_php_content_handler(ngx_http_request_t *r);
-ngx_int_t ngx_http_php_content_inline_handler(ngx_http_request_t *r);
-
-ngx_http_request_t *ngx_php_request;
-
 static ngx_command_t ngx_http_php_commands[] = {
+
+	{ngx_string("php_content_handler"),
+	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+					|NGX_CONF_TAKE1,
+	 ngx_http_php_content_phase,
+	 NGX_HTTP_LOC_CONF_OFFSET,
+	 0,
+	 ngx_http_php_content_file_handler
+	},
 
 	{ngx_string("php_content_handler_code"),
 	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
@@ -178,171 +173,6 @@ static void
 ngx_http_php_exit_worker(ngx_cycle_t *cycle)
 {
 	php_ngx_module_shutdown(TSRMLS_C);
-}
-
-static int ngx_http_php_code_ub_write(const char *str, unsigned int str_length TSRMLS_DC)
-{
-	ngx_buf_t *b;
-	ngx_http_php_rputs_chain_list_t *chain;
-	ngx_http_php_ctx_t *ctx;
-	ngx_http_request_t *r;
-	u_char *u_str;
-	ngx_str_t ns;
-
-	r = ngx_php_request;
-	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-
-	ns.data = (u_char *)str;
-	ns.len = str_length;
-
-	if (ctx->rputs_chain == NULL){
-		chain = ngx_pcalloc(r->pool, sizeof(ngx_http_php_rputs_chain_list_t));
-		chain->out = ngx_alloc_chain_link(r->pool);
-		chain->last = &chain->out;
-	}else {
-		chain = ctx->rputs_chain;
-		(*chain->last)->next = ngx_alloc_chain_link(r->pool);
-		chain->last = &(*chain->last)->next;
-	}
-
-	b = ngx_calloc_buf(r->pool);
-	(*chain->last)->buf = b;
-	(*chain->last)->next = NULL;
-
-	u_str = ngx_pstrdup(r->pool, &ns);
-	u_str[ns.len] = '\0';
-	(*chain->last)->buf->pos = u_str;
-	(*chain->last)->buf->last = u_str + ns.len;
-	(*chain->last)->buf->memory = 1;
-	ctx->rputs_chain = chain;
-	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
-
-	if (r->headers_out.content_length_n == -1){
-		r->headers_out.content_length_n += ns.len + 1;
-	}else {
-		r->headers_out.content_length_n += ns.len;
-	}
-
-	return r->headers_out.content_length_n;
-}
-
-static void 
-ngx_http_php_code_flush(void *server_context)
-{
-	
-}
-
-static void ngx_http_code_log_message(char *message)
-{
-	
-
-}
-
-
-ngx_int_t 
-ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
-{
-
-	php_embed_module.ub_write = ngx_http_php_code_ub_write;
-	php_embed_module.flush = ngx_http_php_code_flush;
-	php_ngx_module.php_ini_path_override = "/usr/local/php/etc/php.ini";
-	PHP_EMBED_START_BLOCK(0, NULL);
-		zend_eval_string_ex(code->code.string, NULL, "php_ngx run code", 1 TSRMLS_CC);
-	PHP_EMBED_END_BLOCK();
-
-	return 0;
-}
-
-ngx_int_t
-ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
-{
-	php_ngx_request_init(TSRMLS_C);
-
-	zend_first_try {
-
-		zend_eval_string_ex(code->code.string, NULL, "php_ngx run code", 1 TSRMLS_CC);
-
-		/*zend_file_handle file_handle;
-		file_handle.type = ZEND_HANDLE_FP;
-		file_handle.filename = "/home/www/index.php";
-		file_handle.opened_path = NULL;
-		file_handle.free_filename = 0;
-		file_handle.handle.fp = fopen(file_handle.filename, "rb");
-		php_execute_script(&file_handle TSRMLS_CC);*/
-	} zend_catch {
-		/* int exit_status = EG(exit_status); */
-	} zend_end_try();
-
-	php_ngx_request_shutdown(TSRMLS_C);
-
-	return 0;
-}
-
-ngx_int_t
-ngx_http_php_content_handler(ngx_http_request_t *r)
-{
-	ngx_http_php_loc_conf_t *plcf;
-	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
-	if (plcf->content_handler == NULL){
-		return NGX_DECLINED;
-	}
-	return plcf->content_handler(r);
-}
-
-ngx_int_t 
-ngx_http_php_content_inline_handler(ngx_http_request_t *r)
-{
-
-	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
-
-	ngx_http_php_ctx_t *ctx;
-	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-	ctx = ngx_pcalloc(r->pool, sizeof(*ctx));
-	if (ctx == NULL ){
-		return NGX_ERROR;
-	}
-	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
-
-	ngx_php_request = r;
-
-	//ngx_php_embed_run(r, plcf->content_inline_code);
-	ngx_php_ngx_run(r, plcf->content_inline_code);
-
-	ngx_int_t rc;
-
-	ngx_http_php_rputs_chain_list_t *chain;
-	
-	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-	chain = ctx->rputs_chain;
-	if (chain == NULL){
-		return NGX_ERROR;
-	}
-
-	r->headers_out.content_type.len = sizeof("text/html") - 1;
-	r->headers_out.content_type.data = (u_char *)"text/html";
-	r->headers_out.status = NGX_HTTP_OK;
-
-	if (r->method == NGX_HTTP_HEAD){
-		rc = ngx_http_send_header(r);
-		if (rc != NGX_OK){
-			return rc;
-		}
-	}
-
-	if (chain != NULL){
-		(*chain->last)->buf->last_buf = 1;
-	}
-
-	rc = ngx_http_send_header(r);
-	if (rc != NGX_OK){
-		return rc;
-	}
-
-	ngx_http_output_filter(r, chain->out);
-
-	ngx_http_set_ctx(r, NULL, ngx_http_php_module);
-
-	return NGX_OK;
 }
 
 

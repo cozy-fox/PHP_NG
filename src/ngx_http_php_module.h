@@ -18,6 +18,7 @@
 #define MODULE_VERSION	"0.0.1"
 
 extern ngx_module_t	ngx_http_php_module;
+ngx_http_request_t *ngx_php_request;
 
 typedef struct {
 	ngx_int_t enabled_content_handler;
@@ -25,6 +26,7 @@ typedef struct {
 
 typedef struct {
 
+	ngx_http_php_code_t *content_code;
 	ngx_http_php_code_t *content_inline_code;
 
 	ngx_int_t (*content_handler)(ngx_http_request_t *r);
