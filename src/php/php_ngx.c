@@ -82,7 +82,7 @@ sapi_module_struct php_ngx_module = {
 	NULL,							/* Get request time */
 	NULL,							/* Child terminate */
 
-	NULL,
+	"",								/* php_ini_path_override */
 
 	NULL,
 	NULL,

@@ -10,6 +10,24 @@
 
 
 char *
+ngx_http_php_ini_path(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
+{
+	ngx_http_php_main_conf_t *pmcf = conf;
+	ngx_str_t *value;
+
+	if (pmcf->ini_path.len != 0){
+		return "is duplicated";
+	}
+
+	value = cf->args->elts;
+
+	pmcf->ini_path.len = value[1].len;
+	pmcf->ini_path.data = value[1].data;
+
+	return NGX_CONF_OK;
+}
+
+char *
 ngx_http_php_content_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
 	ngx_http_php_main_conf_t *pmcf;

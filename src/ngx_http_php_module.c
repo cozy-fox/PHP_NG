@@ -20,6 +20,9 @@
 static ngx_int_t ngx_http_php_init(ngx_conf_t *cf);
 static ngx_int_t ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_http_php_main_conf_t *pmcf);
 
+static void *ngx_http_php_create_main_conf(ngx_conf_t *cf);
+static char *ngx_http_php_init_main_conf(ngx_conf_t *cf, void *conf);
+
 static void *ngx_http_php_create_loc_conf(ngx_conf_t *cf);
 static char *ngx_http_php_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child); 
 
@@ -28,6 +31,14 @@ static ngx_int_t ngx_http_php_init_worker(ngx_cycle_t *cycle);
 static void ngx_http_php_exit_worker(ngx_cycle_t *cycle);
 
 static ngx_command_t ngx_http_php_commands[] = {
+
+	{ngx_string("php_ini_path"),
+	 NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1,
+	 ngx_http_php_ini_path,
+	 NGX_HTTP_MAIN_CONF_OFFSET,
+	 0,
+	 NULL
+	},
 
 	{ngx_string("php_content_handler"),
 	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
@@ -54,8 +65,8 @@ static ngx_http_module_t ngx_http_php_module_ctx = {
 	NULL,							/* preconfiguration */
 	ngx_http_php_init,				/* postconfiguration */
 
-	NULL,							/* create main configuration */
-	NULL,							/* init main configuration */
+	ngx_http_php_create_main_conf,	/* create main configuration */
+	ngx_http_php_init_main_conf,	/* init main configuration */
 
 	NULL,							/* create server configuration */
 	NULL,							/* merge server configuration */
@@ -132,6 +143,27 @@ ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_http_php_main_con
 }
 
 static void *
+ngx_http_php_create_main_conf(ngx_conf_t *cf)
+{
+	ngx_http_php_main_conf_t *pmcf;
+
+	pmcf = ngx_pcalloc(cf->pool, sizeof(ngx_http_php_main_conf_t));
+	if (pmcf == NULL){
+		return NULL;
+	}
+
+	pmcf->ini_path.len = 0;
+
+	return pmcf;
+}
+
+static char *
+ngx_http_php_init_main_conf(ngx_conf_t *cf, void *conf)
+{
+	return NGX_CONF_OK;
+}
+
+static void *
 ngx_http_php_create_loc_conf(ngx_conf_t *cf)
 {
 	ngx_http_php_loc_conf_t *conf;
@@ -141,6 +173,7 @@ ngx_http_php_create_loc_conf(ngx_conf_t *cf)
 		return NGX_CONF_ERROR;
 	}
 
+	conf->content_code = NGX_CONF_UNSET_PTR;
 	conf->content_inline_code = NGX_CONF_UNSET_PTR;
 
 	return conf;
@@ -152,6 +185,7 @@ ngx_http_php_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 	ngx_http_php_loc_conf_t *prev = parent;
 	ngx_http_php_loc_conf_t *conf = child;
 
+	prev->content_code = conf->content_code;
 	prev->content_inline_code = conf->content_inline_code;
 
 	return NGX_CONF_OK;
@@ -160,10 +194,18 @@ ngx_http_php_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 static ngx_int_t 
 ngx_http_php_init_worker(ngx_cycle_t *cycle)
 {
+	ngx_http_php_main_conf_t *pmcf;
+
+	pmcf = ngx_http_cycle_get_module_main_conf(cycle, ngx_http_php_module);
+
 	php_ngx_module.ub_write = ngx_http_php_code_ub_write;
 	php_ngx_module.flush = ngx_http_php_code_flush;
 	php_ngx_module.log_message = ngx_http_php_code_log_message;
-	php_ngx_module.php_ini_path_override = "/usr/local/php/etc/php.ini";
+
+	if (pmcf->ini_path.len != 0){
+		php_ngx_module.php_ini_path_override = (char *)pmcf->ini_path.data;
+	}
+	
 	php_ngx_module_init(TSRMLS_C);
 
 	return NGX_OK;

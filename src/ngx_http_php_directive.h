@@ -12,6 +12,7 @@
 #include <nginx.h>
 
 
+char *ngx_http_php_ini_path(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 char *ngx_http_php_content_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 char *ngx_http_php_content_inline_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 
