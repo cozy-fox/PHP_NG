@@ -62,7 +62,7 @@ static ngx_command_t ngx_http_php_commands[] = {
 };
 
 static ngx_http_module_t ngx_http_php_module_ctx = {
-	NULL,							/* preconfiguration */
+	NULL, 							/* preconfiguration */
 	ngx_http_php_init,				/* postconfiguration */
 
 	ngx_http_php_create_main_conf,	/* create main configuration */
