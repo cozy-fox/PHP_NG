@@ -62,17 +62,17 @@ static ngx_command_t ngx_http_php_commands[] = {
 };
 
 static ngx_http_module_t ngx_http_php_module_ctx = {
-	NULL,                         /* preconfiguration */
-	ngx_http_php_init,            /* postconfiguration */
+	NULL,                          /* preconfiguration */
+	ngx_http_php_init,             /* postconfiguration */
 
-	ngx_http_php_create_main_conf,/* create main configuration */
-	ngx_http_php_init_main_conf,  /* init main configuration */
+	ngx_http_php_create_main_conf, /* create main configuration */
+	ngx_http_php_init_main_conf,   /* init main configuration */
 
-	NULL,                         /* create server configuration */
-	NULL,                         /* merge server configuration */
+	NULL,                          /* create server configuration */
+	NULL,                          /* merge server configuration */
 
-	ngx_http_php_create_loc_conf, /* create location configuration */
-	ngx_http_php_merge_loc_conf	  /* merge location configuration */
+	ngx_http_php_create_loc_conf,  /* create location configuration */
+	ngx_http_php_merge_loc_conf    /* merge location configuration */
 
 };
 
