@@ -4,8 +4,8 @@
  *
  */
 
- #ifndef NGX_HTTP_PHP_CORE_H
- #define NGX_HTTP_PHP_CORE_H
+#ifndef NGX_HTTP_PHP_CORE_H
+#define NGX_HTTP_PHP_CORE_H
 
 #include <ngx_http.h>
 #include <php_embed.h>

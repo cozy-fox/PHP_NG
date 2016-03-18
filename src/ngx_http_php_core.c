@@ -5,6 +5,7 @@
  */
 
 #include "ngx_http_php_module.h"
+#include "ngx_http_php_request.h"
 #include "ngx_http_php_core.h"
 
 ngx_http_php_code_t *
@@ -137,6 +138,9 @@ ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
 ngx_int_t
 ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
 {
+
+	ngx_http_php_request_init(r TSRMLS_CC);
+
 	php_ngx_request_init(TSRMLS_C);
 
 	zend_first_try {
