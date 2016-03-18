@@ -121,6 +121,32 @@ void ngx_http_php_code_log_message(char *message)
 
 }
 
+void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_DC)
+{
+	php_import_environment_variables(track_vars_array TSRMLS_CC);
+
+	ngx_http_request_t *r;
+
+	r = ngx_php_request;
+
+	if (r->method == NGX_HTTP_GET){
+		php_register_variable("REQUEST_METHOD", (char *)"GET", track_vars_array TSRMLS_CC);
+	} else if (r->method == NGX_HTTP_POST){
+		php_register_variable("REQUEST_METHOD", (char *)"POST", track_vars_array TSRMLS_CC);
+	}
+
+	/*if (SG(request_info).request_method) {
+		php_register_variable("REQUEST_METHOD", (char *)SG(request_info).request_method, track_vars_array TSRMLS_CC);
+	}
+	if (SG(request_info).request_uri){
+		php_register_variable("DOCUMENT_URI", (char *)SG(request_info).request_uri, track_vars_array TSRMLS_CC);
+
+	}
+	if (SG(request_info).query_string){
+		php_register_variable("QUERY_STRING", (char *)SG(request_info).query_string, track_vars_array TSRMLS_CC);
+	}*/
+}
+
 ngx_int_t 
 ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
 {

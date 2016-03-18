@@ -201,6 +201,7 @@ ngx_http_php_init_worker(ngx_cycle_t *cycle)
 	php_ngx_module.ub_write = ngx_http_php_code_ub_write;
 	php_ngx_module.flush = ngx_http_php_code_flush;
 	php_ngx_module.log_message = ngx_http_php_code_log_message;
+	php_ngx_module.register_server_variables = ngx_http_php_code_register_server_variables;
 
 	if (pmcf->ini_path.len != 0){
 		php_ngx_module.php_ini_path_override = (char *)pmcf->ini_path.data;
