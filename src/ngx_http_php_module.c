@@ -42,7 +42,7 @@ static ngx_command_t ngx_http_php_commands[] = {
 
 	{ngx_string("php_content_handler"),
 	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
-					|NGX_CONF_TAKE1,
+	 	|NGX_CONF_TAKE1,
 	 ngx_http_php_content_phase,
 	 NGX_HTTP_LOC_CONF_OFFSET,
 	 0,
@@ -51,11 +51,11 @@ static ngx_command_t ngx_http_php_commands[] = {
 
 	{ngx_string("php_content_handler_code"),
 	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
-                    |NGX_CONF_TAKE1,
-     ngx_http_php_content_inline_phase,
-     NGX_HTTP_LOC_CONF_OFFSET,
-     0,
-     ngx_http_php_content_inline_handler
+	 	|NGX_CONF_TAKE1,
+	 ngx_http_php_content_inline_phase,
+	 NGX_HTTP_LOC_CONF_OFFSET,
+	 0,
+	 ngx_http_php_content_inline_handler
 	},
 
 	ngx_null_command
@@ -79,17 +79,17 @@ static ngx_http_module_t ngx_http_php_module_ctx = {
 
 ngx_module_t ngx_http_php_module = {
 	NGX_MODULE_V1,
-    &ngx_http_php_module_ctx,    /* module context */
-    ngx_http_php_commands,       /* module directives */
-    NGX_HTTP_MODULE,               /* module type */
-    NULL,                          /* init master */
-    NULL,                          /* init module */
-    ngx_http_php_init_worker,      /* init process */
-    NULL,                          /* init thread */
-    NULL,                          /* exit thread */
-    ngx_http_php_exit_worker,      /* exit process */
-    NULL,                          /* exit master */
-    NGX_MODULE_V1_PADDING
+	&ngx_http_php_module_ctx,    /* module context */
+	ngx_http_php_commands,       /* module directives */
+	NGX_HTTP_MODULE,               /* module type */
+	NULL,                          /* init master */
+	NULL,                          /* init module */
+	ngx_http_php_init_worker,      /* init process */
+	NULL,                          /* init thread */
+	NULL,                          /* exit thread */
+	ngx_http_php_exit_worker,      /* exit process */
+	NULL,                          /* exit master */
+	NGX_MODULE_V1_PADDING
 };
 
 static ngx_int_t 
