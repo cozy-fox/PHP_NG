@@ -193,6 +193,9 @@ void php_ngx_request_shutdown(TSRMLS_D)
 {
 	php_request_shutdown((void *)0);
 
+	if (SG(request_info).query_string){
+		efree(SG(request_info).query_string);
+	}
 }
 
 void php_ngx_module_shutdown(TSRMLS_D)
