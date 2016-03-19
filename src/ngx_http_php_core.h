@@ -39,10 +39,11 @@ typedef struct ngx_http_php_ctx_t {
 ngx_http_php_code_t *ngx_http_php_code_from_file(ngx_pool_t *pool, ngx_str_t *code_file_path);
 ngx_http_php_code_t *ngx_http_php_code_from_string(ngx_pool_t *pool, ngx_str_t *code_str);
 
-// php_ngx
+// php_ngx run
 ngx_int_t ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code);
 ngx_int_t ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_code_t *code);
 
+// php_ngx sapi call_back
 int ngx_http_php_code_ub_write(const char *str, unsigned int str_length TSRMLS_DC);
 void ngx_http_php_code_flush(void *server_context);
 void ngx_http_php_code_log_message(char *message);

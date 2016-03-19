@@ -126,7 +126,6 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 	php_import_environment_variables(track_vars_array TSRMLS_CC);
 
 	ngx_http_request_t *r;
-
 	r = ngx_php_request;
 
 	if (r->method == NGX_HTTP_GET){
@@ -134,6 +133,15 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 	} else if (r->method == NGX_HTTP_POST){
 		php_register_variable("REQUEST_METHOD", (char *)"POST", track_vars_array TSRMLS_CC);
 	}
+
+	php_register_variable_safe("REQUEST_LINE", (char *)r->request_line.data, r->request_line.len, track_vars_array TSRMLS_CC);
+
+	php_register_variable_safe("DOCUMENT_URI", (char *)r->uri.data, r->uri.len, track_vars_array TSRMLS_CC);
+
+	php_register_variable_safe("QUERY_STRING", (char *)r->args.data, r->args.len, track_vars_array TSRMLS_CC);
+
+	php_register_variable_safe("REQUEST_URI", (char *)r->uri_start, strlen((char *)r->uri_start)-strlen((char *)r->uri_end),track_vars_array TSRMLS_CC);
+	
 
 	/*if (SG(request_info).request_method) {
 		php_register_variable("REQUEST_METHOD", (char *)SG(request_info).request_method, track_vars_array TSRMLS_CC);
