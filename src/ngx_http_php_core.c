@@ -142,6 +142,7 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 
 	php_register_variable_safe("REQUEST_URI", (char *)r->uri_start, strlen((char *)r->uri_start)-strlen((char *)r->uri_end),track_vars_array TSRMLS_CC);
 	
+	php_register_variable_safe("SERVER_PROTOCOL", (char *)r->http_protocol.data, r->http_protocol.len, track_vars_array TSRMLS_CC);
 
 	/*if (SG(request_info).request_method) {
 		php_register_variable("REQUEST_METHOD", (char *)SG(request_info).request_method, track_vars_array TSRMLS_CC);
