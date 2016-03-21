@@ -200,7 +200,6 @@ void php_ngx_request_shutdown(TSRMLS_D)
 
 void php_ngx_module_shutdown(TSRMLS_D)
 {
-	php_request_shutdown((void *)0);
 	php_module_shutdown(TSRMLS_C);
 	sapi_shutdown();
 #ifdef ZTS
