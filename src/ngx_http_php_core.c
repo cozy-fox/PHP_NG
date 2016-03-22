@@ -131,12 +131,10 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 	ngx_http_headers_in_t *headers_in;
 	headers_in = &r->headers_in;
 
-	ngx_table_elt_t *host = headers_in->host;
-	ngx_table_elt_t *connection = headers_in->connection;
-	ngx_table_elt_t *user_agent = headers_in->user_agent;
-	ngx_table_elt_t *accept_encoding = headers_in->accept_encoding;
-	ngx_table_elt_t *content_length = headers_in->content_length;
-	ngx_table_elt_t *content_type = headers_in->content_type;
+	ngx_list_part_t *part = &r->headers_in.headers.part;
+	ngx_table_elt_t *header = part->elts;
+
+	ngx_uint_t i;
 
 	if (r->method == NGX_HTTP_GET){
 		php_register_variable("REQUEST_METHOD", (char *)"GET", track_vars_array TSRMLS_CC);
@@ -156,40 +154,57 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 	
 	php_register_variable_safe("SERVER_PROTOCOL", (char *)r->http_protocol.data, r->http_protocol.len, track_vars_array TSRMLS_CC);
 
-	if (host){
-		php_register_variable_safe("HTTP_HOST", (char *)host->value.data, host->value.len, track_vars_array TSRMLS_CC);
+	for (i = 0; /* void */; i++){
+		if (i >= part->nelts){
+			if (part->next == NULL){
+				break;
+			}
+			part = part->next;
+			header = part->elts;
+			i = 0;
+		}
+
+		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"accept", header[i].key.len) == 0){
+			php_register_variable_safe("HTTP_ACCEPT", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
+		}
+
+		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"host", header[i].key.len) == 0){
+			php_register_variable_safe("HTTP_HOST", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
+		}
+
+		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"connection", header[i].key.len) == 0){
+			php_register_variable_safe("HTTP_CONNECTION", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
+		}
+
+		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"user-agent", header[i].key.len) == 0){
+			php_register_variable_safe("HTTP_USER_AGENT", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
+		}
+
+		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"accept-encoding", header[i].key.len) == 0){
+			php_register_variable_safe("HTTP_ACCEPT_ENCODING", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
+		}
+
+		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"accept-language", header[i].key.len) == 0){
+			php_register_variable_safe("HTTP_ACCEPT_LANGUAGE", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
+		}
+		
+		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"referer", header[i].key.len) == 0){
+			php_register_variable_safe("HTTP_REFERER", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
+		}
+
+		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"pragma", header[i].key.len) == 0){
+			php_register_variable_safe("HTTP_PRAGMA", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
+		}
+
+		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"cache-control", header[i].key.len) == 0){
+			php_register_variable_safe("HTTP_CACHE_CONTROL", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
+		}
+
+		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"upgrade-insecure-requests", header[i].key.len) == 0){
+			php_register_variable_safe("HTTP_UPGRADE_INSECURE_REQUESTS", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
+		}
 	}
 
-	if (connection){
-		php_register_variable_safe("HTTP_CONNECTION", (char *)connection->value.data, connection->value.len, track_vars_array TSRMLS_CC);
-	}
-
-	if (user_agent){
-		php_register_variable_safe("HTTP_USER_AGENT", (char *)user_agent->value.data, user_agent->value.len, track_vars_array TSRMLS_CC);
-	}
-
-	if (accept_encoding){
-		php_register_variable_safe("HTTP_ACCEPT_ENCODING", (char *)accept_encoding->value.data, accept_encoding->value.len, track_vars_array TSRMLS_CC);
-	}
-
-	if (content_length){
-		php_register_variable_safe("CONTENT_LENGTH", (char *)content_length->value.data, content_length->value.len, track_vars_array TSRMLS_CC);
-	}
-
-	if (content_type){
-		php_register_variable_safe("CONTENT_TYPE", (char *)content_type->value.data, content_type->value.len, track_vars_array TSRMLS_CC);
-	}
-
-	/*if (SG(request_info).request_method) {
-		php_register_variable("REQUEST_METHOD", (char *)SG(request_info).request_method, track_vars_array TSRMLS_CC);
-	}
-	if (SG(request_info).request_uri){
-		php_register_variable("DOCUMENT_URI", (char *)SG(request_info).request_uri, track_vars_array TSRMLS_CC);
-
-	}
-	if (SG(request_info).query_string){
-		php_register_variable("QUERY_STRING", (char *)SG(request_info).query_string, track_vars_array TSRMLS_CC);
-	}*/
 }
 
 ngx_int_t 
