@@ -16,3 +16,10 @@ ngx_http_php_request_init(ngx_http_request_t *r TSRMLS_DC)
 	}
 }
 
+void 
+ngx_http_php_request_clean(TSRMLS_D){
+	if (SG(request_info).query_string){
+		efree(SG(request_info).query_string);
+	}
+}
+

@@ -16,5 +16,6 @@
 
 
 void ngx_http_php_request_init(ngx_http_request_t *r TSRMLS_DC);
+void ngx_http_php_request_clean(TSRMLS_D);
 
 #endif

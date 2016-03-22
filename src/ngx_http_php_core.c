@@ -241,6 +241,8 @@ ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
 		/* int exit_status = EG(exit_status); */
 	} zend_end_try();
 
+	ngx_http_php_request_clean(TSRMLS_C);
+
 	php_ngx_request_shutdown(TSRMLS_C);
 
 	return 0;
