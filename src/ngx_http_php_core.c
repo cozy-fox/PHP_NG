@@ -196,6 +196,14 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 			i = 0;
 		}
 
+		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"content-type", header[i].key.len) == 0){
+			php_register_variable_safe("CONTENT_TYPE", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
+		}
+
+		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"content-length", header[i].key.len) == 0){
+			php_register_variable_safe("CONTENT_LENGTH", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
+		}
+
 		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"accept", header[i].key.len) == 0){
 			php_register_variable_safe("HTTP_ACCEPT", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
 		}
