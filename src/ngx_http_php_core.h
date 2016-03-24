@@ -33,6 +33,9 @@ typedef struct ngx_http_php_rputs_chain_list_t {
 
 typedef struct ngx_http_php_ctx_t {
 	ngx_http_php_rputs_chain_list_t *rputs_chain;
+	size_t body_length;
+	ngx_str_t request_body_ctx;
+	unsigned request_body_more : 1;
 } ngx_http_php_ctx_t;
 
 
@@ -48,5 +51,6 @@ int ngx_http_php_code_ub_write(const char *str, unsigned int str_length TSRMLS_D
 void ngx_http_php_code_flush(void *server_context);
 void ngx_http_php_code_log_message(char *message);
 void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_DC);
+int ngx_http_php_code_read_post(char *buffer, uint count_bytes TSRMLS_DC);
 
 #endif

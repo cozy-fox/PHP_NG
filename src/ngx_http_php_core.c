@@ -248,6 +248,36 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 
 }
 
+int 
+ngx_http_php_code_read_post(char *buffer, uint count_bytes TSRMLS_DC)
+{
+	uint read_bytes = 0;
+	int tmp_read_bytes;
+
+	ngx_http_request_t *r = ngx_php_request;
+	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+	ngx_http_headers_in_t *headers_in;
+	headers_in = &r->headers_in;
+
+	char *content_length = (char *)headers_in->content_length->value.data;
+	int content_length_n;
+	content_length_n = atoi(content_length);
+
+	while ((int)ctx->request_body_ctx.len < content_length_n){
+		/* waiting event */
+	}
+	
+	count_bytes = MIN(count_bytes, (uint)content_length_n - SG(read_post_bytes));
+	while (read_bytes < count_bytes){
+		strncpy(buffer, (char *)ctx->request_body_ctx.data, count_bytes - read_bytes + 1);
+		tmp_read_bytes = count_bytes - read_bytes;
+		read_bytes += tmp_read_bytes;
+	}
+
+	return read_bytes;
+}
+
 ngx_int_t 
 ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
 {
