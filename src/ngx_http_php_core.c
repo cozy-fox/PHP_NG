@@ -157,33 +157,33 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 	php_register_variable_safe("REMOTE_ADDR", (char *)r->connection->addr_text.data, r->connection->addr_text.len, track_vars_array TSRMLS_CC);
 
 	ngx_str_t  server_address;
-    u_char     server_addr[NGX_SOCKADDR_STRLEN];
-    server_address.len = NGX_SOCKADDR_STRLEN;
-    server_address.data = server_addr;
-    if (ngx_connection_local_sockaddr(r->connection, &server_address, 0) != NGX_OK) {
-    }
-    php_register_variable_safe("SERVER_ADDR", (char *)server_address.data, server_address.len, track_vars_array TSRMLS_CC);
+	u_char     server_addr[NGX_SOCKADDR_STRLEN];
+	server_address.len = NGX_SOCKADDR_STRLEN;
+	server_address.data = server_addr;
+	if (ngx_connection_local_sockaddr(r->connection, &server_address, 0) != NGX_OK) {
+	}
+	php_register_variable_safe("SERVER_ADDR", (char *)server_address.data, server_address.len, track_vars_array TSRMLS_CC);
 
 	ngx_uint_t port;
-    struct sockaddr_in	*sin;
-    char *tmp_port;
-    tmp_port = emalloc(sizeof("65535") - 1);
+	struct sockaddr_in	*sin;
+	char *tmp_port;
+	tmp_port = emalloc(sizeof("65535") - 1);
 	sin = (struct sockaddr_in *) r->connection->local_sockaddr;
-    port = ntohs(sin->sin_port);
-    ngx_sprintf((u_char *)tmp_port, "%ui", port);
-    php_register_variable("SERVER_PORT", (char *)tmp_port, track_vars_array TSRMLS_CC);
+	port = ntohs(sin->sin_port);
+	ngx_sprintf((u_char *)tmp_port, "%ui", port);
+	php_register_variable("SERVER_PORT", (char *)tmp_port, track_vars_array TSRMLS_CC);
 	efree(tmp_port);
 
-    tmp_port = emalloc(sizeof("65535") - 1);
-    sin = (struct sockaddr_in *) r->connection->sockaddr;
-    port = ntohs(sin->sin_port);
-    ngx_sprintf((u_char *)tmp_port, "%ui", port);
+	tmp_port = emalloc(sizeof("65535") - 1);
+	sin = (struct sockaddr_in *) r->connection->sockaddr;
+	port = ntohs(sin->sin_port);
+	ngx_sprintf((u_char *)tmp_port, "%ui", port);
 	php_register_variable("REMOTE_PORT", (char *)tmp_port, track_vars_array TSRMLS_CC);
 	efree(tmp_port);
-	
+
 	ngx_http_core_srv_conf_t  *cscf;
-    cscf = ngx_http_get_module_srv_conf(r, ngx_http_core_module);
-    php_register_variable_safe("SERVER_NAME", (char *)cscf->server_name.data, cscf->server_name.len, track_vars_array TSRMLS_CC);
+	cscf = ngx_http_get_module_srv_conf(r, ngx_http_core_module);
+	php_register_variable_safe("SERVER_NAME", (char *)cscf->server_name.data, cscf->server_name.len, track_vars_array TSRMLS_CC);
 
 
 	for (i = 0; /* void */; i++){
