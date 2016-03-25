@@ -33,6 +33,16 @@ server {
 }
 ```
 
+Test
+----
+Using the perl of [Test::Nginx]<https://github.com/openresty/test-nginx> module to tesint, searching and finding out problem in ngxphp. 
+
+```sh
+cd /path/to/ngxphp
+export PATH=/path/to/ngxphp:$PATH
+prove -r t
+```
+
 Copyright and License
 ---------------------
 Copyright (c) 2016, rryqszq4
