@@ -35,7 +35,7 @@ server {
 
 Test
 ----
-Using the perl of [Test::Nginx]<https://github.com/openresty/test-nginx> module to tesint, searching and finding out problem in ngxphp. 
+Using the perl of [Test::Nginx](https://github.com/openresty/test-nginx) module to tesint, searching and finding out problem in ngxphp. 
 
 ```sh
 cd /path/to/ngxphp
