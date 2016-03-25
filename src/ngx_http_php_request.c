@@ -107,6 +107,11 @@ ngx_http_php_request_init(ngx_http_request_t *r TSRMLS_DC)
 	ngx_http_headers_in_t *headers_in;
 	headers_in = &r->headers_in;
 
+	ngx_list_part_t *part = &r->headers_in.headers.part;
+	ngx_table_elt_t *header = part->elts;
+
+	ngx_uint_t i;
+
 	if (r->method == NGX_HTTP_GET){
 		SG(request_info).request_method = "GET";
 	} else if (r->method == NGX_HTTP_POST){
@@ -124,6 +129,24 @@ ngx_http_php_request_init(ngx_http_request_t *r TSRMLS_DC)
 
 	ngx_http_php_request_context_t *context;
 	context = emalloc(sizeof(ngx_http_php_request_context_t));
+	context->cookie_data = NULL;
+
+	for (i = 0; /* void */; i++){
+		if (i >= part->nelts){
+			if (part->next == NULL){
+				break;
+			}
+			part = part->next;
+			header = part->elts;
+			i = 0;
+		}
+
+		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"cookie", header[i].key.len) == 0){
+			context->cookie_data = emalloc(header[i].value.len + 1);
+			ngx_cpystrn((u_char *)context->cookie_data, header[i].value.data, header[i].value.len + 1);
+		}
+
+	}
 
 	SG(server_context) = context;
 
@@ -139,6 +162,13 @@ ngx_http_php_request_clean(TSRMLS_D)
 	}
 
 	if (SG(server_context)){
+		ngx_http_php_request_context_t *context;
+		context = SG(server_context);
+		if (context->cookie_data){
+			efree(context->cookie_data);
+			context->cookie_data = NULL;
+		}
+		
 		efree(SG(server_context));
 		SG(server_context) = NULL;
 	}

@@ -203,6 +203,7 @@ ngx_http_php_init_worker(ngx_cycle_t *cycle)
 	php_ngx_module.log_message = ngx_http_php_code_log_message;
 	php_ngx_module.register_server_variables = ngx_http_php_code_register_server_variables;
 	php_ngx_module.read_post = ngx_http_php_code_read_post;
+	php_ngx_module.read_cookies = ngx_http_php_code_read_cookies;
 
 	if (pmcf->ini_path.len != 0){
 		php_ngx_module.php_ini_path_override = (char *)pmcf->ini_path.data;

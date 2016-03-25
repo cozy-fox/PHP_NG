@@ -52,5 +52,6 @@ void ngx_http_php_code_flush(void *server_context);
 void ngx_http_php_code_log_message(char *message);
 void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_DC);
 int ngx_http_php_code_read_post(char *buffer, uint count_bytes TSRMLS_DC);
+char *ngx_http_php_code_read_cookies(TSRMLS_D);
 
 #endif

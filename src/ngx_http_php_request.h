@@ -16,7 +16,7 @@
 
 typedef struct _ngx_http_php_request_context_t {
 
-	
+	char *cookie_data;
 	
 } ngx_http_php_request_context_t;
 

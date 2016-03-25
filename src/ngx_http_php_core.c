@@ -244,6 +244,10 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 			php_register_variable_safe("HTTP_UPGRADE_INSECURE_REQUESTS", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
 		}
 
+		if (ngx_strncasecmp(header[i].lowcase_key, (u_char *)"cookie", header[i].key.len) == 0){
+			php_register_variable_safe("HTTP_COOKIE", (char *)header[i].value.data, header[i].value.len, track_vars_array TSRMLS_CC);
+		}
+
 	}
 
 }
@@ -276,6 +280,14 @@ ngx_http_php_code_read_post(char *buffer, uint count_bytes TSRMLS_DC)
 	}
 
 	return read_bytes;
+}
+
+char *
+ngx_http_php_code_read_cookies(TSRMLS_D)
+{
+	ngx_http_php_request_context_t *context;
+	context = SG(server_context);
+	return (char *)context->cookie_data;
 }
 
 ngx_int_t 
