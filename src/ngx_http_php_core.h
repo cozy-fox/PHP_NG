@@ -13,6 +13,11 @@
 
 extern ngx_http_request_t *ngx_php_request;
 
+typedef struct ngx_http_php_state_t {
+	ngx_int_t php_init;
+	ngx_int_t php_shutdown;
+} ngx_http_php_state_t;
+
 typedef enum code_type_t {
 	NGX_HTTP_PHP_CODE_TYPE_FILE,
 	NGX_HTTP_PHP_CODE_TYPE_STRING
@@ -42,9 +47,18 @@ typedef struct ngx_http_php_ctx_t {
 ngx_http_php_code_t *ngx_http_php_code_from_file(ngx_pool_t *pool, ngx_str_t *code_file_path);
 ngx_http_php_code_t *ngx_http_php_code_from_string(ngx_pool_t *pool, ngx_str_t *code_str);
 
+#define NGX_HTTP_PHP_NGX_INIT ngx_http_php_request_init(r TSRMLS_CC); 	\
+		php_ngx_request_init(TSRMLS_C);									\
+		zend_first_try {
+
+#define NGX_HTTP_PHP_NGX_SHUTDOWN } zend_catch {		\
+		} zend_end_try();								\
+		ngx_http_php_request_clean(TSRMLS_C);			\
+		php_ngx_request_shutdown(TSRMLS_C);
+
 // php_ngx run
 ngx_int_t ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code);
-ngx_int_t ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_code_t *code);
+ngx_int_t ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_state_t *state, ngx_http_php_code_t *code);
 
 // php_ngx sapi call_back
 int ngx_http_php_code_ub_write(const char *str, unsigned int str_length TSRMLS_DC);

@@ -23,8 +23,13 @@ ngx_http_request_t *ngx_php_request;
 typedef struct {
 
 	ngx_str_t ini_path;
+	ngx_http_php_code_t *init_code;
+	ngx_http_php_code_t *init_inline_code;
 
 	ngx_int_t enabled_content_handler:1;
+
+	ngx_http_php_state_t *state;
+
 } ngx_http_php_main_conf_t;
 
 typedef struct {

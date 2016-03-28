@@ -305,43 +305,30 @@ ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
 }
 
 ngx_int_t
-ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
+ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_state_t *state, ngx_http_php_code_t *code)
 {
 
-	ngx_http_php_request_init(r TSRMLS_CC);
+	if (code->code_type == NGX_HTTP_PHP_CODE_TYPE_STRING){
 
-	php_ngx_request_init(TSRMLS_C);
+		zend_eval_string_ex(code->code.string, NULL, "php_ngx run code", 1 TSRMLS_CC);
 
-	zend_first_try {
+	}else if (code->code_type == NGX_HTTP_PHP_CODE_TYPE_FILE){
 
-		if (code->code_type == NGX_HTTP_PHP_CODE_TYPE_STRING){
+		zend_file_handle file_handle;
 
-			zend_eval_string_ex(code->code.string, NULL, "php_ngx run code", 1 TSRMLS_CC);
-
-		}else if (code->code_type == NGX_HTTP_PHP_CODE_TYPE_FILE){
-
-			zend_file_handle file_handle;
-
-			file_handle.type = ZEND_HANDLE_FP;
-			file_handle.opened_path = NULL;
-			file_handle.free_filename = 0;
-			file_handle.filename = code->code.file;
-			if (!(file_handle.handle.fp = VCWD_FOPEN(file_handle.filename, "rb"))) {
-				php_printf("Could not open input file: %s\n", file_handle.filename);
-				return FAILURE;
-			}
-			php_execute_script(&file_handle TSRMLS_CC);
-
-		}else {
+		file_handle.type = ZEND_HANDLE_FP;
+		file_handle.opened_path = NULL;
+		file_handle.free_filename = 0;
+		file_handle.filename = code->code.file;
+		if (!(file_handle.handle.fp = VCWD_FOPEN(file_handle.filename, "rb"))) {
+			php_printf("Could not open input file: %s\n", file_handle.filename);
+			return FAILURE;
 		}
+		php_execute_script(&file_handle TSRMLS_CC);
 
-	} zend_catch {
-		/* int exit_status = EG(exit_status); */
-	} zend_end_try();
+	}else {
+	}
 
-	ngx_http_php_request_clean(TSRMLS_C);
-
-	php_ngx_request_shutdown(TSRMLS_C);
 
 	return 0;
 }

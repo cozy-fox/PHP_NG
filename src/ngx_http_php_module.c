@@ -40,6 +40,14 @@ static ngx_command_t ngx_http_php_commands[] = {
 	 NULL
 	},
 
+	{ngx_string("php_init_code"),
+	 NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1,
+	 ngx_http_php_init_inline_phase,
+	 NGX_HTTP_MAIN_CONF_OFFSET,
+	 0,
+	 NULL
+	},
+
 	{ngx_string("php_content_handler"),
 	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
 	 	|NGX_CONF_TAKE1,
@@ -152,7 +160,17 @@ ngx_http_php_create_main_conf(ngx_conf_t *cf)
 		return NULL;
 	}
 
+	pmcf->state = ngx_pcalloc(cf->pool, sizeof(ngx_http_php_state_t));
+	if (pmcf->state == NULL){
+		return NULL;
+	}
+
+	pmcf->state->php_init = 0;
+	pmcf->state->php_shutdown = 0;
+
 	pmcf->ini_path.len = 0;
+	pmcf->init_code = NGX_CONF_UNSET_PTR;
+	pmcf->init_inline_code = NGX_CONF_UNSET_PTR;
 
 	return pmcf;
 }
@@ -166,17 +184,17 @@ ngx_http_php_init_main_conf(ngx_conf_t *cf, void *conf)
 static void *
 ngx_http_php_create_loc_conf(ngx_conf_t *cf)
 {
-	ngx_http_php_loc_conf_t *conf;
+	ngx_http_php_loc_conf_t *plcf;
 
-	conf = ngx_pcalloc(cf->pool, sizeof(ngx_http_php_loc_conf_t));
-	if (conf == NULL){
+	plcf = ngx_pcalloc(cf->pool, sizeof(ngx_http_php_loc_conf_t));
+	if (plcf == NULL){
 		return NGX_CONF_ERROR;
 	}
 
-	conf->content_code = NGX_CONF_UNSET_PTR;
-	conf->content_inline_code = NGX_CONF_UNSET_PTR;
+	plcf->content_code = NGX_CONF_UNSET_PTR;
+	plcf->content_inline_code = NGX_CONF_UNSET_PTR;
 
-	return conf;
+	return plcf;
 }
 
 static char *
