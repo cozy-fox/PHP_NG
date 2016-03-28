@@ -126,13 +126,13 @@ ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_http_php_main_con
 		phase = phases[i];
 		switch (phase){
 			case NGX_HTTP_CONTENT_PHASE:
-				//if (pmcf->enabled_content_handler){
+				if (pmcf->enabled_content_handler){
 					h = ngx_array_push(&cmcf->phases[phase].handlers);
 					if (h == NULL){
 						return NGX_ERROR;
 					}
 					*h = ngx_http_php_content_handler;
-				//}
+				}
 				break;
 			default:
 				break;

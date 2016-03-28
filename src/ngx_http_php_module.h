@@ -24,7 +24,7 @@ typedef struct {
 
 	ngx_str_t ini_path;
 
-	ngx_int_t enabled_content_handler;
+	ngx_int_t enabled_content_handler:1;
 } ngx_http_php_main_conf_t;
 
 typedef struct {

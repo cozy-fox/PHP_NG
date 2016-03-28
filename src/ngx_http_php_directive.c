@@ -55,6 +55,7 @@ ngx_http_php_content_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 
 	plcf->content_code = code;
 	plcf->content_handler = cmd->post;
+	pmcf->enabled_content_handler = 1;
 
 	return NGX_CONF_OK;
 }
@@ -87,7 +88,7 @@ ngx_http_php_content_inline_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf
 
 	plcf->content_inline_code = code;
 	plcf->content_handler = cmd->post;
-	//pmcf->enabled_content_handler = 1;
+	pmcf->enabled_content_handler = 1;
 
 	return NGX_CONF_OK;
 }
