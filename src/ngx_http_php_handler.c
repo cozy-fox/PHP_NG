@@ -40,6 +40,9 @@ ngx_http_php_content_file_handler(ngx_http_request_t *r)
 		if (pmcf->init_inline_code != NGX_CONF_UNSET_PTR){
 			ngx_php_ngx_run(r, pmcf->state, pmcf->init_inline_code);
 		}
+		if (pmcf->init_code != NGX_CONF_UNSET_PTR){
+			ngx_php_ngx_run(r, pmcf->state, pmcf->init_code);
+		}
 		// location content
 		ngx_php_ngx_run(r, pmcf->state, plcf->content_code);
 	NGX_HTTP_PHP_NGX_SHUTDOWN;
@@ -101,6 +104,9 @@ ngx_http_php_content_inline_handler(ngx_http_request_t *r)
 		// main init
 		if (pmcf->init_inline_code != NGX_CONF_UNSET_PTR){
 			ngx_php_ngx_run(r, pmcf->state, pmcf->init_inline_code);
+		}
+		if (pmcf->init_code != NGX_CONF_UNSET_PTR){
+			ngx_php_ngx_run(r, pmcf->state, pmcf->init_code);
 		}
 		// location content
 		ngx_php_ngx_run(r, pmcf->state, plcf->content_inline_code);
