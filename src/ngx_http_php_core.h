@@ -14,8 +14,8 @@
 extern ngx_http_request_t *ngx_php_request;
 
 typedef struct ngx_http_php_state_t {
-	ngx_int_t php_init;
-	ngx_int_t php_shutdown;
+	unsigned php_init;
+	unsigned php_shutdown;
 } ngx_http_php_state_t;
 
 typedef enum code_type_t {

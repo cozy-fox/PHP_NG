@@ -26,17 +26,20 @@ typedef struct {
 	ngx_http_php_code_t *init_code;
 	ngx_http_php_code_t *init_inline_code;
 
-	ngx_int_t enabled_content_handler:1;
+	unsigned enabled_rewrite_handler:1;
+	unsigned enabled_content_handler:1;
 
 	ngx_http_php_state_t *state;
 
 } ngx_http_php_main_conf_t;
 
 typedef struct {
-
+	ngx_http_php_code_t *rewrite_code;
+	ngx_http_php_code_t *rewrite_inline_code;
 	ngx_http_php_code_t *content_code;
 	ngx_http_php_code_t *content_inline_code;
 
+	ngx_int_t (*rewrite_handler)(ngx_http_request_t *r);
 	ngx_int_t (*content_handler)(ngx_http_request_t *r);
 } ngx_http_php_loc_conf_t;
 
