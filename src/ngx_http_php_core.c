@@ -290,6 +290,50 @@ ngx_http_php_code_read_cookies(TSRMLS_D)
 	return (char *)context->cookie_data;
 }
 
+int 
+ngx_http_php_code_header_handler(sapi_header_struct *sapi_header, 
+	sapi_header_op_enum op, sapi_headers_struct *sapi_headers TSRMLS_DC)
+{
+	ngx_http_request_t *r;
+	ngx_table_elt_t *h;
+	char *tmp;
+
+	if ((tmp = ngx_strstr(sapi_header->header, ": ")) == NULL){
+		return NGX_ERROR;
+	}
+
+	r = ngx_php_request;
+	h = ngx_list_push(&r->headers_out.headers);
+
+	if (h == NULL){
+		return NGX_ERROR;
+	}
+
+	h->hash = 1;
+	h->key.len = tmp - sapi_header->header;
+	h->key.data = ngx_pcalloc(r->pool, h->key.len);
+	ngx_cpystrn((u_char *)h->key.data, (u_char *) sapi_header->header, h->key.len + 1);
+
+	h->value.len = sapi_header->header_len - h->key.len - 2;
+	h->value.data = ngx_pcalloc(r->pool, h->value.len);
+	ngx_cpystrn((u_char *) h->value.data, (u_char *)(tmp + 2), h->value.len + 1);
+
+	if (ngx_strncmp(h->key.data, "Location", sizeof("Location") - 1) == 0){
+		r->headers_out.status = NGX_HTTP_MOVED_TEMPORARILY;
+	}
+
+	return 0;
+}
+
+void 
+ngx_php_error(int type, const char *format, ...)
+{
+	ngx_http_request_t *r;
+	r = ngx_php_request;
+
+	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_php_error: %s", format);
+}
+
 ngx_int_t 
 ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
 {

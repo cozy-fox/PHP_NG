@@ -28,8 +28,9 @@ static void php_ngx_flush(void *server_context)
 {
 }
 
-static void php_ngx_send_header(sapi_header_struct *sapi_header, void *server_context TSRMLS_DC)
+static int php_ngx_header_handler(sapi_header_struct *sapi_header, sapi_header_op_enum op, sapi_headers_struct *sapi_headers TSRMLS_DC)
 {
+	return 0;
 }
 
 static int php_ngx_read_post(char *buffer, uint count_bytes TSRMLS_DC)
@@ -81,9 +82,9 @@ sapi_module_struct php_ngx_module = {
 
 	php_error,						/* error handler */
 
-	NULL,							/* header handler */
+	php_ngx_header_handler,			/* header handler */
 	NULL,							/* send headers handler */
-	php_ngx_send_header,			/* send header handler */
+	NULL,							/* send header handler */
 
 	php_ngx_read_post,				/* read POST data */
 	php_ngx_read_cookies,			/* read Cookies */

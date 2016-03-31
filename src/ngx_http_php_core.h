@@ -67,5 +67,7 @@ void ngx_http_php_code_log_message(char *message);
 void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_DC);
 int ngx_http_php_code_read_post(char *buffer, uint count_bytes TSRMLS_DC);
 char *ngx_http_php_code_read_cookies(TSRMLS_D);
+int ngx_http_php_code_header_handler(sapi_header_struct *sapi_header, sapi_header_op_enum op, sapi_headers_struct *sapi_headers TSRMLS_DC);
+void ngx_php_error(int type, const char *format, ...);
 
 #endif

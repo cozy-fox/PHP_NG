@@ -67,7 +67,9 @@ ngx_int_t ngx_http_php_rewrite_file_handler(ngx_http_request_t *r)
 
 	r->headers_out.content_type.len = sizeof("text/html") - 1;
 	r->headers_out.content_type.data = (u_char *)"text/html";
-	r->headers_out.status = NGX_HTTP_OK;
+	if (!r->headers_out.status){
+		r->headers_out.status = NGX_HTTP_OK;
+	}
 
 	if (r->method == NGX_HTTP_HEAD){
 		rc = ngx_http_send_header(r);
@@ -140,7 +142,9 @@ ngx_http_php_rewrite_inline_handler(ngx_http_request_t *r)
 
 	r->headers_out.content_type.len = sizeof("text/html") - 1;
 	r->headers_out.content_type.data = (u_char *)"text/html";
-	r->headers_out.status = NGX_HTTP_OK;
+	if (!r->headers_out.status){
+		r->headers_out.status = NGX_HTTP_OK;
+	}
 
 	if (r->method == NGX_HTTP_HEAD){
 		rc = ngx_http_send_header(r);
@@ -228,7 +232,9 @@ ngx_http_php_access_file_handler(ngx_http_request_t *r)
 
 	r->headers_out.content_type.len = sizeof("text/html") - 1;
 	r->headers_out.content_type.data = (u_char *)"text/html";
-	r->headers_out.status = NGX_HTTP_OK;
+	if (!r->headers_out.status){
+		r->headers_out.status = NGX_HTTP_OK;
+	}
 
 	if (r->method == NGX_HTTP_HEAD){
 		rc = ngx_http_send_header(r);
@@ -305,7 +311,9 @@ ngx_http_php_access_inline_handler(ngx_http_request_t *r)
 
 	r->headers_out.content_type.len = sizeof("text/html") - 1;
 	r->headers_out.content_type.data = (u_char *)"text/html";
-	r->headers_out.status = NGX_HTTP_OK;
+	if (!r->headers_out.status){
+		r->headers_out.status = NGX_HTTP_OK;
+	}
 
 	if (r->method == NGX_HTTP_HEAD){
 		rc = ngx_http_send_header(r);
@@ -396,7 +404,9 @@ ngx_http_php_content_file_handler(ngx_http_request_t *r)
 
 	r->headers_out.content_type.len = sizeof("text/html") - 1;
 	r->headers_out.content_type.data = (u_char *)"text/html";
-	r->headers_out.status = NGX_HTTP_OK;
+	if (!r->headers_out.status){
+		r->headers_out.status = NGX_HTTP_OK;
+	}
 
 	if (r->method == NGX_HTTP_HEAD){
 		rc = ngx_http_send_header(r);
@@ -478,7 +488,9 @@ ngx_http_php_content_inline_handler(ngx_http_request_t *r)
 
 	r->headers_out.content_type.len = sizeof("text/html") - 1;
 	r->headers_out.content_type.data = (u_char *)"text/html";
-	r->headers_out.status = NGX_HTTP_OK;
+	if (!r->headers_out.status){
+		r->headers_out.status = NGX_HTTP_OK;
+	}
 
 	if (r->method == NGX_HTTP_HEAD){
 		rc = ngx_http_send_header(r);
