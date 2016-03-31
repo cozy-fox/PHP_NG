@@ -74,6 +74,24 @@ static ngx_command_t ngx_http_php_commands[] = {
 	 ngx_http_php_rewrite_inline_handler
 	},
 
+	{ngx_string("php_access_handler"),
+	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+	 	|NGX_CONF_TAKE1,
+	 ngx_http_php_access_phase,
+	 NGX_HTTP_LOC_CONF_OFFSET,
+	 0,
+	 ngx_http_php_access_file_handler
+	},
+
+	{ngx_string("php_access_handler_code"),
+	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+	 	|NGX_CONF_TAKE1,
+	 ngx_http_php_access_inline_phase,
+	 NGX_HTTP_LOC_CONF_OFFSET,
+	 0,
+	 ngx_http_php_access_inline_handler
+	},
+
 	{ngx_string("php_content_handler"),
 	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
 	 	|NGX_CONF_TAKE1,
@@ -152,6 +170,7 @@ ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_http_php_main_con
 	ngx_http_phases phase;
 	ngx_http_phases phases[] = {
 		NGX_HTTP_REWRITE_PHASE,
+		NGX_HTTP_ACCESS_PHASE,
 		NGX_HTTP_CONTENT_PHASE,
 	};
 	ngx_int_t phases_c;
@@ -169,6 +188,14 @@ ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_http_php_main_con
 					*h = ngx_http_php_rewrite_handler;
 				}
 				break;
+			case NGX_HTTP_ACCESS_PHASE:
+				if (pmcf->enabled_access_handler){
+					h = ngx_array_push(&cmcf->phases[phase].handlers);
+					if (h == NULL){
+						return NGX_ERROR;
+					}
+					*h = ngx_http_php_access_handler;
+				}
 			case NGX_HTTP_CONTENT_PHASE:
 				if (pmcf->enabled_content_handler){
 					h = ngx_array_push(&cmcf->phases[phase].handlers);
@@ -230,6 +257,9 @@ ngx_http_php_create_loc_conf(ngx_conf_t *cf)
 	plcf->rewrite_code = NGX_CONF_UNSET_PTR;
 	plcf->rewrite_inline_code = NGX_CONF_UNSET_PTR;
 
+	plcf->access_code = NGX_CONF_UNSET_PTR;
+	plcf->access_inline_code = NGX_CONF_UNSET_PTR;
+
 	plcf->content_code = NGX_CONF_UNSET_PTR;
 	plcf->content_inline_code = NGX_CONF_UNSET_PTR;
 
@@ -244,6 +274,9 @@ ngx_http_php_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 
 	prev->rewrite_code = conf->rewrite_code;
 	prev->rewrite_inline_code = conf->rewrite_inline_code;
+
+	prev->access_code = conf->access_code;
+	prev->access_inline_code = conf->access_inline_code;
 
 	prev->content_code = conf->content_code;
 	prev->content_inline_code = conf->content_inline_code;
