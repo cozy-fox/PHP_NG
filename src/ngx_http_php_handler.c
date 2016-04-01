@@ -20,7 +20,8 @@ ngx_http_php_rewrite_handler(ngx_http_request_t *r)
 	return plcf->rewrite_handler(r);
 }
 
-ngx_int_t ngx_http_php_rewrite_file_handler(ngx_http_request_t *r)
+ngx_int_t 
+ngx_http_php_rewrite_file_handler(ngx_http_request_t *r)
 {
 	ngx_http_php_main_conf_t *pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
 	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
