@@ -196,6 +196,7 @@ ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_http_php_main_con
 					}
 					*h = ngx_http_php_access_handler;
 				}
+				break;
 			case NGX_HTTP_CONTENT_PHASE:
 				if (pmcf->enabled_content_handler){
 					h = ngx_array_push(&cmcf->phases[phase].handlers);
