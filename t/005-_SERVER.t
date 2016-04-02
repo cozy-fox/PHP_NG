@@ -11,10 +11,23 @@ _SERVER['REQUEST_METHOD']
 --- config
 location = /_server {
     php_content_handler_code '
-		echo $_SERVER["REQUEST_METHOD"];
+		echo $_SERVER["REQUEST_METHOD"]."\n";
 	';
 }
 --- request
 GET /_server
 --- response_body
 GET
+
+=== TEST 2: _SERVER['DOCUMENT_URI']
+_SERVER['DOCUMENT_URI']
+--- config
+location = /_server {
+    php_content_handler_code '
+		echo $_SERVER["DOCUMENT_URI"]."\n";
+	';
+}
+--- request
+GET /_server
+--- response_body
+/_server
