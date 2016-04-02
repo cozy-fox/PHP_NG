@@ -220,44 +220,12 @@ ngx_http_php_access_file_handler(ngx_http_request_t *r)
 		// location access
 		ngx_php_ngx_run(r, pmcf->state, plcf->access_code);
 	NGX_HTTP_PHP_NGX_SHUTDOWN;
-
-	ngx_int_t rc;
-
-	ngx_http_php_rputs_chain_list_t *chain;
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-	chain = ctx->rputs_chain;
-	if (chain == NULL){
-		return NGX_ERROR;
-	}
-
-	r->headers_out.content_type.len = sizeof("text/html") - 1;
-	r->headers_out.content_type.data = (u_char *)"text/html";
-	if (!r->headers_out.status){
-		r->headers_out.status = NGX_HTTP_OK;
-	}
-
-	if (r->method == NGX_HTTP_HEAD){
-		rc = ngx_http_send_header(r);
-		if (rc != NGX_OK){
-			return rc;
-		}
-	}
-
-	if (chain != NULL){
-		(*chain->last)->buf->last_buf = 1;
-	}
-
-	rc = ngx_http_send_header(r);
-	if (rc != NGX_OK){
-		return rc;
-	}
-
-	ngx_http_output_filter(r, chain->out);
 
 	ngx_http_set_ctx(r, NULL, ngx_http_php_module);
 
-	return NGX_OK;
+	return NGX_HTTP_FORBIDDEN;
 }
 
 ngx_int_t 
@@ -299,44 +267,12 @@ ngx_http_php_access_inline_handler(ngx_http_request_t *r)
 		// location access
 		ngx_php_ngx_run(r, pmcf->state, plcf->access_inline_code);
 	NGX_HTTP_PHP_NGX_SHUTDOWN;
-
-	ngx_int_t rc;
-
-	ngx_http_php_rputs_chain_list_t *chain;
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-	chain = ctx->rputs_chain;
-	if (chain == NULL){
-		return NGX_ERROR;
-	}
-
-	r->headers_out.content_type.len = sizeof("text/html") - 1;
-	r->headers_out.content_type.data = (u_char *)"text/html";
-	if (!r->headers_out.status){
-		r->headers_out.status = NGX_HTTP_OK;
-	}
-
-	if (r->method == NGX_HTTP_HEAD){
-		rc = ngx_http_send_header(r);
-		if (rc != NGX_OK){
-			return rc;
-		}
-	}
-
-	if (chain != NULL){
-		(*chain->last)->buf->last_buf = 1;
-	}
-
-	rc = ngx_http_send_header(r);
-	if (rc != NGX_OK){
-		return rc;
-	}
-
-	ngx_http_output_filter(r, chain->out);
-
+	
 	ngx_http_set_ctx(r, NULL, ngx_http_php_module);
 
-	return NGX_OK;
+	return NGX_HTTP_FORBIDDEN;
 }
 
 ngx_int_t
