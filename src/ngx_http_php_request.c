@@ -18,14 +18,14 @@ ngx_http_php_request_read_body(ngx_http_request_t *r)
 	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (r->method != NGX_HTTP_POST && r->method != NGX_HTTP_PUT){
-		php_error(E_WARNING, "can't read body");
+		//php_error(E_WARNING, "can't read body");
 		return 0;
 	}
 
 	rc = ngx_http_read_client_request_body(r, ngx_http_php_request_read_body_cb);
 
 	if (rc == NGX_ERROR || rc >= NGX_HTTP_SPECIAL_RESPONSE){
-		php_error(E_WARNING, "ngx_http_read_client_request_body failed");
+		//php_error(E_WARNING, "ngx_http_read_client_request_body failed");
 		return 0;
 	}
 

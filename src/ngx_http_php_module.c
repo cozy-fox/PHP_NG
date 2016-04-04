@@ -299,13 +299,15 @@ ngx_http_php_init_worker(ngx_cycle_t *cycle)
 	php_ngx_module.read_post = ngx_http_php_code_read_post;
 	php_ngx_module.read_cookies = ngx_http_php_code_read_cookies;
 	php_ngx_module.header_handler = ngx_http_php_code_header_handler;
-	php_ngx_module.sapi_error = ngx_php_error;
 
 	if (pmcf->ini_path.len != 0){
 		php_ngx_module.php_ini_path_override = (char *)pmcf->ini_path.data;
 	}
 	
 	php_ngx_module_init(TSRMLS_C);
+
+	old_zend_error_cb = zend_error_cb;
+	zend_error_cb = ngx_php_error_cb;
 
 	return NGX_OK;
 }

@@ -62,6 +62,99 @@ ngx_http_php_code_from_string(ngx_pool_t *pool, ngx_str_t *code_str)
 	return code;
 }
 
+void 
+ngx_php_error_cb(int type, 
+	const char *error_filename, const uint error_lineno, const char *format, va_list args)
+{
+	TSRMLS_FETCH();
+	char *buffer;
+	int buffer_len;
+
+	buffer_len = vspprintf(&buffer, PG(log_errors_max_len), format, args);
+	char *error_type_str;
+
+		switch (type) {
+			case E_ERROR:
+			case E_CORE_ERROR:
+			case E_COMPILE_ERROR:
+			case E_USER_ERROR:
+				error_type_str = "Fatal error";
+				break;
+			case E_RECOVERABLE_ERROR:
+				error_type_str = "Catchable fatal error";
+				break;
+			case E_WARNING:
+			case E_CORE_WARNING:
+			case E_COMPILE_WARNING:
+			case E_USER_WARNING:
+				error_type_str = "Warning";
+				break;
+			case E_PARSE:
+				error_type_str = "Parse error";
+				break;
+			case E_NOTICE:
+			case E_USER_NOTICE:
+				error_type_str = "Notice";
+				break;
+			case E_STRICT:
+				error_type_str = "Strict Standards";
+				break;
+			case E_DEPRECATED:
+			case E_USER_DEPRECATED:
+				error_type_str = "Deprecated";
+				break;
+			default:
+				error_type_str = "Unknown error";
+				break;
+		}
+	buffer_len = spprintf(&buffer, 0, "{! %s: %s in %s on line %d !}\n", error_type_str, buffer, error_filename, error_lineno);
+
+	ngx_buf_t *b;
+	ngx_http_php_rputs_chain_list_t *chain;
+	ngx_http_php_ctx_t *ctx;
+	ngx_http_request_t *r;
+	u_char *u_str;
+	ngx_str_t ns;
+
+	r = ngx_php_request;
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+	ns.data = (u_char *)buffer;
+	ns.len = buffer_len;
+
+	if (ctx->rputs_chain == NULL){
+		chain = ngx_pcalloc(r->pool, sizeof(ngx_http_php_rputs_chain_list_t));
+		chain->out = ngx_alloc_chain_link(r->pool);
+		chain->last = &chain->out;
+	}else {
+		chain = ctx->rputs_chain;
+		(*chain->last)->next = ngx_alloc_chain_link(r->pool);
+		chain->last = &(*chain->last)->next;
+	}
+
+	b = ngx_calloc_buf(r->pool);
+	(*chain->last)->buf = b;
+	(*chain->last)->next = NULL;
+
+	u_str = ngx_pstrdup(r->pool, &ns);
+	u_str[ns.len] = '\0';
+	(*chain->last)->buf->pos = u_str;
+	(*chain->last)->buf->last = u_str + ns.len;
+	(*chain->last)->buf->memory = 1;
+	ctx->rputs_chain = chain;
+	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+	if (r->headers_out.content_length_n == -1){
+		r->headers_out.content_length_n += ns.len + 1;
+	}else {
+		r->headers_out.content_length_n += ns.len;
+	}
+
+	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_php_error: %s %s", error_filename, buffer);
+
+	efree(buffer);
+	zend_bailout();
+}
 
 int ngx_http_php_code_ub_write(const char *str, unsigned int str_length TSRMLS_DC)
 {
@@ -325,15 +418,6 @@ ngx_http_php_code_header_handler(sapi_header_struct *sapi_header,
 	return 0;
 }
 
-void 
-ngx_php_error(int type, const char *format, ...)
-{
-	ngx_http_request_t *r;
-	r = ngx_php_request;
-
-	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_php_error: %s", format);
-}
-
 ngx_int_t 
 ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
 {
@@ -354,7 +438,7 @@ ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_state_t *state, ngx_http_php
 
 	if (code->code_type == NGX_HTTP_PHP_CODE_TYPE_STRING){
 
-		zend_eval_string_ex(code->code.string, NULL, "php_ngx run code", 1 TSRMLS_CC);
+		zend_eval_string_ex(code->code.string, NULL, "ngxphp run code", 1 TSRMLS_CC);
 
 	}else if (code->code_type == NGX_HTTP_PHP_CODE_TYPE_FILE){
 
@@ -372,7 +456,6 @@ ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_state_t *state, ngx_http_php
 
 	}else {
 	}
-
 
 	return 0;
 }
