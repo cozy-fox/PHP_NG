@@ -1,6 +1,6 @@
 ngxphp
 ======
-ngxphp -  Embedded php script for nginx-module
+Embedded php script language for nginx-module
 
 Install
 -------
@@ -45,7 +45,7 @@ prove -r t
 
 Copyright and License
 ---------------------
-Copyright (c) 2016, rryqszq4
+Copyright (c) 2016, rryqszq4 <phpngx@gmail.com>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
