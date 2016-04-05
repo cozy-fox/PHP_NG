@@ -1,8 +1,6 @@
-ngxphp
+ngx_php
 ======
 Embedded php script language for nginx-module.
-
-Other names: ngx_php or php-nginx-module.
 
 Install
 -------
