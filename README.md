@@ -5,8 +5,8 @@ Embedded php script language for nginx-module.
 Install
 -------
 ```sh
-git clone https://github.com/rryqszq4/ngxphp.git
-cd ngxphp
+git clone https://github.com/rryqszq4/ngx_php.git
+cd ngx_php
 
 wget 'http://nginx.org/download/nginx-1.6.3.tar.gz'
 tar -zxvf nginx-1.6.3.tar.gz
@@ -18,7 +18,7 @@ export PHP_LIB=/path/to/php/lib
 
 ./configure --user=www --group=www \
 			--prefix=/path/to/nginx \
-			--add-module=/path/to/ngxphp
+			--add-module=/path/to/ngx_php
 ```
 
 Synopsis
@@ -27,7 +27,7 @@ Synopsis
 server {
 	location /php {
 		php_content_handler_code "
-			echo 'hello ngxphp';
+			echo 'hello ngx_php';
 		";
 	}
 }
@@ -35,11 +35,11 @@ server {
 
 Test
 ----
-Using the perl of [Test::Nginx](https://github.com/openresty/test-nginx) module to testing, searching and finding out problem in ngxphp. 
+Using the perl of [Test::Nginx](https://github.com/openresty/test-nginx) module to testing, searching and finding out problem in ngx_php. 
 
 ```sh
-cd /path/to/ngxphp
-export PATH=/path/to/ngxphp:$PATH
+cd /path/to/ngx_php
+export PATH=/path/to/ngx_php:$PATH
 prove -r t
 ```
 

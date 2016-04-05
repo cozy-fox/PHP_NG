@@ -507,7 +507,7 @@ ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
 	php_embed_module.flush = ngx_http_php_code_flush;
 	php_embed_module.php_ini_path_override = "/usr/local/php/etc/php.ini";
 	PHP_EMBED_START_BLOCK(0, NULL);
-		zend_eval_string_ex(code->code.string, NULL, "php_ngx run code", 1 TSRMLS_CC);
+		zend_eval_string_ex(code->code.string, NULL, "ngx_php run code", 1 TSRMLS_CC);
 	PHP_EMBED_END_BLOCK();
 
 	return 0;
@@ -519,7 +519,7 @@ ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_state_t *state, ngx_http_php
 
 	if (code->code_type == NGX_HTTP_PHP_CODE_TYPE_STRING){
 
-		zend_eval_string_ex(code->code.string, NULL, "ngxphp run code", 1 TSRMLS_CC);
+		zend_eval_string_ex(code->code.string, NULL, "ngx_php run code", 1 TSRMLS_CC);
 
 	}else if (code->code_type == NGX_HTTP_PHP_CODE_TYPE_FILE){
 
