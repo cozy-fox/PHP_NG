@@ -68,10 +68,81 @@ ngx_php_error_cb(int type,
 {
 	TSRMLS_FETCH();
 	char *buffer;
-	int buffer_len;
+	int buffer_len, display;
 
 	buffer_len = vspprintf(&buffer, PG(log_errors_max_len), format, args);
-	char *error_type_str;
+	
+	/* check for repeated errors to be ignored */
+	if (PG(ignore_repeated_errors) && PG(last_error_message)) {
+		/* no check for PG(last_error_file) is needed since it cannot
+		 * be NULL if PG(last_error_message) is not NULL */
+		if (strcmp(PG(last_error_message), buffer)
+			|| (!PG(ignore_repeated_source)
+				&& ((PG(last_error_lineno) != (int)error_lineno)
+					|| strcmp(PG(last_error_file), error_filename)))) {
+			display = 1;
+		} else {
+			display = 0;
+		}
+	} else {
+		display = 1;
+	}
+
+	/* store the error if it has changed */
+	if (display) {
+		if (PG(last_error_message)) {
+			free(PG(last_error_message));
+			PG(last_error_message) = NULL;
+		}
+		if (PG(last_error_file)) {
+			free(PG(last_error_file));
+			PG(last_error_file) = NULL;
+		}
+		if (!error_filename) {
+			error_filename = "Unknown";
+		}
+		PG(last_error_type) = type;
+		PG(last_error_message) = strdup(buffer);
+		PG(last_error_file) = strdup(error_filename);
+		PG(last_error_lineno) = error_lineno;
+	}
+
+	/* according to error handling mode, suppress error, throw exception or show it */
+	if (EG(error_handling) != EH_NORMAL) {
+		switch (type) {
+			case E_ERROR:
+			case E_CORE_ERROR:
+			case E_COMPILE_ERROR:
+			case E_USER_ERROR:
+			case E_PARSE:
+				/* fatal errors are real errors and cannot be made exceptions */
+				break;
+			case E_STRICT:
+			case E_DEPRECATED:
+			case E_USER_DEPRECATED:
+				/* for the sake of BC to old damaged code */
+				break;
+			case E_NOTICE:
+			case E_USER_NOTICE:
+				/* notices are no errors and are not treated as such like E_WARNINGS */
+				break;
+			default:
+				/* throw an exception if we are in EH_THROW mode
+				 * but DO NOT overwrite a pending exception
+				 */
+				if (EG(error_handling) == EH_THROW && !EG(exception)) {
+					zend_throw_error_exception(EG(exception_class), buffer, 0, type TSRMLS_CC);
+				}
+				efree(buffer);
+				return;
+		}
+	}
+
+	/* display/log the error if necessary */
+	if (display && (EG(error_reporting) & type || (type & E_CORE))
+		&& (PG(log_errors) || PG(display_errors) ) ) {
+
+		char *error_type_str;
 
 		switch (type) {
 			case E_ERROR:
@@ -107,53 +178,63 @@ ngx_php_error_cb(int type,
 				error_type_str = "Unknown error";
 				break;
 		}
-	buffer_len = spprintf(&buffer, 0, "{! %s: %s in %s on line %d !}\n", error_type_str, buffer, error_filename, error_lineno);
+		buffer_len = spprintf(&buffer, 0, "{! %s: %s in %s on line %d !}\n", error_type_str, buffer, error_filename, error_lineno);
 
-	ngx_buf_t *b;
-	ngx_http_php_rputs_chain_list_t *chain;
-	ngx_http_php_ctx_t *ctx;
-	ngx_http_request_t *r;
-	u_char *u_str;
-	ngx_str_t ns;
+		ngx_buf_t *b;
+		ngx_http_php_rputs_chain_list_t *chain;
+		ngx_http_php_ctx_t *ctx;
+		ngx_http_request_t *r;
+		u_char *u_str;
+		ngx_str_t ns;
 
-	r = ngx_php_request;
-	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+		r = ngx_php_request;
+		ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
-	ns.data = (u_char *)buffer;
-	ns.len = buffer_len;
+		ns.data = (u_char *)buffer;
+		ns.len = buffer_len;
 
-	if (ctx->rputs_chain == NULL){
-		chain = ngx_pcalloc(r->pool, sizeof(ngx_http_php_rputs_chain_list_t));
-		chain->out = ngx_alloc_chain_link(r->pool);
-		chain->last = &chain->out;
-	}else {
-		chain = ctx->rputs_chain;
-		(*chain->last)->next = ngx_alloc_chain_link(r->pool);
-		chain->last = &(*chain->last)->next;
+		if (ctx->rputs_chain == NULL){
+			chain = ngx_pcalloc(r->pool, sizeof(ngx_http_php_rputs_chain_list_t));
+			chain->out = ngx_alloc_chain_link(r->pool);
+			chain->last = &chain->out;
+		}else {
+			chain = ctx->rputs_chain;
+			(*chain->last)->next = ngx_alloc_chain_link(r->pool);
+			chain->last = &(*chain->last)->next;
+		}
+
+		b = ngx_calloc_buf(r->pool);
+		(*chain->last)->buf = b;
+		(*chain->last)->next = NULL;
+
+		u_str = ngx_pstrdup(r->pool, &ns);
+		u_str[ns.len] = '\0';
+		(*chain->last)->buf->pos = u_str;
+		(*chain->last)->buf->last = u_str + ns.len;
+		(*chain->last)->buf->memory = 1;
+		ctx->rputs_chain = chain;
+		ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+		if (r->headers_out.content_length_n == -1){
+			r->headers_out.content_length_n += ns.len + 1;
+		}else {
+			r->headers_out.content_length_n += ns.len;
+		}
+
+		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_php_error: %s %s", error_filename, buffer);
+
+		efree(buffer);
+		zend_bailout();
+		return ;
 	}
 
-	b = ngx_calloc_buf(r->pool);
-	(*chain->last)->buf = b;
-	(*chain->last)->next = NULL;
-
-	u_str = ngx_pstrdup(r->pool, &ns);
-	u_str[ns.len] = '\0';
-	(*chain->last)->buf->pos = u_str;
-	(*chain->last)->buf->last = u_str + ns.len;
-	(*chain->last)->buf->memory = 1;
-	ctx->rputs_chain = chain;
-	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
-
-	if (r->headers_out.content_length_n == -1){
-		r->headers_out.content_length_n += ns.len + 1;
-	}else {
-		r->headers_out.content_length_n += ns.len;
+	/* Log if necessary */
+	if (!display) {
+		efree(buffer);
+		return;
 	}
-
-	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_php_error: %s %s", error_filename, buffer);
 
 	efree(buffer);
-	zend_bailout();
 }
 
 int ngx_http_php_code_ub_write(const char *str, unsigned int str_length TSRMLS_DC)

@@ -13,6 +13,7 @@
 #include <php_variables.h>
 #include <php_ini.h>
 #include <zend_ini.h>
+#include <zend_exceptions.h>
 #include <ext/standard/php_standard.h>
 
 
