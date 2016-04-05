@@ -1,6 +1,8 @@
 ngxphp
 ======
-Embedded php script language for nginx-module
+Embedded php script language for nginx-module.
+
+Other names: ngx_php or php-nginx-module.
 
 Install
 -------
@@ -17,7 +19,7 @@ export PHP_INC=/path/to/php/include/php
 export PHP_LIB=/path/to/php/lib
 
 ./configure --user=www --group=www \
-			--prefix=/usr/local/nginx_php_dev \
+			--prefix=/path/to/nginx \
 			--add-module=/path/to/ngxphp
 ```
 
