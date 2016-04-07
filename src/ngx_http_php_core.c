@@ -445,14 +445,16 @@ ngx_http_php_code_read_post(char *buffer, uint count_bytes TSRMLS_DC)
 	while ((int)ctx->request_body_ctx.len < content_length_n){
 		/* waiting event */
 	}
-	
+	//ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "buffer : %d %d %d", count_bytes, content_length_n, SG(read_post_bytes));
+
 	count_bytes = MIN(count_bytes, (uint)content_length_n - SG(read_post_bytes));
+
 	while (read_bytes < count_bytes){
-		strncpy(buffer, (char *)ctx->request_body_ctx.data, count_bytes - read_bytes + 1);
+		ngx_memcpy(buffer+read_bytes, (char *)ctx->request_body_ctx.data + SG(read_post_bytes), count_bytes - read_bytes);
 		tmp_read_bytes = count_bytes - read_bytes;
 		read_bytes += tmp_read_bytes;
 	}
-
+	
 	return read_bytes;
 }
 

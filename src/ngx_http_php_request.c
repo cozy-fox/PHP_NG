@@ -7,11 +7,9 @@
 #include "ngx_http_php_request.h"
 #include "ngx_http_php_core.h"
 #include "ngx_http_php_module.h"
+#include "ngx_http_php_handler.h"
 
-static int ngx_http_php_request_read_body(ngx_http_request_t *r);
-static void ngx_http_php_request_read_body_cb(ngx_http_request_t *r);
-
-static int 
+int 
 ngx_http_php_request_read_body(ngx_http_request_t *r)
 {
 	ngx_int_t rc;
@@ -19,24 +17,27 @@ ngx_http_php_request_read_body(ngx_http_request_t *r)
 
 	if (r->method != NGX_HTTP_POST && r->method != NGX_HTTP_PUT){
 		//php_error(E_WARNING, "can't read body");
-		return 0;
+		return NGX_OK;
 	}
 
+	r->request_body_in_single_buf = 1;
 	rc = ngx_http_read_client_request_body(r, ngx_http_php_request_read_body_cb);
 
 	if (rc == NGX_ERROR || rc >= NGX_HTTP_SPECIAL_RESPONSE){
 		//php_error(E_WARNING, "ngx_http_read_client_request_body failed");
-		return 0;
+		return rc;
 	}
 
 	if (rc == NGX_AGAIN){
 		ctx->request_body_more = 1;
+
+		return NGX_DONE;
 	}
 
 	return rc;
 }
 
-static void 
+void 
 ngx_http_php_request_read_body_cb(ngx_http_request_t *r)
 {
 	ngx_chain_t *cl;
@@ -52,6 +53,11 @@ ngx_http_php_request_read_body_cb(ngx_http_request_t *r)
 		return ;
 	}
 
+	if (r->request_body->temp_file){
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "temp_file: %s", r->request_body->temp_file->file.name.data);
+		ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
+	}
+
 	cl = r->request_body->bufs;
 
 	if (cl->next == NULL){
@@ -62,10 +68,10 @@ ngx_http_php_request_read_body_cb(ngx_http_request_t *r)
 
 		ctx->request_body_ctx.data = cl->buf->pos;
 		ctx->request_body_ctx.len = len;
-		ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "request_body(%d): %V", len, &ctx->request_body_ctx);
+		ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "request_body(%d|%d): %V", len, strlen((char *)ctx->request_body_ctx.data), &ctx->request_body_ctx);
 		if (ctx->request_body_more){
 			ctx->request_body_more = 0;
-			ngx_http_core_run_phases(r);
+			ngx_http_finalize_request(r, ngx_http_php_content_post_handler(r));
 		}else {
 			ngx_http_finalize_request(r, NGX_DONE);
 		}
@@ -87,18 +93,125 @@ ngx_http_php_request_read_body_cb(ngx_http_request_t *r)
 		p = ngx_copy(p, cl->buf->pos, cl->buf->last - cl->buf->pos);
 	}
 
-	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "This pahse don't have request_body");
 	ctx->request_body_ctx.data = buf;
 	ctx->request_body_ctx.len = len;
-	ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "multi request_body(%d): %V", len, &ctx->request_body_ctx);
+	ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "multi request_body(%d|%d): %V", len, strlen((char *)ctx->request_body_ctx.data), &ctx->request_body_ctx);
 	if (ctx->request_body_more){
 		ctx->request_body_more = 0;
-		ngx_http_core_run_phases(r);
+		ngx_http_finalize_request(r, ngx_http_php_content_post_handler(r));
 	}else {
 		ngx_http_finalize_request(r, NGX_DONE);
 	}
 
 	return ;
+
+	/*ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+	u_char *p;
+	u_char *data;
+	size_t len;
+	ngx_buf_t *buf, *next;
+	ngx_chain_t *cl;
+
+	if (r->request_body == NULL || r->request_body->bufs == NULL){
+		ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
+		return ;
+	}
+
+
+	if (r->request_body->temp_file){
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "temp_file: %s", r->request_body->temp_file->file.name.data);
+		//body = r->request_body->temp_file->file.name;
+		ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
+		return ;
+	}else {
+		cl = r->request_body->bufs;
+		buf = cl->buf;
+
+		if (cl->next == NULL){
+			len = buf->last - buf->pos;
+			p = ngx_pnalloc(r->pool, len + 1);
+			if (p == NULL){
+				ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
+				return ;
+			}
+			data = p;
+			ngx_memcpy(p, buf->pos, len);
+			data[len] = 0;
+		} else {
+			next = cl->next->buf;
+			len = (buf->last - buf->pos) + (next->last - next->pos);
+			p = ngx_pnalloc(r->pool, len + 1);
+			data = p;
+			if (p == NULL){
+				ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
+				return ;
+			}
+			p = ngx_cpymem(p, buf->pos, buf->last - buf->pos);
+			ngx_memcpy(p, next->pos, next->last - next->pos);
+			data[len] = 0;
+		}
+	}
+
+	ctx->request_body_ctx.data = data;
+	ctx->request_body_ctx.len = len;
+	ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "multi request_body(%d|%d): %s", len, strlen((char *)ctx->request_body_ctx.data), ctx->request_body_ctx.data);
+	if (ctx->request_body_more){
+		ctx->request_body_more = 0;
+		ngx_http_finalize_request(r, ngx_http_php_content_post_handler(r));
+	}else {
+		ngx_http_finalize_request(r, NGX_DONE);
+	}*/
+}
+
+ngx_str_t 
+ngx_http_php_request_get_request_body(ngx_http_request_t *r)
+{
+	u_char *p;
+	u_char *data;
+	size_t len;
+	ngx_buf_t *buf, *next;
+	ngx_chain_t *cl;
+	ngx_str_t body = ngx_null_string;
+
+	if (r->request_body == NULL || r->request_body->bufs == NULL){
+		return body;
+	}
+
+	if (r->request_body->temp_file){
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "temp_file: %s", r->request_body->temp_file->file.name.data);
+		body = r->request_body->temp_file->file.name;
+		return body;
+	}else {
+		cl = r->request_body->bufs;
+		buf = cl->buf;
+
+		if (cl->next == NULL){
+			len = buf->last - buf->pos;
+			p = ngx_pnalloc(r->pool, len + 1);
+			if (p == NULL){
+				return body;
+			}
+			data = p;
+			ngx_memcpy(p, buf->pos, len);
+			data[len] = 0;
+		} else {
+			next = cl->next->buf;
+			len = (buf->last - buf->pos) + (next->last - next->pos);
+			p = ngx_pnalloc(r->pool, len + 1);
+			data = p;
+			if (p == NULL){
+				return body;
+			}
+			p = ngx_cpymem(p, buf->pos, buf->last - buf->pos);
+			ngx_memcpy(p, next->pos, next->last - next->pos);
+			data[len] = 0;
+		}
+	}
+
+	body.len = len;
+	body.data = data;
+	return body;
 }
 
 void 
@@ -150,7 +263,7 @@ ngx_http_php_request_init(ngx_http_request_t *r TSRMLS_DC)
 
 	SG(server_context) = context;
 
-	ngx_http_php_request_read_body(r);
+	//ngx_http_php_request_read_body(r);
 }
 
 void 
