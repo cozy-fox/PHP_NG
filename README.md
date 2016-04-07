@@ -42,6 +42,20 @@ cd /path/to/ngx_php
 export PATH=/path/to/ngx_php:$PATH
 prove -r t
 ```
+Test result:
+
+```sh
+t/001-hello.t .... ok   
+t/002-ini.t ...... ok   
+t/003-_GET.t ..... ok   
+t/004-_POST.t .... ok   
+t/005-_SERVER.t .. ok   
+t/006-_COOKIE.t .. ok   
+t/008-error.t .... ok   
+All tests successful.
+Files=7, Tests=16,  2 wallclock secs ( 0.03 usr  0.01 sys +  0.80 cusr  0.24 csys =  1.08 CPU)
+Result: PASS
+```
 
 Copyright and License
 ---------------------
