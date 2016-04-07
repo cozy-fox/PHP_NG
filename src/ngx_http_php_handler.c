@@ -63,7 +63,7 @@ ngx_http_php_rewrite_file_handler(ngx_http_request_t *r)
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 	chain = ctx->rputs_chain;
 	if (chain == NULL){
-		return NGX_HTTP_SERVICE_UNAVAILABLE;
+		return NGX_ERROR;
 	}
 
 	r->headers_out.content_type.len = sizeof("text/html") - 1;
@@ -138,7 +138,7 @@ ngx_http_php_rewrite_inline_handler(ngx_http_request_t *r)
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 	chain = ctx->rputs_chain;
 	if (chain == NULL){
-		return NGX_HTTP_SERVICE_UNAVAILABLE;
+		return NGX_ERROR;
 	}
 
 	r->headers_out.content_type.len = sizeof("text/html") - 1;
@@ -336,15 +336,11 @@ ngx_http_php_content_file_handler(ngx_http_request_t *r)
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 	chain = ctx->rputs_chain;
 	if (chain == NULL){
-		return NGX_HTTP_SERVICE_UNAVAILABLE;
+		return NGX_ERROR;
 	}
 
-	if (r->headers_out.content_type.len > 0){
-	}else {
-		r->headers_out.content_type.len = sizeof("text/html") - 1;
-		r->headers_out.content_type.data = (u_char *)"text/html";
-	}
-	
+	r->headers_out.content_type.len = sizeof("text/html") - 1;
+	r->headers_out.content_type.data = (u_char *)"text/html";
 	if (!r->headers_out.status){
 		r->headers_out.status = NGX_HTTP_OK;
 	}
@@ -424,15 +420,11 @@ ngx_http_php_content_inline_handler(ngx_http_request_t *r)
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 	chain = ctx->rputs_chain;
 	if (chain == NULL){
-		return NGX_HTTP_SERVICE_UNAVAILABLE;
+		return NGX_ERROR;
 	}
 
-	if (r->headers_out.content_type.len > 0){
-	}else {
-		r->headers_out.content_type.len = sizeof("text/html") - 1;
-		r->headers_out.content_type.data = (u_char *)"text/html";
-	}
-	
+	r->headers_out.content_type.len = sizeof("text/html") - 1;
+	r->headers_out.content_type.data = (u_char *)"text/html";
 	if (!r->headers_out.status){
 		r->headers_out.status = NGX_HTTP_OK;
 	}
