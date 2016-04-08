@@ -2,6 +2,20 @@ ngx_php
 ======
 Embedded php script language for nginx-module.
 
+Features
+--------
+* Load php.ini config file
+* Global variable support $_GET, $_POST, $_COOKIE, $_SERVER, $_FILES...
+* PHP script code and file execute
+* RFC 1867 protocol file upload
+* PHP error output print
+* Support PHP PECL extension
+
+Requirement
+-----------
+- PHP 5.3.*
+- nginx-1.6.3
+
 Install
 -------
 ```sh
