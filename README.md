@@ -65,9 +65,10 @@ t/003-_GET.t ..... ok
 t/004-_POST.t .... ok   
 t/005-_SERVER.t .. ok   
 t/006-_COOKIE.t .. ok   
+t/007-_FILES.t ... ok   
 t/008-error.t .... ok   
 All tests successful.
-Files=7, Tests=16,  2 wallclock secs ( 0.03 usr  0.01 sys +  0.80 cusr  0.24 csys =  1.08 CPU)
+Files=8, Tests=18,  2 wallclock secs ( 0.03 usr  0.02 sys +  0.86 cusr  0.33 csys =  1.24 CPU)
 Result: PASS
 ```
 
