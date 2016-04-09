@@ -255,6 +255,8 @@ ngx_http_php_create_loc_conf(ngx_conf_t *cf)
 		return NGX_CONF_ERROR;
 	}
 
+	plcf->document_root.len = 0;
+
 	plcf->rewrite_code = NGX_CONF_UNSET_PTR;
 	plcf->rewrite_inline_code = NGX_CONF_UNSET_PTR;
 
@@ -270,8 +272,14 @@ ngx_http_php_create_loc_conf(ngx_conf_t *cf)
 static char *
 ngx_http_php_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 {
+	ngx_http_core_loc_conf_t  *clcf;
+	clcf = ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
+
 	ngx_http_php_loc_conf_t *prev = parent;
 	ngx_http_php_loc_conf_t *conf = child;
+
+	conf->document_root.len = clcf->root.len;
+	conf->document_root.data = clcf->root.data;
 
 	prev->rewrite_code = conf->rewrite_code;
 	prev->rewrite_inline_code = conf->rewrite_inline_code;
