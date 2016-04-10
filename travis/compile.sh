@@ -47,7 +47,7 @@ wget http://nginx.org/download/nginx-${NGINX_SRC_VERSION}.tar.gz
 echo "nginx download ... done"
 tar xf nginx-${NGINX_SRC_VERSION}.tar.gz
 
-NGINX_SRC=`pwd`'/nginx'${NGINX_SRC_VERSION}
+NGINX_SRC=`pwd`'/nginx-'${NGINX_SRC_VERSION}
 cd ${NGINX_SRC}
 
 export PHP_BIN=${PHP_SRC}'/bin'
