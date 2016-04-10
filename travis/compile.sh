@@ -4,7 +4,7 @@ cd build
 mkdir php
 mkdir nginx
 echo "php download ..."
-wget http://php.net/get/php-${PHP_SRC_VERSION}.tar.gz/from/this/mirror
+wget http://php.net/distributions/php-${PHP_SRC_VERSION}.tar.gz
 echo "php download ... done"
 tar xf php-${PHP_SRC_VERSION}.tar.gz
 
