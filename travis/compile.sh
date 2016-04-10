@@ -53,8 +53,8 @@ NGINX_SRC_ROOT=`pwd`'/nginx'
 cd ${NGINX_SRC}
 
 export PHP_BIN=${PHP_SRC_ROOT}'/bin'
-export PHP_INC=${PHP_SRC_ROOT}'/php/inc'
-export PHP_LIB=${PHP_SRC_ROOT}'/php/lib'
+export PHP_INC=${PHP_SRC_ROOT}'/inc'
+export PHP_LIB=${PHP_SRC_ROOT}'/lib'
 
 echo "nginx install ..."
 ./configure --prefix=${NGINX_SRC_ROOT} --add-module=../../../ngx_php
