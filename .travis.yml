@@ -24,7 +24,7 @@ env:
     NGINX_SRC_VERSION=1.6.3
 
 before_script:
-  - ./travis/compile.sh
+  - ./travis/test.sh
 
 script:
   - ./travis/test.sh
