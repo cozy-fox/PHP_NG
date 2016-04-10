@@ -1,5 +1,7 @@
 ngx_php
 ======
+[![Build Status](https://travis-ci.org/rryqszq4/ngx_php.svg?branch=master)](https://travis-ci.org/rryqszq4/ngx_php)
+
 Embedded php script language for nginx-module.
 
 Features
