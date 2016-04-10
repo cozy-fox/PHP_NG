@@ -53,7 +53,7 @@ NGINX_SRC_ROOT=`pwd`'/nginx'
 cd ${NGINX_SRC}
 
 export PHP_BIN=${PHP_SRC_ROOT}'/bin'
-export PHP_INC=${PHP_SRC_ROOT}'/inc'
+export PHP_INC=${PHP_SRC_ROOT}'/include/php'
 export PHP_LIB=${PHP_SRC_ROOT}'/lib'
 
 echo "nginx install ..."
