@@ -1,0 +1,13 @@
+language: c
+sudo: false
+compiler:
+	- gcc
+env:
+	- PHP_SRC_VERSION=5.3.29
+	  NGINX_SRC_VERSION=1.6.3
+
+before_script:
+	- ./travis/compile.sh
+
+script:
+	- ./travis/test.sh
