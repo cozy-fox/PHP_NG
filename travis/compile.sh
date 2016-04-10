@@ -50,9 +50,9 @@ tar xf nginx-${NGINX_SRC_VERSION}.tar.gz
 NGINX_SRC=`pwd`'/nginx-'${NGINX_SRC_VERSION}
 cd ${NGINX_SRC}
 
-export PHP_BIN=${PHP_SRC}'/bin'
-export PHP_INC=${PHP_SRC}'/inc'
-export PHP_LIB=${PHP_SRC}'/lib'
+export PHP_BIN=${PHP_SRC}'/../php/bin'
+export PHP_INC=${PHP_SRC}'/../inc'
+export PHP_LIB=${PHP_SRC}'/../lib'
 
 echo "nginx install ..."
 ./configure --prefix=../nginx --add-module=../../../ngx_php
