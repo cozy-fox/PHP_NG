@@ -323,7 +323,7 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
 	char *tmp_script;
 	tmp_script = emalloc(plcf->document_root.len + r->uri.len + 1);
-	strncpy(tmp_script, (char *)plcf->document_root.data, plcf->document_root.len);
+	ngx_cpystrn((u_char *)tmp_script, (u_char *)plcf->document_root.data, plcf->document_root.len+1);
 	strncat(tmp_script, (char *)r->uri.data, r->uri.len);
 	php_register_variable_safe("SCRIPT_FILENAME", (char *)tmp_script, plcf->document_root.len + r->uri.len, track_vars_array TSRMLS_CC);
 	efree(tmp_script);
