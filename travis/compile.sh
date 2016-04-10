@@ -9,11 +9,12 @@ echo "php download ... done"
 tar xf php-${PHP_SRC_VERSION}.tar.gz
 
 PHP_SRC=`pwd`'/php-'${PHP_SRC_VERSION}
+PHP_SRC_ROOT=`pwd`'/php'
 cd ${PHP_SRC}
 
 echo "php install ..."
-./configure --prefix=../php \
---with-config-file-path=../php/etc \
+./configure --prefix=${PHP_SRC_ROOT} \
+--with-config-file-path=PHP_SRC_ROOT/etc \
 --with-mysql=mysqlnd \
 --with-mysqli=mysqlnd \
 --with-pdo-mysql=mysqlnd \
@@ -48,14 +49,15 @@ echo "nginx download ... done"
 tar xf nginx-${NGINX_SRC_VERSION}.tar.gz
 
 NGINX_SRC=`pwd`'/nginx-'${NGINX_SRC_VERSION}
+NGINX_SRC_ROOT=`pwd`'/nginx'
 cd ${NGINX_SRC}
 
-export PHP_BIN=${PHP_SRC}'/../php/bin'
-export PHP_INC=${PHP_SRC}'/../php/inc'
-export PHP_LIB=${PHP_SRC}'/../php/lib'
+export PHP_BIN=${PHP_SRC_ROOT}'/bin'
+export PHP_INC=${PHP_SRC_ROOT}'/php/inc'
+export PHP_LIB=${PHP_SRC_ROOT}'/php/lib'
 
 echo "nginx install ..."
-./configure --prefix=../nginx --add-module=../../../ngx_php
+./configure --prefix=${NGINX_SRC_ROOT} --add-module=../../../ngx_php
 make
 make install
 echo "nginx install ... done"
