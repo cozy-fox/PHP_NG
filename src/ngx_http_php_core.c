@@ -302,8 +302,8 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 	ngx_http_request_t *r;
 	r = ngx_php_request;
 
-	ngx_http_headers_in_t *headers_in;
-	headers_in = &r->headers_in;
+	//ngx_http_headers_in_t *headers_in;
+	//headers_in = &r->headers_in;
 
 	ngx_list_part_t *part = &r->headers_in.headers.part;
 	ngx_table_elt_t *header = part->elts;
