@@ -1,5 +1,5 @@
 language: c
-sudo: false
+sudo: required
 addons:
   apt:
     packages:
@@ -24,9 +24,9 @@ env:
   - PHP_SRC_VERSION=5.3.29
     NGINX_SRC_VERSION=1.6.3
 install:
-  - cpanm -n Test::Nginx
+  - sudo cpanm -n Test::Nginx
 before_script:
-  - ./travis/compile.sh
+  - ./travis/test.sh
 
 script:
   - ./travis/test.sh
