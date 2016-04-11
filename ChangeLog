@@ -1,0 +1,14 @@
+2016-04-11 rryqszq4 <ngxphp@gmail.com>
+	* add nginx directive "php_ini_path", "php_init_code", "php_init_file", "php_rewrite_handler", "php_rewrite_handler_code", "php_access_handler", "php_access_handler_code", "php_content_handler", "php_content_handler_code"
+
+	* rewrite php SAPI function or prototype ub_write, flush, register_server_variables, read_post, read_cookies, header_handler, php_ini_path_override
+
+	* custom function point zend_error_cb
+
+	* RFC 1867 protocol file upload
+
+	* Test::Nginx for test 
+
+	* test[hello, ini, $_GET, $_POST, $_SERVER, $_COOKIE, $_FILES, error]
+
+	* bumped version to 0.0.1
