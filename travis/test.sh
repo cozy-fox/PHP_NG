@@ -1,5 +1,7 @@
 #!/bin/bash
-NGX_PATH=`pwd`'/build/nginx/sbin'
+cd ..
+pwd
+NGX_PATH=`pwd`'/nginx/sbin'
 export PATH=${NGX_PATH}:$PATH
 prove -r t
-echo "test"
+echo "ngx_php test success"
