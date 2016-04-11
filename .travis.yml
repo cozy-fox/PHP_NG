@@ -17,6 +17,7 @@ addons:
       - libsasl2-dev
       - libxpm-dev
       - libt1-dev
+      - perl-modules
 compiler:
   - gcc
 env:

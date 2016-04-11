@@ -1,3 +1,4 @@
 #!/bin/bash
-perl -MCPAN -einstall Test::Nginx
+perl -MCPAN -e install Test::Nginx
+yes
 echo "test"
