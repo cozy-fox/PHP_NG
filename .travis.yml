@@ -22,7 +22,9 @@ compiler:
 env:
   - PHP_SRC_VERSION=5.3.29
     NGINX_SRC_VERSION=1.6.3
-
+install:
+  - cpanm test::nginx
+  - cpanm -n --installdeps .
 before_script:
   - ./travis/test.sh
 
