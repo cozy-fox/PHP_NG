@@ -55,7 +55,7 @@ Using the perl of [Test::Nginx](https://github.com/openresty/test-nginx) module 
 
 ```sh
 cd /path/to/ngx_php
-export PATH=/path/to/ngx_php:$PATH
+export PATH=/path/to/nginx/sbin:$PATH
 prove -r t
 ```
 Test result:
