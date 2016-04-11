@@ -25,7 +25,6 @@ env:
     NGINX_SRC_VERSION=1.6.3
 install:
   - cpanm -n Test::Nginx
-  - cpanm -n --installdeps .
 before_script:
   - ./travis/test.sh
 
