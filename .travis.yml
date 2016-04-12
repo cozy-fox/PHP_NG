@@ -23,6 +23,8 @@ compiler:
 env:
   - PHP_SRC_VERSION=5.3.29
     NGINX_SRC_VERSION=1.6.3
+  - PHP_SRC_VERSION=5.6.20
+    NGINX_SRC_VERSION=1.6.3
 install:
   - sudo cpanm -n Test::Nginx
 before_script:
