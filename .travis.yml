@@ -20,6 +20,8 @@ addons:
       - cpanminus
 compiler:
   - gcc
+cache:
+  - apt
 env:
   - PHP_SRC_VERSION=5.3.29
     NGINX_SRC_VERSION=1.6.3

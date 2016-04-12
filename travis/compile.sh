@@ -64,7 +64,7 @@ echo "nginx install ..."
 --add-module=../../../ngx_php
 make
 make install
-if [ $? -eq 0];then
+if [ $? -eq 0 ];then
 	echo "nginx install ... done"
 	echo "ngx_php compile success."
 else 
