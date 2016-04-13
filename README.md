@@ -16,6 +16,8 @@ Features
 Requirement
 -----------
 - PHP 5.3.*
+- PHP 5.6.*
+
 - nginx-1.6.3
 
 Install
@@ -34,6 +36,7 @@ export PHP_LIB=/path/to/php/lib
 
 ./configure --user=www --group=www \
 			--prefix=/path/to/nginx \
+			--with-ld-opt="-Wl,-rpath,$PHP_LIB" \
 			--add-module=/path/to/ngx_php
 ```
 
