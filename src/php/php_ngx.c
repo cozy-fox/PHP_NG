@@ -104,7 +104,7 @@ sapi_module_struct php_ngx_module = {
 	NULL,
 
 	0,
-#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 6)
+#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 3)
 	0,
 #endif
 
@@ -162,9 +162,9 @@ int php_ngx_module_init(TSRMLS_D)
 
   sapi_startup(&php_ngx_module);
 
-/*#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 6)
+#if (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 3)
   php_ngx_module.php_ini_ignore_cwd = 1;
-#endif*/
+#endif
 
 #ifdef PHP_WIN32
   _fmode = _O_BINARY;			/*sets default for file streams to binary */
