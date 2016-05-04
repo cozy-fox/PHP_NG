@@ -14,7 +14,7 @@ cd ${PHP_SRC}
 
 echo "php install ..."
 ./configure --prefix=${PHP_SRC_ROOT} \
---with-config-file-path=PHP_SRC_ROOT/etc \
+--with-config-file-path=${PHP_SRC_ROOT}/etc \
 --with-mysql=mysqlnd \
 --with-mysqli=mysqlnd \
 --with-pdo-mysql=mysqlnd \
