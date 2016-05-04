@@ -305,8 +305,8 @@ ngx_http_php_content_file_handler(ngx_http_request_t *r)
 		}
 	}
 
-	r->headers_out.content_type.len = sizeof("text/html") - 1;
-	r->headers_out.content_type.data = (u_char *)"text/html";
+	//r->headers_out.content_type.len = sizeof("text/html") - 1;
+	//r->headers_out.content_type.data = (u_char *)"text/html";
 	if (!r->headers_out.status){
 		r->headers_out.status = NGX_HTTP_OK;
 	}
@@ -420,8 +420,8 @@ ngx_http_php_content_inline_handler(ngx_http_request_t *r)
 		}
 	}
 
-	r->headers_out.content_type.len = sizeof("text/html") - 1;
-	r->headers_out.content_type.data = (u_char *)"text/html";
+	//r->headers_out.content_type.len = sizeof("text/html") - 1;
+	//r->headers_out.content_type.data = (u_char *)"text/html";
 	if (!r->headers_out.status){
 		r->headers_out.status = NGX_HTTP_OK;
 	}
@@ -529,8 +529,8 @@ ngx_http_php_content_post_handler(ngx_http_request_t *r)
 		}
 	}
 
-	r->headers_out.content_type.len = sizeof("text/html") - 1;
-	r->headers_out.content_type.data = (u_char *)"text/html";
+	//r->headers_out.content_type.len = sizeof("text/html") - 1;
+	//r->headers_out.content_type.data = (u_char *)"text/html";
 	if (!r->headers_out.status){
 		r->headers_out.status = NGX_HTTP_OK;
 	}

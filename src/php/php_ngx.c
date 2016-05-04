@@ -190,7 +190,7 @@ int php_ngx_request_init(TSRMLS_D)
 		return FAILURE;
   	}
 
-  	SG(headers_sent) = 1;
+  	SG(headers_sent) = 0;
   	SG(request_info).no_headers = 1;
   	php_register_variable("PHP_SELF", "-", NULL TSRMLS_CC);
 
@@ -199,6 +199,7 @@ int php_ngx_request_init(TSRMLS_D)
 
 void php_ngx_request_shutdown(TSRMLS_D)
 {
+	SG(headers_sent) = 1;
 	php_request_shutdown((void *)0);
 }
 
