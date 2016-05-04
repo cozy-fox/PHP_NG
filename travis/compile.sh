@@ -41,6 +41,7 @@ echo "php install ..."
 make
 make install
 echo "php install ... done"
+cp php.ini-production ${PHP_SRC_ROOT}'/php.ini'
 
 cd ..
 echo "nginx download ..."

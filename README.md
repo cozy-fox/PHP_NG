@@ -53,6 +53,18 @@ server {
 }
 ```
 
+wordpress
+```nginx
+server {
+	location ~ \.php$ {
+        root   /home/www/wordpress;
+        php_content_handler_code "
+            require_once('/home/www/wordpress'.$_SERVER['DOCUMENT_URI']);
+        ";
+    }
+}
+```
+
 Test
 ----
 Using the perl of [Test::Nginx](https://github.com/openresty/test-nginx) module to testing, searching and finding out problem in ngx_php. 
