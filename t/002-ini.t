@@ -9,7 +9,7 @@ __DATA__
 === TEST 1: ini file
 ini file
 --- http_config
-php_ini_path /home/travis/build/rryqszq4/ngx_php/build/php/etc/php.ini;
+php_ini_path /home/travis/build/rryqszq4/ngx_php/build/php/php.ini;
 --- config
 location = /ini {
     php_content_handler_code '
@@ -19,4 +19,4 @@ location = /ini {
 --- request
 GET /ini
 --- response_body
-/home/travis/build/rryqszq4/ngx_php/build/php/etc/php.ini
+/home/travis/build/rryqszq4/ngx_php/build/php/php.ini

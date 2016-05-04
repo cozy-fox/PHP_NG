@@ -14,7 +14,7 @@ cd ${PHP_SRC}
 
 echo "php install ..."
 ./configure --prefix=${PHP_SRC_ROOT} \
---with-config-file-path=${PHP_SRC_ROOT}/etc \
+--with-config-file-path=${PHP_SRC_ROOT} \
 --with-mysql=mysqlnd \
 --with-mysqli=mysqlnd \
 --with-pdo-mysql=mysqlnd \
@@ -57,7 +57,7 @@ export PHP_INC=${PHP_SRC_ROOT}'/include/php'
 export PHP_LIB=${PHP_SRC_ROOT}'/lib'
 
 #ls ${PHP_LIB}
-ls ${PHP_SRC_ROOT}'/etc'
+ls ${PHP_SRC_ROOT}
 
 echo "nginx install ..."
 ./configure --prefix=${NGINX_SRC_ROOT} \
