@@ -56,7 +56,8 @@ export PHP_BIN=${PHP_SRC_ROOT}'/bin'
 export PHP_INC=${PHP_SRC_ROOT}'/include/php'
 export PHP_LIB=${PHP_SRC_ROOT}'/lib'
 
-ls ${PHP_LIB}
+#ls ${PHP_LIB}
+ls ${PHP_SRC_ROOT}'/etc'
 
 echo "nginx install ..."
 ./configure --prefix=${NGINX_SRC_ROOT} \
