@@ -23,7 +23,7 @@ compiler:
 cache:
   - apt
 env:
-  - PHP_SRC_VERSION=5.3.29
+  - PHP_SRC_VERSION=5.3.28
     NGINX_SRC_VERSION=1.6.3
   - PHP_SRC_VERSION=5.4.45
     NGINX_SRC_VERSION=1.6.3

@@ -43,6 +43,8 @@ export PHP_LIB=/path/to/php/lib
 
 Synopsis
 --------
+simple:
+
 ```nginx
 server {
 	location /php {
@@ -53,7 +55,7 @@ server {
 }
 ```
 
-wordpress
+wordpress:
 ```nginx
 server {
 	location ~ \.php$ {
