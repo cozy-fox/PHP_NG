@@ -8,6 +8,8 @@ __DATA__
 
 === TEST 1: session
 session
+--- http_config
+php_ini_path /home/travis/build/rryqszq4/ngx_php/build/php/php.ini;
 --- config
 location = /session {
     php_content_handler_code '
