@@ -445,9 +445,14 @@ ngx_http_php_code_read_post(char *buffer, uint count_bytes TSRMLS_DC)
 	ngx_http_headers_in_t *headers_in;
 	headers_in = &r->headers_in;
 
-	char *content_length = (char *)headers_in->content_length->value.data;
 	int content_length_n;
-	content_length_n = atoi(content_length);
+
+	if (headers_in->content_length){
+		char *content_length = (char *)headers_in->content_length->value.data;
+		content_length_n = atoi(content_length);
+	}else {
+		content_length_n = 0;
+	}
 
 	while ((int)ctx->request_body_ctx.len < content_length_n){
 		/* waiting event */

@@ -2,6 +2,9 @@
 
 use Test::Nginx::Socket 'no_plan';
 
+no_long_string();
+no_diff();
+
 run_tests();
 
 __DATA__

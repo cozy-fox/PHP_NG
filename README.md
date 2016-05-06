@@ -89,7 +89,7 @@ t/007-_FILES.t ... ok
 t/008-error.t .... ok
 t/009-session.t .. ok     
 All tests successful.
-Files=8, Tests=18,  2 wallclock secs ( 0.03 usr  0.02 sys +  0.86 cusr  0.33 csys =  1.24 CPU)
+Files=9, Tests=20,  2 wallclock secs ( 0.03 usr  0.03 sys +  1.20 cusr  0.31 csys =  1.57 CPU)
 Result: PASS
 ```
 
