@@ -310,6 +310,8 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 
 	ngx_uint_t i;
 
+	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+
 	if (r->method == NGX_HTTP_GET){
 		php_register_variable("REQUEST_METHOD", (char *)"GET", track_vars_array TSRMLS_CC);
 	} else if (r->method == NGX_HTTP_POST){
@@ -318,9 +320,10 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 
 	//php_register_variable_safe("REQUEST_LINE", (char *)r->request_line.data, r->request_line.len, track_vars_array TSRMLS_CC);
 
+	php_register_variable_safe("DOCUMENT_ROOT", (char *)plcf->document_root.data, plcf->document_root.len, track_vars_array TSRMLS_CC);
+
 	php_register_variable_safe("DOCUMENT_URI", (char *)r->uri.data, r->uri.len, track_vars_array TSRMLS_CC);
 
-	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
 	char *tmp_script;
 	tmp_script = emalloc(plcf->document_root.len + r->uri.len + 1);
 	ngx_cpystrn((u_char *)tmp_script, (u_char *)plcf->document_root.data, plcf->document_root.len+1);
