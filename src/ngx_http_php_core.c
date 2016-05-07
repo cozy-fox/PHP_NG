@@ -322,14 +322,31 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 
 	php_register_variable_safe("DOCUMENT_ROOT", (char *)plcf->document_root.data, plcf->document_root.len, track_vars_array TSRMLS_CC);
 
-	php_register_variable_safe("DOCUMENT_URI", (char *)r->uri.data, r->uri.len, track_vars_array TSRMLS_CC);
+	if ((r->uri.data)[r->uri.len-1] == '/'){
+		char *tmp_uri;
+		tmp_uri = emalloc(r->uri.len + 9 + 1);
+		ngx_cpystrn((u_char *)tmp_uri, (u_char *)r->uri.data, r->uri.len + 1);
+		strncat(tmp_uri, "index.php", 9);
+		php_register_variable_safe("DOCUMENT_URI", (char *)tmp_uri, r->uri.len + 9, track_vars_array TSRMLS_CC);
+		efree(tmp_uri);
 
-	char *tmp_script;
-	tmp_script = emalloc(plcf->document_root.len + r->uri.len + 1);
-	ngx_cpystrn((u_char *)tmp_script, (u_char *)plcf->document_root.data, plcf->document_root.len+1);
-	strncat(tmp_script, (char *)r->uri.data, r->uri.len);
-	php_register_variable_safe("SCRIPT_FILENAME", (char *)tmp_script, plcf->document_root.len + r->uri.len, track_vars_array TSRMLS_CC);
-	efree(tmp_script);
+		char *tmp_script;
+		tmp_script = emalloc(plcf->document_root.len + r->uri.len + 9 + 1);
+		ngx_cpystrn((u_char *)tmp_script, (u_char *)plcf->document_root.data, plcf->document_root.len+1);
+		strncat(tmp_script, (char *)r->uri.data, r->uri.len);
+		strncat(tmp_script, "index.php", 9);
+		php_register_variable_safe("SCRIPT_FILENAME", (char *)tmp_script, plcf->document_root.len + r->uri.len + 9, track_vars_array TSRMLS_CC);
+		efree(tmp_script);
+	} else {
+		php_register_variable_safe("DOCUMENT_URI", (char *)r->uri.data, r->uri.len, track_vars_array TSRMLS_CC);
+
+		char *tmp_script;
+		tmp_script = emalloc(plcf->document_root.len + r->uri.len + 1);
+		ngx_cpystrn((u_char *)tmp_script, (u_char *)plcf->document_root.data, plcf->document_root.len+1);
+		strncat(tmp_script, (char *)r->uri.data, r->uri.len);
+		php_register_variable_safe("SCRIPT_FILENAME", (char *)tmp_script, plcf->document_root.len + r->uri.len, track_vars_array TSRMLS_CC);
+		efree(tmp_script);
+	}
 
 	if (r->args.len > 0){
 		php_register_variable_safe("QUERY_STRING", (char *)r->args.data, r->args.len, track_vars_array TSRMLS_CC);
