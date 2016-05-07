@@ -292,7 +292,7 @@ ngx_http_php_content_file_handler(ngx_http_request_t *r)
 		(*chain->last)->next = NULL;
 
 		u_str = ngx_pstrdup(r->pool, &ns);
-		u_str[ns.len] = '\0';
+		//u_str[ns.len] = '\0';
 		(*chain->last)->buf->pos = u_str;
 		(*chain->last)->buf->last = u_str + ns.len;
 		(*chain->last)->buf->memory = 1;
@@ -407,7 +407,7 @@ ngx_http_php_content_inline_handler(ngx_http_request_t *r)
 		(*chain->last)->next = NULL;
 
 		u_str = ngx_pstrdup(r->pool, &ns);
-		u_str[ns.len] = '\0';
+		//u_str[ns.len] = '\0';
 		(*chain->last)->buf->pos = u_str;
 		(*chain->last)->buf->last = u_str + ns.len;
 		(*chain->last)->buf->memory = 1;
@@ -516,7 +516,7 @@ ngx_http_php_content_post_handler(ngx_http_request_t *r)
 		(*chain->last)->next = NULL;
 
 		u_str = ngx_pstrdup(r->pool, &ns);
-		u_str[ns.len] = '\0';
+		//u_str[ns.len] = '\0';
 		(*chain->last)->buf->pos = u_str;
 		(*chain->last)->buf->last = u_str + ns.len;
 		(*chain->last)->buf->memory = 1;

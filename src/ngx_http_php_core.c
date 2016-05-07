@@ -208,7 +208,7 @@ ngx_php_error_cb(int type,
 		(*chain->last)->next = NULL;
 
 		u_str = ngx_pstrdup(r->pool, &ns);
-		u_str[ns.len] = '\0';
+		//u_str[ns.len] = '\0';
 		(*chain->last)->buf->pos = u_str;
 		(*chain->last)->buf->last = u_str + ns.len;
 		(*chain->last)->buf->memory = 1;
@@ -267,7 +267,7 @@ int ngx_http_php_code_ub_write(const char *str, unsigned int str_length TSRMLS_D
 	(*chain->last)->next = NULL;
 
 	u_str = ngx_pstrdup(r->pool, &ns);
-	u_str[ns.len] = '\0';
+	//u_str[ns.len] = '\0';
 	(*chain->last)->buf->pos = u_str;
 	(*chain->last)->buf->last = u_str + ns.len;
 	(*chain->last)->buf->memory = 1;
