@@ -15,9 +15,15 @@ Features
 
 Requirement
 -----------
-- PHP 5.3.*  PHP 5.4.*  PHP 5.5.*  PHP 5.6.*
+- PHP 5.3.*  
+PHP 5.4.*  
+PHP 5.5.*  
+PHP 5.6.*
 
-- nginx-1.4.7  nginx-1.6.3  nginx-1.8.1  nginx-1.9.15
+- nginx-1.4.7  
+nginx-1.6.3  
+nginx-1.8.1  
+nginx-1.9.15
 
 Install
 -------
