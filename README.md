@@ -22,6 +22,7 @@ Requirement
 - nginx-1.4.7
   nginx-1.6.3
   nginx-1.8.1
+  nginx-1.9.15
 
 Install
 -------

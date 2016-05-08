@@ -35,6 +35,8 @@ env:
     NGINX_SRC_VERSION=1.4.7
   - PHP_SRC_VERSION=5.3.29
     NGINX_SRC_VERSION=1.8.1
+  - PHP_SRC_VERSION=5.3.29
+    NGINX_SRC_VERSION=1.9.15
 install:
   - sudo cpanm -n Test::Nginx
 before_script:
