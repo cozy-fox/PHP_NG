@@ -23,6 +23,7 @@ location = /session {
 		}else {
 			echo 0;
 		}
+		session_destroy();
 	';
 }
 --- request

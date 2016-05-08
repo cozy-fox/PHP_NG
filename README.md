@@ -43,21 +43,48 @@ export PHP_LIB=/path/to/php/lib
 
 Synopsis
 --------
-simple:
 
 ```nginx
-server {
-	location /php {
-		php_content_handler_code "
-			echo 'hello ngx_php';
-		";
+user www www;
+worker_processes  4;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    keepalive_timeout  65;
+	
+    client_max_body_size 10m;   
+    client_body_buffer_size 4096k;
+
+    php_ini_path /usr/local/php/etc/php.ini;
+
+	server {
+        listen       80;
+        server_name  localhost;
+	
+		location /php {
+			php_content_handler_code '
+				echo "hello ngx_php";
+			';
+		}
 	}
 }
 ```
 
-wordpress:
+Framework conf
+--------------
+
+**wordpress:**
 ```nginx
 server {
+	listen 80;
+	server_name	wordpress-sample.com;
+	
 	location ~ \.php$ {
         root   /home/www/wordpress;
         php_content_handler_code "
@@ -65,6 +92,33 @@ server {
         ";
     }
 }
+```
+
+**yaf:**
+```nginx
+server {
+    listen 80;
+	server_name	yaf-sample.com;
+	access_log	logs/yaf-sample.com.access.log;
+
+	root /home/www/yaf-sample;
+	index index.php index.html;
+	
+	location /favicon.ico {
+		log_not_found off;
+	}
+
+	location / {
+		try_files $uri $uri/ /index.php$is_args$args;
+	}
+
+	location ~ \.php$ {
+		php_content_handler_code '
+			header("Content-Type: text/html;charset=UTF-8");
+			require_once("/home/www/yaf-sample/index.php");
+		';
+	}
+}  
 ```
 
 Test
