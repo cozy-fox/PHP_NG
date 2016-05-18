@@ -23,3 +23,5 @@ CORE_LIBS="$CORE_LIBS `$PHP_BIN/php-config --ldflags` -L$PHP_LIB -lphp5 `$PHP_BI
 #CORE_INCS="$CORE_INCS /usr/local/php53/include/php /usr/local/php53/include/php/main /usr/local/php53/include/php/TSRM /usr/local/php53/include/php/Zend /usr/local/php53/include/php/ext /usr/local/php53/include/php/ext/date/lib /usr/local/php53/include/php/sapi/embed "
 
 #CORE_LIBS="$CORE_LIBS `/usr/local/php53/bin/php-config --ldflags` -L/usr/local/php53/lib -lphp5 `/usr/local/php/bin/php-config --libs` "
+
+have=NDK_SET_VAR . auto/have

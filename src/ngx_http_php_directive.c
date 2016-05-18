@@ -272,6 +272,92 @@ ngx_http_php_content_inline_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf
 }
 
 
+#if defined(NDK) && NDK
+
+char *
+ngx_http_php_set_inline(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
+{
+	ngx_str_t *value;
+	ngx_str_t target;
+	ndk_set_var_t filter;
+
+	ngx_http_php_set_var_data_t *filter_data;
+
+	/*
+		value[0] = "php_set_inline"
+		value[1] = target variable name
+		value[2] = php code
+		value[3..] = real params
+	*/
+
+	value = cf->args->elts;
+	target = value[1];
+
+	filter.type = NDK_SET_VAR_MULTI_VALUE_DATA;
+	filter.func = cmd->post;
+	filter.size = cf->args->nelts - 3;
+
+	filter_data = ngx_palloc(cf->pool, sizeof(ngx_http_php_set_var_data_t));
+	if (filter_data == NULL){
+		return NGX_CONF_ERROR;
+	}
+
+	filter_data->size = filter.size;
+	filter_data->script = value[2];
+
+	filter_data->code = ngx_http_php_code_from_string(cf->pool, &filter_data->script);
+	if (filter_data->code == NGX_CONF_UNSET_PTR){
+		return NGX_CONF_ERROR;
+	}
+
+	filter.data = filter_data;
+
+	return ndk_set_var_multi_value_core(cf, &target, &value[3], &filter);
+}
+
+char *
+ngx_http_php_set_file(ngx_conf_t *cf, ngx_command_t *cmd, void *conf){
+	ngx_str_t *value;
+	ngx_str_t target;
+	ndk_set_var_t filter;
+
+	ngx_http_php_set_var_data_t *filter_data;
+
+	/*
+		value[0] = "php_set_inline"
+		value[1] = target variable name
+		value[2] = php code
+		value[3..] = real params
+	*/
+
+	value = cf->args->elts;
+	target = value[1];
+
+	filter.type = NDK_SET_VAR_MULTI_VALUE_DATA;
+	filter.func = cmd->post;
+	filter.size = cf->args->nelts - 3;
+
+	filter_data = ngx_palloc(cf->pool, sizeof(ngx_http_php_set_var_data_t));
+	if (filter_data == NULL){
+		return NGX_CONF_ERROR;
+	}
+
+	filter_data->size = filter.size;
+	filter_data->script = value[2];
+
+	filter_data->code = ngx_http_php_code_from_file(cf->pool, &filter_data->script);
+	if (filter_data->code == NGX_CONF_UNSET_PTR){
+		return NGX_CONF_ERROR;
+	}
+
+	filter.data = filter_data;
+
+	return ndk_set_var_multi_value_core(cf, &target, &value[3], &filter);
+}
+
+#endif
+
+
 
 
 

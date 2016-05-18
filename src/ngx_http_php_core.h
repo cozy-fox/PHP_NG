@@ -31,6 +31,14 @@ typedef struct ngx_http_php_code_t {
 	code_type_t code_type;
 } ngx_http_php_code_t;
 
+#if defined(NDK) && NDK
+typedef struct {
+	size_t size;
+	ngx_str_t script;
+	ngx_http_php_code_t *code;
+} ngx_http_php_set_var_data_t;
+#endif
+
 typedef struct ngx_http_php_rputs_chain_list_t {
 	ngx_chain_t **last;
 	ngx_chain_t *out;
