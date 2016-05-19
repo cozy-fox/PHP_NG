@@ -56,6 +56,7 @@ cd ${NGINX_SRC}
 export PHP_BIN=${PHP_SRC_ROOT}'/bin'
 export PHP_INC=${PHP_SRC_ROOT}'/include/php'
 export PHP_LIB=${PHP_SRC_ROOT}'/lib'
+#export PHP_INI=${PHP_SRC_ROOT}'/php.ini'
 
 #ls ${PHP_LIB}
 ls ${PHP_SRC_ROOT}
@@ -63,6 +64,7 @@ ls ${PHP_SRC_ROOT}
 echo "nginx install ..."
 ./configure --prefix=${NGINX_SRC_ROOT} \
 --with-ld-opt="-Wl,-rpath,$PHP_LIB" \
+--add-module=../../../ngx_php/dev/ngx_devel_kit \
 --add-module=../../../ngx_php
 make
 make install
