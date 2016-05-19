@@ -339,6 +339,7 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 		efree(tmp_script);
 	} else {
 		php_register_variable_safe("DOCUMENT_URI", (char *)r->uri.data, r->uri.len, track_vars_array TSRMLS_CC);
+		php_register_variable_safe("SCRIPT_NAME", (char *)r->uri.data, r->uri.len, track_vars_array TSRMLS_CC);
 
 		char *tmp_script;
 		tmp_script = emalloc(plcf->document_root.len + r->uri.len + 1);
