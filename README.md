@@ -98,6 +98,33 @@ server {
 }
 ```
 
+**yii:**
+```nginx
+server {
+    listen 80;
+	server_name	yii-sample.com;
+	access_log	logs/yii-sample.com.access.log;
+
+	root /home/www/yii-sample;
+	index index.php index.html;
+
+	location /favicon.ico {
+		log_not_found off;
+	}
+
+	location / {
+		try_files $uri $uri/ /index.php$is_args$args;
+	}
+
+	location ~ \.php$ {
+		php_content_handler_code '
+			header("Content-Type: text/html;charset=UTF-8");
+			require_once("/home/www/yii-sample/index.php");
+		';
+	}
+}  
+```
+
 **yaf:**
 ```nginx
 server {
