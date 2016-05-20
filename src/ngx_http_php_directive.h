@@ -25,6 +25,7 @@ char *ngx_http_php_content_inline_phase(ngx_conf_t *cf, ngx_command_t *cmd, void
 #if defined(NDK) && NDK
 
 char *ngx_http_php_set_inline(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+char *ngx_http_php_set_run_inline(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 char *ngx_http_php_set_file(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 
 #endif

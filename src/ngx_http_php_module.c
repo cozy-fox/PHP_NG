@@ -121,6 +121,15 @@ static ngx_command_t ngx_http_php_commands[] = {
 	 ngx_http_php_set_inline_handler
 	},
 
+	{ngx_string("php_set_run_code"),
+	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+	 	|NGX_CONF_2MORE,
+	 ngx_http_php_set_run_inline,
+	 NGX_HTTP_LOC_CONF_OFFSET,
+	 0,
+	 ngx_http_php_set_run_inline_handler
+	},
+
 	{ngx_string("php_set_file"),
 	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
 	 	|NGX_CONF_2MORE,
