@@ -36,6 +36,7 @@ typedef struct {
 	size_t size;
 	ngx_str_t script;
 	ngx_http_php_code_t *code;
+	ngx_str_t result;
 } ngx_http_php_set_var_data_t;
 #endif
 

@@ -558,6 +558,26 @@ ngx_http_php_content_post_handler(ngx_http_request_t *r)
 	return NGX_OK;
 }
 
+ngx_int_t 
+ngx_http_php_set_inline_handler(ngx_http_request_t *r, ngx_str_t *val, ngx_http_variable_value_t *v, void *data)
+{
+	//ngx_http_php_main_conf_t *pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+
+	ngx_http_php_set_var_data_t *filter_data;
+	filter_data = data;
+
+	if (filter_data->result.len <= 0){
+		val->data = NULL;
+		val->len = 0;
+	}else {
+		val->data = ngx_palloc(r->pool, filter_data->result.len);
+		ngx_memcpy(val->data, filter_data->result.data, filter_data->result.len);
+		val->len = filter_data->result.len;
+	}
+
+	return NGX_OK;
+}
+
 
 
 

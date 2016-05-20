@@ -284,7 +284,7 @@ ngx_http_php_set_inline(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 	ngx_http_php_set_var_data_t *filter_data;
 
 	/*
-		value[0] = "php_set_inline"
+		value[0] = "php_set_code"
 		value[1] = target variable name
 		value[2] = php code
 		value[3..] = real params
@@ -312,6 +312,24 @@ ngx_http_php_set_inline(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 
 	filter.data = filter_data;
 
+	PHP_EMBED_START_BLOCK(0, NULL);
+		zval retval;
+		zend_eval_string_ex(filter_data->code->code.string, &retval, "ngx_php run code return", 1 TSRMLS_CC);
+
+		if (Z_TYPE(retval) == IS_NULL){
+			filter_data->result.data = NULL;
+			filter_data->result.len = 0;
+		}else {
+			convert_to_string(&retval);
+
+			filter_data->result.data = ngx_palloc(cf->pool, Z_STRLEN(retval));
+			ngx_memcpy(filter_data->result.data, Z_STRVAL(retval), Z_STRLEN(retval));
+			filter_data->result.len = Z_STRLEN(retval);
+		}
+
+		zval_dtor(&retval);
+	PHP_EMBED_END_BLOCK();
+	
 	return ndk_set_var_multi_value_core(cf, &target, &value[3], &filter);
 }
 

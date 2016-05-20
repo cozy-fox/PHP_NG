@@ -118,7 +118,7 @@ static ngx_command_t ngx_http_php_commands[] = {
 	 ngx_http_php_set_inline,
 	 NGX_HTTP_LOC_CONF_OFFSET,
 	 0,
-	 NULL//ngx_http_php_set_inline_handler
+	 ngx_http_php_set_inline_handler
 	},
 
 	{ngx_string("php_set_file"),
@@ -191,6 +191,7 @@ ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_http_php_main_con
 	ngx_http_handler_pt *h;
 	ngx_http_phases phase;
 	ngx_http_phases phases[] = {
+		//NGX_HTTP_POST_READ_PHASE,
 		NGX_HTTP_REWRITE_PHASE,
 		NGX_HTTP_ACCESS_PHASE,
 		NGX_HTTP_CONTENT_PHASE,
@@ -201,6 +202,15 @@ ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_http_php_main_con
 	for (i = 0; i < phases_c; i++){
 		phase = phases[i];
 		switch (phase){
+			/*case NGX_HTTP_POST_READ_PHASE:
+				if (pmcf->enabled_post_read_handler){
+					h = ngx_array_push(&cmcf->phases[phase].handlers);
+					if (h == NULL){
+						return NGX_ERROR;
+					}
+					*h = ngx_http_php_post_read_handler;
+				}
+				break;*/
 			case NGX_HTTP_REWRITE_PHASE:
 				if (pmcf->enabled_rewrite_handler){
 					h = ngx_array_push(&cmcf->phases[phase].handlers);

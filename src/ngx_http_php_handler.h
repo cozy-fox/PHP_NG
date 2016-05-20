@@ -30,4 +30,7 @@ ngx_int_t ngx_http_php_content_inline_handler(ngx_http_request_t *r);
 
 ngx_int_t ngx_http_php_content_post_handler(ngx_http_request_t *r);
 
+ngx_int_t ngx_http_php_set_inline_handler(ngx_http_request_t *r, ngx_str_t *val, ngx_http_variable_value_t *v, void *data);
+ngx_int_t ngx_http_php_set_file_handler(ngx_http_request_t *r, ngx_str_t *val, ngx_http_variable_value_t *v, void *data);
+
 #endif
