@@ -303,6 +303,7 @@ ngx_http_php_set_inline(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 	}
 
 	filter_data->size = filter.size;
+	filter_data->var_name = value[1];
 	filter_data->script = value[2];
 
 	filter_data->code = ngx_http_php_code_from_string(cf->pool, &filter_data->script);
