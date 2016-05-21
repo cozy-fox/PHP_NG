@@ -607,8 +607,8 @@ ngx_http_php_set_run_inline_handler(ngx_http_request_t *r, ngx_str_t *val, ngx_h
 
 	if (ngx_strncmp(plcf->content_inline_code->code.string, filter_data->var_name.data, filter_data->var_name.len) == 0){
 		//plcf->content_inline_code = filter_data->code;
-		if (&filter_data->result != NULL){
-			plcf->content_inline_code = ngx_http_php_code_from_string(r->pool, &filter_data->result);
+		if (filter_data->result.data != NULL){
+			plcf->content_inline_code = filter_data->code;
 		}
 
 	}
@@ -617,9 +617,9 @@ ngx_http_php_set_run_inline_handler(ngx_http_request_t *r, ngx_str_t *val, ngx_h
 
 	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s", filter_data->script.data);
 
-	if (filter_data->result.data != NULL){
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s", filter_data->result.data);
-	}
+	/*if (filter_data->result.data != NULL){
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s", filter_data->code->code.string);
+	}*/
 
 	return NGX_OK;
 }

@@ -353,8 +353,6 @@ ngx_http_php_set_run_inline(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 		return NGX_CONF_ERROR;
 	}
 
-	filter.data = filter_data;
-
 	PHP_EMBED_START_BLOCK(0, NULL);
 		zval retval;
 		zend_eval_string_ex(filter_data->code->code.string, &retval, "ngx_php run code return", 1 TSRMLS_CC);
@@ -377,6 +375,14 @@ ngx_http_php_set_run_inline(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 		zval_dtor(&retval);
 	PHP_EMBED_END_BLOCK();
 	
+	if (filter_data->result.data != NULL){
+		filter_data->code = ngx_http_php_code_from_string(cf->pool, &filter_data->result);
+		if (filter_data->code == NGX_CONF_UNSET_PTR){
+			return NGX_CONF_ERROR;
+		}
+	}
+
+	filter.data = filter_data;
 	return ndk_set_var_multi_value_core(cf, &target, &value[3], &filter);
 }
 
