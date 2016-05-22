@@ -178,6 +178,24 @@ Files=9, Tests=20,  2 wallclock secs ( 0.03 usr  0.03 sys +  1.20 cusr  0.31 csy
 Result: PASS
 ```
 
+Directives
+----------
+
+#### php_ini_path
+**syntax:** *php_ini_path &lt;php.ini file path&gt;*  
+**context:** *http*  
+**phase:** *loading-config*
+
+#### php_init_code
+**syntax:** *php_ini_code &lt;php script code&gt;*  
+**context:** *http*  
+**phase:** *loading-config*
+
+#### php_init_file
+**syntax:** *php_init_file &lt;php script file&gt;*  
+**context:** *http*  
+**phase:** *loading-config*
+
 Copyright and License
 ---------------------
 Copyright (c) 2016, rryqszq4 <phpngx@gmail.com>
