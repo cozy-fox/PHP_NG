@@ -136,7 +136,7 @@ static ngx_command_t ngx_http_php_commands[] = {
 	 ngx_http_php_set_file,
 	 NGX_HTTP_LOC_CONF_OFFSET,
 	 0,
-	 NULL//ngx_http_php_set_file_handler
+	 ngx_http_php_set_file_handler
 	},
 
 #endif

@@ -23,7 +23,7 @@ ngx_http_php_code_from_file(ngx_pool_t *pool, ngx_str_t *code_file_path)
 	len = ngx_strlen((char *)code_file_path->data);
 	if (len == 0){
 		return NGX_CONF_UNSET_PTR;
-	}else if (code_file_path->data[0] == '/'){
+	}else if (code_file_path->data[0] == '/' || code_file_path->data[0] == '$'){
 		code->code.file = ngx_pcalloc(pool, len + 1);
 		if (code->code.file == NULL){
 			return NGX_CONF_UNSET_PTR;

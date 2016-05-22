@@ -624,6 +624,21 @@ ngx_http_php_set_run_inline_handler(ngx_http_request_t *r, ngx_str_t *val, ngx_h
 	return NGX_OK;
 }
 
+ngx_int_t 
+ngx_http_php_set_file_handler(ngx_http_request_t *r, ngx_str_t *val, ngx_http_variable_value_t *v, void *data)
+{
+	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+
+	ngx_http_php_set_var_data_t *filter_data;
+	filter_data = data;
+
+	if (ngx_strncmp(plcf->content_code->code.file, filter_data->var_name.data, filter_data->var_name.len) == 0){
+		plcf->content_code = filter_data->code;
+	}
+
+	return NGX_OK;
+}
+
 
 
 
