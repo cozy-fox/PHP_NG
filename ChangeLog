@@ -1,3 +1,18 @@
+2016-05-22 rryqszq4 <ngxphp@gmail.com>
+	* complie php5.3~5.6 nginx1.4~1.9
+	
+	* fixed: error call headers_sent()
+	
+	* support php session
+	
+	* fixed: support php://input
+	
+	* append $_SERVER['QUERY_STRING'], $_SERVER['CONTENT_TYPE'], $_SERVER['CONTENT_LENGTH'],$_SERVER['DOCUMENT_ROOT']
+	
+	* fixed: core dump: buffer end '\0'
+
+	* bumped version to 0.0.2
+
 2016-04-11 rryqszq4 <ngxphp@gmail.com>
 	* add nginx directive "php_ini_path", "php_init_code", "php_init_file", "php_rewrite_handler", "php_rewrite_handler_code", "php_access_handler", "php_access_handler_code", "php_content_handler", "php_content_handler_code"
 
