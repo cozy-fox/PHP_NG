@@ -3,7 +3,7 @@
 
 	* append $_SERVER['SCRIPT_NAME']
 
-	* add ngxin directive "php_set_code", "php_set_run_code", "php_set_file"
+	* add ngxin directive "php_set_code", "php_set_run_code", "php_set_file", "php_set_run_file"
 
 	* support and test framework yaf and yii-1
 	

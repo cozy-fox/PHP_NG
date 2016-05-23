@@ -241,6 +241,11 @@ Directives
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
+[ php_set_run_file ]  
+**syntax:** *php_set_run_file &lt;php script file&gt;*  
+**context:** *server, server if, location, location if*  
+**phase:** *content*
+
 
 Copyright and License
 ---------------------
