@@ -427,6 +427,88 @@ ngx_http_php_set_file(ngx_conf_t *cf, ngx_command_t *cmd, void *conf){
 	return ndk_set_var_multi_value_core(cf, &target, &value[2], &filter);
 }
 
+char *
+ngx_http_php_set_run_file(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
+{
+	ngx_str_t *value;
+	ngx_str_t target;
+	ndk_set_var_t filter;
+
+	ngx_http_php_set_var_data_t *filter_data;
+
+	/*
+		value[0] = "php_set_file"
+		value[1] = target variable name
+		value[2] = php file
+		value[3..] = real params
+	*/
+
+	value = cf->args->elts;
+	target = value[1];
+
+	filter.type = NDK_SET_VAR_MULTI_VALUE_DATA;
+	filter.func = cmd->post;
+	filter.size = cf->args->nelts - 2;
+
+	filter_data = ngx_palloc(cf->pool, sizeof(ngx_http_php_set_var_data_t));
+	if (filter_data == NULL){
+		return NGX_CONF_ERROR;
+	}
+
+	filter_data->size = filter.size;
+	filter_data->var_name = value[1];
+	filter_data->script = value[2];
+
+	filter_data->code = ngx_http_php_code_from_file(cf->pool, &filter_data->script);
+	if (filter_data->code == NGX_CONF_UNSET_PTR){
+		return NGX_CONF_ERROR;
+	}
+
+	PHP_EMBED_START_BLOCK(0, NULL);
+		zval *retval;
+		zend_file_handle file_handle;
+
+		file_handle.type = ZEND_HANDLE_FP;
+		file_handle.opened_path = NULL;
+		file_handle.free_filename = 0;
+		file_handle.filename = filter_data->code->code.file;
+		if (!(file_handle.handle.fp = VCWD_FOPEN(file_handle.filename, "rb"))) {
+			php_printf("Could not open input file: %s\n", file_handle.filename);
+			//return FAILURE;
+			return NGX_CONF_ERROR;
+		}
+		php_execute_simple_script(&file_handle, &retval TSRMLS_CC);
+
+		if (Z_TYPE_P(retval) == IS_BOOL || 
+			Z_TYPE_P(retval) == IS_LONG ||
+			Z_TYPE_P(retval) == IS_DOUBLE ||
+			Z_TYPE_P(retval) == IS_STRING ){
+
+			convert_to_string(retval);
+
+			filter_data->result.data = ngx_palloc(cf->pool, Z_STRLEN_P(retval));
+			ngx_memcpy(filter_data->result.data, Z_STRVAL_P(retval), Z_STRLEN_P(retval));
+			filter_data->result.len = Z_STRLEN_P(retval);
+		} else {
+			filter_data->result.data = NULL;
+			filter_data->result.len = 0;
+		}
+
+		zval_dtor(retval);
+	PHP_EMBED_END_BLOCK();
+	
+	if (filter_data->result.data != NULL){
+		filter_data->code = ngx_http_php_code_from_string(cf->pool, &filter_data->result);
+		if (filter_data->code == NGX_CONF_UNSET_PTR){
+			return NGX_CONF_ERROR;
+		}
+	}
+
+	filter.data = filter_data;
+
+	return ndk_set_var_multi_value_core(cf, &target, &value[2], &filter);
+}
+
 #endif
 
 
