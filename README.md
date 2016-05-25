@@ -181,80 +181,67 @@ Result: PASS
 Directives
 ----------
 
-####php_ini_path
-- - -
+#### php_ini_path
 **syntax:** *php_ini_path &lt;php.ini file path&gt;*  
 **context:** *http*  
 **phase:** *loading-config*
 
-####php_init_code
-- - -
+#### php_init_code
 **syntax:** *php_ini_code &lt;php script code&gt;*  
 **context:** *http*  
 **phase:** *loading-config*
 
-####php_init_file
-- - -
+#### php_init_file
 **syntax:** *php_init_file &lt;php script file&gt;*  
 **context:** *http*  
 **phase:** *loading-config*
 
-####php_rewrite_handler
-- - -
+#### php_rewrite_handler
 **syntax:** *php_rewrite_handler &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *rewrite*
 
-####php_rewrite_handler_code
-- - -
+#### php_rewrite_handler_code
 **syntax:** *php_rewrite_handler_code &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *rewrite*
 
-####php_access_handler
-- - -
+#### php_access_handler
 **syntax:** *php_access_handler &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *access*
 
-####php_access_handler_code
-- - -
+#### php_access_handler_code
 **syntax:** *php_access_handler_code &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *access*
 
-####php_content_handler
-- - -
+#### php_content_handler
 **syntax:** *php_content_handler &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*
 
-####php_content_handler_code
-- - -
+#### php_content_handler_code
 **syntax:** *php_content_handler_code &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*
 
-####php_set_code
-- - -
+#### php_set_code
 **syntax:** *php_set_code &lt;php script code&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
-####php_set_run_code
-- - -
+#### php_set_run_code
 **syntax:** *php_set_run_code &lt;php script code&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
-####php_set_file
-- - -
+#### php_set_file
 **syntax:** *php_set_file &lt;php script file&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
-####php_set_run_file
-- - -
+#### php_set_run_file
 **syntax:** *php_set_run_file &lt;php script file&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
