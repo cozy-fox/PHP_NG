@@ -364,6 +364,8 @@ ngx_http_php_init_worker(ngx_cycle_t *cycle)
 	
 	php_ngx_module_init(TSRMLS_C);
 
+	zend_startup_module(&php_ngx_module_entry);
+
 	old_zend_error_cb = zend_error_cb;
 	zend_error_cb = ngx_php_error_cb;
 
