@@ -110,6 +110,15 @@ static ngx_command_t ngx_http_php_commands[] = {
 	 ngx_http_php_content_inline_handler
 	},
 
+	{ngx_string("php_content_async_handler_code"),
+	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+	 	|NGX_CONF_TAKE1,
+	 ngx_http_php_content_async_inline_phase,
+	 NGX_HTTP_LOC_CONF_OFFSET,
+	 0,
+	 ngx_http_php_content_async_inline_handler
+	},
+
 #if defined(NDK) && NDK
 
 	{ngx_string("php_set_code"),
@@ -255,6 +264,13 @@ ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_http_php_main_con
 					}
 					*h = ngx_http_php_content_handler;
 				}
+				if (pmcf->enabled_content_async_handler){
+					h = ngx_array_push(&cmcf->phases[phase].handlers);
+					if (h == NULL){
+						return NGX_ERROR;
+					}
+					*h = ngx_http_php_content_async_handler;
+				}
 				break;
 			default:
 				break;
@@ -316,6 +332,8 @@ ngx_http_php_create_loc_conf(ngx_conf_t *cf)
 	plcf->content_code = NGX_CONF_UNSET_PTR;
 	plcf->content_inline_code = NGX_CONF_UNSET_PTR;
 
+	plcf->content_async_inline_code = NGX_CONF_UNSET_PTR;
+
 	return plcf;
 }
 
@@ -339,6 +357,8 @@ ngx_http_php_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 
 	prev->content_code = conf->content_code;
 	prev->content_inline_code = conf->content_inline_code;
+
+	prev->content_async_inline_code = conf->content_async_inline_code;
 
 	return NGX_CONF_OK;
 }
