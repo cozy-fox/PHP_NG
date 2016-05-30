@@ -10,7 +10,7 @@ __DATA__
 _GET
 --- config
 location = /_get {
-    php_content_handler_code '
+    content_by_php '
 		echo "_GET[a]: ".$_GET["a"];
 		echo "\n_GET[b]: ".$_GET["b"];
 	';

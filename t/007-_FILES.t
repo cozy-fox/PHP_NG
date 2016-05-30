@@ -10,7 +10,7 @@ __DATA__
 _FILES
 --- config
 location = /_files {
-    php_content_handler_code '
+    content_by_php '
 		echo $_FILES["file1"]["name"]."\n";
 		echo $_FILES["file1"]["type"]."\n";
 		echo $_FILES["file1"]["size"]."\n";

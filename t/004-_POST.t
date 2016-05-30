@@ -10,7 +10,7 @@ __DATA__
 _POST
 --- config
 location = /t {
-    php_content_handler_code '
+    content_by_php '
 		echo "_POST[a]: ".$_POST["a"];
 		echo "\n_POST[b]: ".$_POST["b"];
 	';

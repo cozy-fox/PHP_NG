@@ -10,7 +10,7 @@ __DATA__
 _SERVER['REQUEST_METHOD']
 --- config
 location = /_server {
-    php_content_handler_code '
+    content_by_php '
 		echo $_SERVER["REQUEST_METHOD"]."\n";
 	';
 }
@@ -23,7 +23,7 @@ GET
 _SERVER['DOCUMENT_URI']
 --- config
 location = /_server {
-    php_content_handler_code '
+    content_by_php '
 		echo $_SERVER["DOCUMENT_URI"]."\n";
 	';
 }

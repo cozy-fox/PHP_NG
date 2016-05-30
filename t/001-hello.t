@@ -11,7 +11,7 @@ This is just a simple demonstration of the
 echo directive provided by ngx_php.
 --- config
 location = /t {
-    php_content_handler_code '
+    content_by_php '
 		echo "hello ngx_php!";
 	';
 }

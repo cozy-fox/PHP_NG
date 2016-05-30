@@ -10,7 +10,7 @@ __DATA__
 error
 --- config
 location = /error {
-    php_content_handler_code '
+    content_by_php '
 		echo "hello ngx_php";
 		$a = new abc();
 	';

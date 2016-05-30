@@ -10,7 +10,7 @@ __DATA__
 _COOKIE
 --- config
 location = /_cookie {
-    php_content_handler_code '
+    content_by_php '
 		echo "_COOKIE[foo]: ".$_COOKIE["foo"];
 		echo "\n_COOKIE[baz]: ".$_COOKIE["baz"];
 	';

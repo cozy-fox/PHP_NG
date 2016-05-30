@@ -15,7 +15,7 @@ session
 php_ini_path /home/travis/build/rryqszq4/ngx_php/build/php/php.ini;
 --- config
 location = /session {
-    php_content_handler_code '
+    content_by_php '
 		session_start();
 		$_SESSION["view"] = 1;
 		if (session_id()){
