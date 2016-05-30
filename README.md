@@ -72,7 +72,7 @@ http {
         server_name  localhost;
 	
 		location /php {
-			php_content_handler_code '
+			content_by_php '
 				echo "hello ngx_php";
 			';
 		}
@@ -91,7 +91,7 @@ server {
 	
 	location ~ \.php$ {
         root   /home/www/wordpress;
-        php_content_handler_code "
+        content_by_php "
             require_once('/home/www/wordpress'.$_SERVER['DOCUMENT_URI']);
         ";
     }
@@ -117,7 +117,7 @@ server {
 	}
 
 	location ~ \.php$ {
-		php_content_handler_code '
+		content_by_php '
 			header("Content-Type: text/html;charset=UTF-8");
 			require_once("/home/www/yii-sample/index.php");
 		';
@@ -144,7 +144,7 @@ server {
 	}
 
 	location ~ \.php$ {
-		php_content_handler_code '
+		content_by_php '
 			header("Content-Type: text/html;charset=UTF-8");
 			require_once("/home/www/yaf-sample/index.php");
 		';
@@ -186,63 +186,68 @@ Directives
 **context:** *http*  
 **phase:** *loading-config*
 
-#### php_init_code
-**syntax:** *php_ini_code &lt;php script code&gt;*  
+#### init_by_php
+**syntax:** *init_by_php &lt;php script code&gt;*  
 **context:** *http*  
 **phase:** *loading-config*
 
-#### php_init_file
-**syntax:** *php_init_file &lt;php script file&gt;*  
+#### init_by_php_file
+**syntax:** *init_by_php_file &lt;php script file&gt;*  
 **context:** *http*  
 **phase:** *loading-config*
 
-#### php_rewrite_handler
-**syntax:** *php_rewrite_handler &lt;php script file&gt;*  
+#### rewrite_by_php
+**syntax:** *rewrite_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *rewrite*
 
-#### php_rewrite_handler_code
-**syntax:** *php_rewrite_handler_code &lt;php script code&gt;*  
+#### rewrite_by_php_file
+**syntax:** *rewrite_by_php_file &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *rewrite*
 
-#### php_access_handler
-**syntax:** *php_access_handler &lt;php script file&gt;*  
+#### access_by_php
+**syntax:** *access_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *access*
 
-#### php_access_handler_code
-**syntax:** *php_access_handler_code &lt;php script code&gt;*  
+#### access_by_php_file
+**syntax:** *access_by_php_file &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *access*
 
-#### php_content_handler
-**syntax:** *php_content_handler &lt;php script file&gt;*  
+#### content_by_php
+**syntax:** *content_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*
 
-#### php_content_handler_code
-**syntax:** *php_content_handler_code &lt;php script code&gt;*  
+#### content_by_php_file
+**syntax:** *content_by_php_file &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*
 
-#### php_set_code
-**syntax:** *php_set_code &lt;php script code&gt;*  
+#### content_async_by_php
+**syntax:** *content_async_by_php &lt;php script code&gt;*  
+**context:** *http, server, location, location if*  
+**phase:** *content*
+
+#### set_by_php
+**syntax:** *set_by_php &lt;php script code&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
-#### php_set_run_code
-**syntax:** *php_set_run_code &lt;php script code&gt;*  
+#### set_run_by_php
+**syntax:** *set_run_by_php &lt;php script code&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
-#### php_set_file
-**syntax:** *php_set_file &lt;php script file&gt;*  
+#### set_by_php_file
+**syntax:** *set_by_php_file &lt;php script file&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
-#### php_set_run_file
-**syntax:** *php_set_run_file &lt;php script file&gt;*  
+#### set_run_by_php_file
+**syntax:** *set_run_by_php_file &lt;php script file&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
