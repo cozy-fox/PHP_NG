@@ -6,6 +6,11 @@
 
 #include "php_ngx.h"
 
+#include "../ngx_http_php_module.h"
+#include "../ngx_http_php_request.h"
+
+#include "php_ngx_location.h"
+
 /* If you declare any globals in php_php_ngx.h uncomment this:
 ZEND_DECLARE_MODULE_GLOBALS(php_ngx)
 */
@@ -75,6 +80,7 @@ PHP_MINIT_FUNCTION(php_ngx)
 	/* If you have INI entries, uncomment these lines 
 	REGISTER_INI_ENTRIES();
 	*/
+	ngx_location_init(module_number TSRMLS_CC);
 	return SUCCESS;
 }
 /* }}} */
