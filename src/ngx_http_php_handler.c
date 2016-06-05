@@ -622,18 +622,21 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 		// location content
 		ngx_php_ngx_run(r, pmcf->state, plcf->content_async_inline_code);
 
-		ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+		/*ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 		if (ctx->enable_async == 1){
 			return NGX_DONE;
-		}
+		}*/
+		return NGX_DONE;
 
 	NGX_HTTP_PHP_NGX_SHUTDOWN;
-
 
 	ngx_http_php_rputs_chain_list_t *chain;
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+	if (ctx->enable_async == 1){
+		return NGX_DONE;
+	}
 	chain = ctx->rputs_chain;
 
 	if (ctx->rputs_chain == NULL){

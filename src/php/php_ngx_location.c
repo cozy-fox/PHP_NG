@@ -125,13 +125,27 @@ PHP_METHOD(ngx_location, capture_async)
 
 PHP_METHOD(ngx_location, capture_multi_async)
 {
-	char *str;
-	int str_len;
+	char *uri_str;
+	int uri_len;
 	
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &str_len) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &uri_str, &uri_len) == FAILURE)
 	{
 		return ;
 	}
+
+	ngx_http_php_request_context_t *context = (ngx_http_php_request_context_t *)SG(server_context);
+	ngx_http_request_t *r = (ngx_http_request_t *)context->r;
+
+	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+	if (ctx == NULL){
+		
+	}
+
+	ctx->capture_uri.data = (u_char *)uri_str;
+	ctx->capture_uri.len = uri_len;
+
+	ngx_http_php_subrequest_post(r);
 
 	return ;
 }

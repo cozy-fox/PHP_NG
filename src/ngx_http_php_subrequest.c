@@ -21,7 +21,7 @@ ngx_http_php_subrequest_post(ngx_http_request_t *r)
 		ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 	}*/
 
-	r->main->count++;
+	r->count++;
 	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	ctx->enable_async = 1;
@@ -56,6 +56,7 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 	pr->headers_out.status = r->headers_out.status;
 
 	if (r->headers_out.status == NGX_HTTP_OK){
+		ngx_php_request = pr;
 		//int flag = 0;
 		//ngx_buf_t *pRecvBuf = &r->upstream->buffer;
 		//ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "%s", pRecvBuf->pos);
@@ -99,6 +100,13 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 		}*/
 
 		ctx->capture_buf = &r->upstream->buffer;
+		//ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "subrequest test");
+
+		/*NGX_HTTP_PHP_NGX_INIT;
+
+			zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
+
+		NGX_HTTP_PHP_NGX_SHUTDOWN;*/
 
 	}
 
@@ -113,36 +121,62 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 void 
 ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
 {
+	TSRMLS_FETCH();
 	if (r->headers_out.status != NGX_HTTP_OK){
 		ngx_http_finalize_request(r, r->headers_out.status);
 		return ;
 	}
 
+	ngx_php_request = r;
+
 	ngx_http_php_ctx_t *ctx;
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
+	//NGX_HTTP_PHP_NGX_INIT;
 	zend_first_try {
-		zval *args[1];
-		zval uri;
+		//zval *args[1];
+		//zval uri;
 		zval retval;
 
-		args[0] = &uri;
-		ZVAL_STRINGL(args[0], (char *)ctx->capture_buf->pos, ctx->capture_buf->last - ctx->capture_buf->pos, 1);
+		//args[0] = &uri;
+		//ZVAL_STRINGL(args[0], (char *)ctx->capture_buf->pos, ctx->capture_buf->last - ctx->capture_buf->pos, 1);
 
-		if (call_user_function(EG(function_table), NULL, ctx->closure, &retval, 1, args TSRMLS_CC) == FAILURE)
+		if (call_user_function(EG(function_table), NULL, ctx->closure, &retval, 0, NULL TSRMLS_CC) == FAILURE)
   		{
     		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed calling closure");
     		//return ;
   		}
-  		zval_dtor(args[0]);
+  		//zval_dtor(args[0]);
   		zval_dtor(&retval);
 		//zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
 	} zend_catch {		
 	} zend_end_try();
 
+	//zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
+
+	//NGX_HTTP_PHP_NGX_SHUTDOWN;
+
+	//ngx_http_php_request_clean(TSRMLS_C);
+	//php_request_shutdown_for_exec((void *)0);
+
+	//NGX_HTTP_PHP_NGX_INIT;
+	//NGX_HTTP_PHP_NGX_SHUTDOWN;
+	
+	//ngx_http_php_request_init(r TSRMLS_CC);
+
+	//ngx_http_php_request_clean(TSRMLS_C);
+
+	//php_ngx_request_init(TSRMLS_C);
+	//php_ngx_request_shutdown(TSRMLS_C);
+
 	ngx_http_php_request_clean(TSRMLS_C);
-	php_ngx_request_shutdown(TSRMLS_C);
+	//php_ngx_request_shutdown(TSRMLS_C);
+
+	//php_request_startup_for_hook(TSRMLS_C);
+	
+	//php_request_shutdown_for_exec((void *)0);
+
 
 	/*ngx_http_mytest_ctx_t *myctx = ngx_http_get_module_ctx(r,ngx_http_php_module);  
     ngx_str_t output_format = ngx_string("stock[%V],Today current price: %V,volum: %V");  
