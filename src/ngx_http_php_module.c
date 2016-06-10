@@ -366,6 +366,8 @@ ngx_http_php_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 static ngx_int_t 
 ngx_http_php_init_worker(ngx_cycle_t *cycle)
 {
+	//TSRMLS_FETCH();
+
 	ngx_http_php_main_conf_t *pmcf;
 
 	pmcf = ngx_http_cycle_get_module_main_conf(cycle, ngx_http_php_module);
@@ -382,7 +384,7 @@ ngx_http_php_init_worker(ngx_cycle_t *cycle)
 		php_ngx_module.php_ini_path_override = (char *)pmcf->ini_path.data;
 	}
 	
-	php_ngx_module_init(TSRMLS_C);
+	php_ngx_module_init();
 
 	zend_startup_module(&php_ngx_module_entry);
 
@@ -395,6 +397,7 @@ ngx_http_php_init_worker(ngx_cycle_t *cycle)
 static void 
 ngx_http_php_exit_worker(ngx_cycle_t *cycle)
 {
+	TSRMLS_FETCH();
 	php_ngx_module_shutdown(TSRMLS_C);
 }
 

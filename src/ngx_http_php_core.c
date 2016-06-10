@@ -557,6 +557,7 @@ ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code)
 ngx_int_t
 ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_state_t *state, ngx_http_php_code_t *code)
 {
+	TSRMLS_FETCH();
 
 	if (code->code_type == NGX_HTTP_PHP_CODE_TYPE_STRING){
 

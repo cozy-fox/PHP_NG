@@ -11,9 +11,9 @@
 
 #include "php_ngx_location.h"
 
-/* If you declare any globals in php_php_ngx.h uncomment this:
+// If you declare any globals in php_php_ngx.h uncomment this:
 ZEND_DECLARE_MODULE_GLOBALS(php_ngx)
-*/
+
 
 /* True global resources - no need for thread safety here */
 //static int le_php_ngx;
@@ -288,7 +288,7 @@ static const zend_function_entry additional_functions[] = {
 	{NULL, NULL, NULL, 0, 0}
 };
 
-int php_ngx_module_init(TSRMLS_D)
+int php_ngx_module_init()
 {
 	
 #ifdef ZTS
