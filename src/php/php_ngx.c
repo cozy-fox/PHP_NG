@@ -101,6 +101,7 @@ PHP_MSHUTDOWN_FUNCTION(php_ngx)
  */
 PHP_RINIT_FUNCTION(php_ngx)
 {
+	ngx_location_init(0 TSRMLS_CC);
 	return SUCCESS;
 }
 /* }}} */

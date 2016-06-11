@@ -8,6 +8,7 @@
 #include "ngx_http_php_handler.h"
 #include "ngx_http_php_module.h"
 #include "ngx_http_php_request.h"
+#include "ngx_http_php_subrequest.h"
 
 ngx_int_t 
 ngx_http_php_rewrite_handler(ngx_http_request_t *r)
@@ -584,13 +585,48 @@ ngx_http_php_content_async_handler(ngx_http_request_t *r)
 	return plcf->content_async_handler(r);
 }
 
+void *ngx_http_php_test_thread(void *arg)
+{
+	TSRMLS_FETCH();
+	ngx_http_request_t *r = (ngx_http_request_t *)arg;
+
+	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "pthread");
+	ngx_http_php_main_conf_t *pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+
+	//ngx_php_ngx_run(r, pmcf->state, plcf->content_async_inline_code);
+
+	NGX_HTTP_PHP_NGX_INIT;
+		
+		ngx_php_ngx_run(r, pmcf->state, plcf->content_async_inline_code);
+	//zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
+
+		ngx_http_php_ctx_t *ctx;
+		ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "child: %p", &(ctx->cond));
+		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "child uri %d", ctx->capture_uri.len);
+
+			pthread_mutex_lock(&(ctx->mutex));
+			pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
+			pthread_mutex_unlock(&(ctx->mutex));
+
+
+		zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
+
+	NGX_HTTP_PHP_NGX_SHUTDOWN;
+
+
+	return NULL;
+}
+
 ngx_int_t 
 ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 {
-	TSRMLS_FETCH();
+	//TSRMLS_FETCH();
 
-	ngx_http_php_main_conf_t *pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
-	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+	//ngx_http_php_main_conf_t *pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	//ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
 
 	ngx_int_t rc;
 	ngx_http_php_ctx_t *ctx;
@@ -605,6 +641,9 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 
 	ctx->enable_async = 0;
 	ctx->request_body_more = 1;
+
+	pthread_mutex_init(&(ctx->mutex), NULL);
+	pthread_cond_init(&(ctx->cond), NULL);
 	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
 	ngx_php_request = r;
@@ -613,7 +652,14 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 		return ngx_http_php_content_post_handler(r);
 	}
 
-	NGX_HTTP_PHP_NGX_INIT;
+	//pthread_t id_1;
+	//pthread_create(&id_1, NULL, ngx_http_php_test_thread, r);
+	//pthread_join(id_1, NULL);
+
+	//ngx_http_php_request_init(r TSRMLS_CC);
+	//php_ngx_request_init(TSRMLS_C);	
+
+	//NGX_HTTP_PHP_NGX_INIT;
 		// main init
 		/*if (pmcf->init_inline_code != NGX_CONF_UNSET_PTR){
 			ngx_php_ngx_run(r, pmcf->state, pmcf->init_inline_code);
@@ -635,24 +681,54 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 		if (plcf->access_inline_code != NGX_CONF_UNSET_PTR){
 			ngx_php_ngx_run(r, pmcf->state, plcf->access_inline_code);
 		}*/
+		//pthread_t id_1;
+		pthread_create(&id_1, NULL, ngx_http_php_test_thread, r);
+
+
+		//ctx->capture_uri.data = (u_char *)"/list=s_sh000001";
+		//ctx->capture_uri.len = 16;
+
+		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
+
+		while (1){
+			usleep(1);
+			ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+			//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
+
+			if (ctx->enable_async == 1){
+				//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
+				break;
+			}
+		}
+
+		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main uri %s", ctx->capture_uri.data);
+
+		ngx_http_php_subrequest_post(r);
+		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", ctx->enable_async);
+
+			//pthread_mutex_lock(&(ctx->mutex));
+			//pthread_cond_signal(&(ctx->cond));
+			//pthread_mutex_unlock(&(ctx->mutex));
+
+		return NGX_DONE;
 		// location content
-		ngx_php_ngx_run(r, pmcf->state, plcf->content_async_inline_code);
+		//ngx_php_ngx_run(r, pmcf->state, plcf->content_async_inline_code);
 
 		/*ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 		if (ctx->enable_async == 1){
 			return NGX_DONE;
 		}*/
-		return NGX_DONE;
 
-	NGX_HTTP_PHP_NGX_SHUTDOWN;
+
+	//NGX_HTTP_PHP_NGX_SHUTDOWN;
 
 	ngx_http_php_rputs_chain_list_t *chain;
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-	if (ctx->enable_async == 1){
+	/*if (ctx->enable_async == 1){
 		return NGX_DONE;
-	}
+	}*/
 	chain = ctx->rputs_chain;
 
 	if (ctx->rputs_chain == NULL){

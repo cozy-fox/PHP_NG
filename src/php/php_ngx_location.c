@@ -113,12 +113,25 @@ PHP_METHOD(ngx_location, capture_async)
 		
 	}
 
-	ctx->capture_uri.data = (u_char *)uri_str;
+	ngx_str_t ns;
+	ns.data = (u_char *)uri_str;
+	ns.len = uri_len;
+
+	//ctx->capture_uri.data = (u_char *)uri_str;
 	ctx->capture_uri.len = uri_len;
+
+	ctx->capture_uri.data = ngx_pstrdup(r->pool, &ns);
 
 	ctx->closure = val;
 
-	ngx_http_php_subrequest_post(r);
+	ctx->enable_async = 1;
+
+	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_location %s", (u_char *)uri_str);
+	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_location %d", ctx->capture_uri.len);
+
+	//ngx_http_php_subrequest_post(r);
 
 	return ;
 }

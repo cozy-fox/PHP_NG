@@ -24,7 +24,9 @@ ngx_http_php_subrequest_post(ngx_http_request_t *r)
 	r->count++;
 	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
-	ctx->enable_async = 1;
+	//ctx->enable_async = 1;
+
+	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "sub uri %s", ctx->capture_uri.data);
 
 	ngx_http_post_subrequest_t *psr = ngx_palloc(r->pool, sizeof(ngx_http_post_subrequest_t));
 	if (psr == NULL){
@@ -52,7 +54,7 @@ ngx_int_t
 ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_t rc)
 {
 	ngx_http_request_t *pr = r->parent;
-	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(pr, ngx_http_php_module);
+	
 	pr->headers_out.status = r->headers_out.status;
 
 	if (r->headers_out.status == NGX_HTTP_OK){
@@ -99,8 +101,8 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 			pr->headers_out.content_length_n += b->last - b->pos;
 		}*/
 
-		ctx->capture_buf = &r->upstream->buffer;
-		//ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "subrequest test");
+		//ctx->capture_buf = &r->upstream->buffer;
+		//ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "%s", (&r->upstream->buffer)->pos);
 
 		/*NGX_HTTP_PHP_NGX_INIT;
 
@@ -108,9 +110,23 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 
 		NGX_HTTP_PHP_NGX_SHUTDOWN;*/
 
+		ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(ngx_php_request, ngx_http_php_module);
+		//ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "%d", ctx->enable_async);
+
+		pthread_mutex_lock(&(ctx->mutex));
+		pthread_cond_signal(&(ctx->cond));
+		pthread_mutex_unlock(&(ctx->mutex));
+		pthread_join(id_1, NULL);
+
 	}
 
+
 	pr->write_event_handler = ngx_http_php_subrequest_post_parent;
+
+	/*sleep(5);
+	pthread_mutex_lock(&(ctx->mutex));
+	pthread_cond_signal(&ctx->cond);
+	pthread_mutex_unlock(&(ctx->mutex));*/
 
 	//r->main->count++;
 
@@ -121,7 +137,8 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 void 
 ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
 {
-	TSRMLS_FETCH();
+
+	//TSRMLS_FETCH();
 	if (r->headers_out.status != NGX_HTTP_OK){
 		ngx_http_finalize_request(r, r->headers_out.status);
 		return ;
@@ -133,8 +150,10 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
+
+
 	//NGX_HTTP_PHP_NGX_INIT;
-	zend_first_try {
+	/*zend_first_try {
 		//zval *args[1];
 		//zval uri;
 		zval retval;
@@ -151,7 +170,7 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
   		zval_dtor(&retval);
 		//zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
 	} zend_catch {		
-	} zend_end_try();
+	} zend_end_try();*/
 
 	//zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
 
@@ -170,7 +189,7 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
 	//php_ngx_request_init(TSRMLS_C);
 	//php_ngx_request_shutdown(TSRMLS_C);
 
-	ngx_http_php_request_clean(TSRMLS_C);
+	//ngx_http_php_request_clean(TSRMLS_C);
 	//php_ngx_request_shutdown(TSRMLS_C);
 
 	//php_request_startup_for_hook(TSRMLS_C);
