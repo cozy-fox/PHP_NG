@@ -682,7 +682,7 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 			ngx_php_ngx_run(r, pmcf->state, plcf->access_inline_code);
 		}*/
 		//pthread_t id_1;
-		pthread_create(&id_1, NULL, ngx_http_php_test_thread, r);
+		pthread_create(&(ctx->pthread_id), NULL, ngx_http_php_test_thread, r);
 
 
 		//ctx->capture_uri.data = (u_char *)"/list=s_sh000001";
