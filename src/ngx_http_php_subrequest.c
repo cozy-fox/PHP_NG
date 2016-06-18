@@ -54,11 +54,13 @@ ngx_int_t
 ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_t rc)
 {
 	ngx_http_request_t *pr = r->parent;
-	
+	ngx_php_request = pr;
+
+	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(ngx_php_request, ngx_http_php_module);
+
 	pr->headers_out.status = r->headers_out.status;
 
 	if (r->headers_out.status == NGX_HTTP_OK){
-		ngx_php_request = pr;
 		//int flag = 0;
 		//ngx_buf_t *pRecvBuf = &r->upstream->buffer;
 		//ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "%s", pRecvBuf->pos);
@@ -101,7 +103,7 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 			pr->headers_out.content_length_n += b->last - b->pos;
 		}*/
 
-		//ctx->capture_buf = &r->upstream->buffer;
+		ctx->capture_buf = &r->upstream->buffer;
 		//ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "%s", (&r->upstream->buffer)->pos);
 
 		/*NGX_HTTP_PHP_NGX_INIT;
@@ -110,16 +112,12 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 
 		NGX_HTTP_PHP_NGX_SHUTDOWN;*/
 
-		ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(ngx_php_request, ngx_http_php_module);
-		//ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "%d", ctx->enable_async);
-
-		pthread_mutex_lock(&(ctx->mutex));
-		pthread_cond_signal(&(ctx->cond));
-		pthread_mutex_unlock(&(ctx->mutex));
-		pthread_join(ctx->pthread_id, NULL);
-
 	}
 
+	pthread_mutex_lock(&(ctx->mutex));
+	pthread_cond_signal(&(ctx->cond));
+	pthread_mutex_unlock(&(ctx->mutex));
+	pthread_join(ctx->pthread_id, NULL);
 
 	pr->write_event_handler = ngx_http_php_subrequest_post_parent;
 

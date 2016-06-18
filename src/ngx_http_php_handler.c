@@ -585,7 +585,7 @@ ngx_http_php_content_async_handler(ngx_http_request_t *r)
 	return plcf->content_async_handler(r);
 }
 
-void *ngx_http_php_test_thread(void *arg)
+void *ngx_http_php_async_inline_thread(void *arg)
 {
 	TSRMLS_FETCH();
 	ngx_http_request_t *r = (ngx_http_request_t *)arg;
@@ -607,12 +607,25 @@ void *ngx_http_php_test_thread(void *arg)
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "child: %p", &(ctx->cond));
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "child uri %d", ctx->capture_uri.len);
 
-			pthread_mutex_lock(&(ctx->mutex));
-			pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
-			pthread_mutex_unlock(&(ctx->mutex));
+		pthread_mutex_lock(&(ctx->mutex));
+		pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
+		pthread_mutex_unlock(&(ctx->mutex));
 
+		zval *argv[1];
+		zval retval;
 
-		zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
+		MAKE_STD_ZVAL(argv[0]);
+		ZVAL_STRINGL(argv[0], (char *)ctx->capture_buf->pos, ctx->capture_buf->last - ctx->capture_buf->pos, 1);
+
+		if (call_user_function(EG(function_table), NULL, ctx->closure, &retval, 1, argv TSRMLS_CC) == FAILURE)
+  		{
+    		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed calling closure");
+    		//return ;
+  		}
+  		//zval_dtor(args[0]);
+  		zval_ptr_dtor(&argv[0]);
+  		zval_dtor(&retval);
+		//zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
 
 	NGX_HTTP_PHP_NGX_SHUTDOWN;
 
@@ -682,7 +695,7 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 			ngx_php_ngx_run(r, pmcf->state, plcf->access_inline_code);
 		}*/
 		//pthread_t id_1;
-		pthread_create(&(ctx->pthread_id), NULL, ngx_http_php_test_thread, r);
+		pthread_create(&(ctx->pthread_id), NULL, ngx_http_php_async_inline_thread, r);
 
 
 		//ctx->capture_uri.data = (u_char *)"/list=s_sh000001";
