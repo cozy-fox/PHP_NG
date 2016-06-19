@@ -615,7 +615,8 @@ void *ngx_http_php_async_inline_thread(void *arg)
 		zval retval;
 
 		MAKE_STD_ZVAL(argv[0]);
-		ZVAL_STRINGL(argv[0], (char *)ctx->capture_buf->pos, ctx->capture_buf->last - ctx->capture_buf->pos, 1);
+		//ZVAL_STRINGL(argv[0], (char *)ctx->capture_buf->pos, ctx->capture_buf->last - ctx->capture_buf->pos, 1);
+		ZVAL_STRINGL(argv[0], (char *)ctx->capture_str.data, ctx->capture_str.len, 1);
 
 		if (call_user_function(EG(function_table), NULL, ctx->closure, &retval, 1, argv TSRMLS_CC) == FAILURE)
   		{

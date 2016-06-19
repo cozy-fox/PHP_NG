@@ -103,7 +103,10 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 			pr->headers_out.content_length_n += b->last - b->pos;
 		}*/
 
-		ctx->capture_buf = &r->upstream->buffer;
+		//ctx->capture_buf = &r->upstream->buffer;
+
+		ctx->capture_str.len = (&r->upstream->buffer)->last - (&r->upstream->buffer)->pos;
+		ctx->capture_str.data = (&r->upstream->buffer)->pos;
 		//ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "%s", (&r->upstream->buffer)->pos);
 
 		/*NGX_HTTP_PHP_NGX_INIT;

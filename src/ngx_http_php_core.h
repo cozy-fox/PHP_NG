@@ -55,6 +55,7 @@ typedef struct ngx_http_php_ctx_t {
 	unsigned enable_async : 1;
 	ngx_str_t capture_uri;
 	ngx_buf_t *capture_buf;
+	ngx_str_t capture_str;
 	zval *closure;
 
 	pthread_mutex_t mutex;
