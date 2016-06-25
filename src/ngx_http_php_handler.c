@@ -607,9 +607,9 @@ void *ngx_http_php_async_inline_thread(void *arg)
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "child: %p", &(ctx->cond));
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "child uri %d", ctx->capture_uri.len);
 
-		pthread_mutex_lock(&(ctx->mutex));
-		pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
-		pthread_mutex_unlock(&(ctx->mutex));
+		//pthread_mutex_lock(&(ctx->mutex));
+		//pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
+		//pthread_mutex_unlock(&(ctx->mutex));
 
 		zval *argv[1];
 		zval retval;
@@ -704,7 +704,7 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
 
-		while (1){
+		for(;;){
 			usleep(1);
 			ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 			//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);

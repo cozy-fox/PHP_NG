@@ -133,6 +133,10 @@ PHP_METHOD(ngx_location, capture_async)
 
 	//ngx_http_php_subrequest_post(r);
 
+	pthread_mutex_lock(&(ctx->mutex));
+	pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
+	pthread_mutex_unlock(&(ctx->mutex));
+
 	return ;
 }
 
