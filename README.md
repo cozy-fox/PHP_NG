@@ -83,7 +83,8 @@ http {
 Framework conf
 --------------
 
-**wordpress:**
+**wordpress (多入口模式):**
+
 ```nginx
 server {
 	listen 80;
@@ -97,35 +98,7 @@ server {
     }
 }
 ```
-
-**yii:**
-```nginx
-server {
-    listen 80;
-	server_name	yii-sample.com;
-	access_log	logs/yii-sample.com.access.log;
-
-	root /home/www/yii-sample;
-	index index.php index.html;
-
-	location /favicon.ico {
-		log_not_found off;
-	}
-
-	location / {
-		try_files $uri $uri/ /index.php$is_args$args;
-	}
-
-	location ~ \.php$ {
-		content_by_php '
-			header("Content-Type: text/html;charset=UTF-8");
-			require_once("/home/www/yii-sample/index.php");
-		';
-	}
-}  
-```
-
-**yaf:**
+**yaf & yii (单一入口模式):**
 ```nginx
 server {
     listen 80;
@@ -251,6 +224,32 @@ Directives
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
+
+Nginx API for php
+-----------------
+
+#### ngx_location::capture_async
+**syntax:** *ngx_location::capture_async(string $uri, mixed $closure)*
+**context:** *content_async_by_php*
+```php
+ngx_location::capture_async('/list=s_sh000001', function($callback = 'callback'){
+    echo $callback;
+});
+```
+
+#### ngx_location::capture_multi_async
+**syntax:** *ngx_location::capture_multi_async(array $uri, mixed $closure)*
+**context:** *content_async_by_php*
+```php
+$capture_multi = array(
+    '/list=s_sh000001',
+    '/list=s_sh000001',
+    '/list=s_sh000001'
+);
+ngx_location::capture_multi_async($capture_multi, function($callback = 'callback'){
+    var_dump($callback);
+});
+```
 
 Copyright and License
 ---------------------
