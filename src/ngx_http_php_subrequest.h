@@ -17,4 +17,8 @@ ngx_int_t ngx_http_php_subrequest_post(ngx_http_request_t *r);
 ngx_int_t ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_t rc);
 void ngx_http_php_subrequest_post_parent(ngx_http_request_t *r);
 
+ngx_int_t ngx_http_php_subrequest_post_multi(ngx_http_request_t *r);
+ngx_int_t ngx_http_php_subrequest_post_multi_handler(ngx_http_request_t *r, void *data, ngx_int_t rc);
+ngx_int_t ngx_http_php_subrequest_post_multi_parent(ngx_http_request_t *r);
+
 #endif

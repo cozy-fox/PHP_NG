@@ -46,6 +46,12 @@ typedef struct ngx_http_php_rputs_chain_list_t {
 	ngx_chain_t *out;
 } ngx_http_php_rputs_chain_list_t;
 
+typedef struct ngx_http_php_capture_node_t {
+	ngx_str_t capture_uri;
+	ngx_buf_t *capture_buf;
+	ngx_str_t capture_str;
+} ngx_http_php_capture_node_t;
+
 typedef struct ngx_http_php_ctx_t {
 	ngx_http_php_rputs_chain_list_t *rputs_chain;
 	size_t body_length;
@@ -53,10 +59,15 @@ typedef struct ngx_http_php_ctx_t {
 	unsigned request_body_more : 1;
 
 	unsigned enable_async : 1;
+	unsigned is_capture_multi : 1;
+
 	ngx_str_t capture_uri;
 	ngx_buf_t *capture_buf;
 	ngx_str_t capture_str;
 	zval *closure;
+
+	ngx_array_t *capture_multi;
+	ngx_uint_t capture_multi_complete_total;
 
 	pthread_mutex_t mutex;
 	pthread_cond_t cond;

@@ -14,6 +14,8 @@
 #include <ext/standard/info.h>
 #include <zend_closures.h>
 
+#define COUNT_RECURSIVE     1
+
 //PHP_METHOD(ngx_location, __construct);
 PHP_METHOD(ngx_location, capture_async);
 PHP_METHOD(ngx_location, capture_multi_async);

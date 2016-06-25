@@ -611,23 +611,46 @@ void *ngx_http_php_async_inline_thread(void *arg)
 		//pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
 		//pthread_mutex_unlock(&(ctx->mutex));
 
-		zval *argv[1];
-		zval retval;
+  		if (ctx->is_capture_multi == 1){
+  			zval *argv[1];
+  			zval retval;
 
-		MAKE_STD_ZVAL(argv[0]);
-		//ZVAL_STRINGL(argv[0], (char *)ctx->capture_buf->pos, ctx->capture_buf->last - ctx->capture_buf->pos, 1);
-		ZVAL_STRINGL(argv[0], (char *)ctx->capture_str.data, ctx->capture_str.len, 1);
+  			MAKE_STD_ZVAL(argv[0]);
+  			array_init(argv[0]);
 
-		if (call_user_function(EG(function_table), NULL, ctx->closure, &retval, 1, argv TSRMLS_CC) == FAILURE)
-  		{
-    		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed calling closure");
-    		//return ;
+  			ngx_http_php_capture_node_t *capture_node = ctx->capture_multi->elts;
+  			ngx_uint_t i;
+  			for (i = 0; i < ctx->capture_multi->nelts; i++,capture_node++){
+  				add_next_index_stringl(argv[0], (char *)capture_node->capture_str.data, capture_node->capture_str.len, 1);
+  			}
+
+  			if (call_user_function(EG(function_table), NULL, ctx->closure, &retval, 1, argv TSRMLS_CC) == FAILURE)
+	  		{
+	    		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed calling closure");
+	    		//return ;
+	  		}
+	  		//zval_dtor(args[0]);
+	  		zval_ptr_dtor(&argv[0]);
+	  		zval_dtor(&retval);
+
+  			ngx_array_destroy(ctx->capture_multi);
+  		}else {
+  			zval *argv[1];
+			zval retval;
+
+			MAKE_STD_ZVAL(argv[0]);
+			//ZVAL_STRINGL(argv[0], (char *)ctx->capture_buf->pos, ctx->capture_buf->last - ctx->capture_buf->pos, 1);
+			ZVAL_STRINGL(argv[0], (char *)ctx->capture_str.data, ctx->capture_str.len, 1);
+
+			if (call_user_function(EG(function_table), NULL, ctx->closure, &retval, 1, argv TSRMLS_CC) == FAILURE)
+	  		{
+	    		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed calling closure");
+	    		//return ;
+	  		}
+	  		//zval_dtor(args[0]);
+	  		zval_ptr_dtor(&argv[0]);
+	  		zval_dtor(&retval);
   		}
-  		//zval_dtor(args[0]);
-  		zval_ptr_dtor(&argv[0]);
-  		zval_dtor(&retval);
-		//zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
-
 	NGX_HTTP_PHP_NGX_SHUTDOWN;
 
 
@@ -654,6 +677,8 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 	}
 
 	ctx->enable_async = 0;
+	ctx->is_capture_multi = 0;
+	ctx->capture_multi_complete_total = 0;
 	ctx->request_body_more = 1;
 
 	pthread_mutex_init(&(ctx->mutex), NULL);
@@ -715,9 +740,15 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 			}
 		}
 
+		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
+
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main uri %s", ctx->capture_uri.data);
 
-		ngx_http_php_subrequest_post(r);
+		if (ctx->is_capture_multi == 0){
+			ngx_http_php_subrequest_post(r);
+		} else {
+			ngx_http_php_subrequest_post_multi(r);
+		}
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", ctx->enable_async);
 
 			//pthread_mutex_lock(&(ctx->mutex));
