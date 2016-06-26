@@ -41,7 +41,7 @@ ngx_http_php_subrequest_post(ngx_http_request_t *r)
 	ngx_snprintf(sub_location.data, sub_location.len, "%V", &ctx->capture_uri);
 
 	ngx_http_request_t *sr;
-	rc = ngx_http_subrequest(r, &sub_location, NULL, &sr, psr, NGX_HTTP_SUBREQUEST_IN_MEMORY);
+	rc = ngx_http_php_subrequest(r, &sub_location, NULL, &sr, psr, NGX_HTTP_SUBREQUEST_IN_MEMORY);
 	if (rc != NGX_OK){
 		return NGX_ERROR;
 	}
@@ -314,35 +314,42 @@ ngx_http_php_subrequest_post_multi(ngx_http_request_t *r)
 	ngx_php_request = r;
 
 	ngx_uint_t rc;
-	//ngx_uint_t i;
 
 	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	ngx_http_php_capture_node_t *capture_node = ctx->capture_multi->elts;
 
-	capture_node = capture_node + ctx->capture_multi_complete_total;
+	//capture_node = capture_node + ctx->capture_multi_complete_total;
 
-	//for (i = 0; i < ctx->capture_multi->nelts; i++,capture_node++){
+	r->count = r->count + (2 - ctx->capture_multi->nelts);
+
+	ngx_uint_t i;
+	for (i = 0; i < ctx->capture_multi->nelts; i++,capture_node++){
 		//r->count++;
 
-	ngx_http_post_subrequest_t *psr = ngx_palloc(r->pool, sizeof(ngx_http_post_subrequest_t));
-	if (psr == NULL){
-		return NGX_HTTP_INTERNAL_SERVER_ERROR;
-	}
-	psr->handler = ngx_http_php_subrequest_post_multi_handler;
-	psr->data = ctx;
+		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "res => %d", i);
 
-	ngx_str_t sub_location;
-	sub_location.len = capture_node->capture_uri.len;
-	sub_location.data = ngx_palloc(r->pool, sub_location.len);
-	ngx_snprintf(sub_location.data, sub_location.len, "%V", &capture_node->capture_uri);
+		ngx_http_post_subrequest_t *psr = ngx_palloc(r->pool, sizeof(ngx_http_post_subrequest_t));
+		if (psr == NULL){
+			return NGX_HTTP_INTERNAL_SERVER_ERROR;
+		}
+		psr->handler = ngx_http_php_subrequest_post_multi_handler;
+		psr->data = ctx;
 
-	ngx_http_request_t *sr;
-	rc = ngx_http_subrequest(r, &sub_location, NULL, &sr, psr, NGX_HTTP_SUBREQUEST_IN_MEMORY);
-	if (rc != NGX_OK){
-		return NGX_ERROR;
+		ngx_str_t sub_location;
+		sub_location.len = capture_node->capture_uri.len;
+		sub_location.data = ngx_palloc(r->pool, sub_location.len);
+		ngx_snprintf(sub_location.data, sub_location.len, "%V", &capture_node->capture_uri);
+
+		ngx_http_request_t *sr;
+		rc = ngx_http_php_subrequest(r, &sub_location, NULL, &sr, psr, NGX_HTTP_SUBREQUEST_IN_MEMORY);
+
+		if (rc != NGX_OK){
+			return NGX_ERROR;
+		}
 	}
-	//}
+
+	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_http_subrequest %d",r->main->count);
 
 	return NGX_OK;
 
@@ -354,7 +361,9 @@ ngx_http_php_subrequest_post_multi_handler(ngx_http_request_t *r, void *data, ng
 	ngx_http_request_t *pr = r->parent;
 	ngx_php_request = pr;
 
-	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(pr, ngx_http_php_module);
+	//ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(pr, ngx_http_php_module);
+	ngx_http_php_ctx_t *ctx;
+	ctx = (ngx_http_php_ctx_t *)data;
 
 	pr->headers_out.status = r->headers_out.status;
 
@@ -368,6 +377,8 @@ ngx_http_php_subrequest_post_multi_handler(ngx_http_request_t *r, void *data, ng
 		capture_node->capture_str.data = (&r->upstream->buffer)->pos;
 
 		ctx->capture_multi_complete_total++;
+		//ngx_http_set_ctx(pr, ctx, ngx_http_php_module);
+		//ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "sub :=> %d", ctx->capture_multi_complete_total);
 
 	}
 
@@ -377,6 +388,10 @@ ngx_http_php_subrequest_post_multi_handler(ngx_http_request_t *r, void *data, ng
 		pthread_cond_signal(&(ctx->cond));
 		pthread_mutex_unlock(&(ctx->mutex));
 		pthread_join(ctx->pthread_id, NULL);
+
+		ctx->is_capture_multi_complete = 1;
+
+		ngx_http_set_ctx(pr, ctx, ngx_http_php_module);
 
 		pr->write_event_handler = (ngx_http_event_handler_pt)ngx_http_php_subrequest_post_multi_parent;
 
@@ -404,8 +419,9 @@ ngx_http_php_subrequest_post_multi_parent(ngx_http_request_t *r)
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
-	if (ctx->capture_multi_complete_total >= ctx->capture_multi->nelts){
-		r->main->count++;
+	if (ctx->is_capture_multi_complete == 1){
+		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "total :=> %d", ctx->capture_multi_complete_total);
+		//r->main->count++;
 
 	    ngx_int_t rc;
 		//ngx_http_php_ctx_t *ctx;
@@ -468,9 +484,146 @@ ngx_http_php_subrequest_post_multi_parent(ngx_http_request_t *r)
 		return NGX_OK;
 	}else {
 
-		ngx_http_php_subrequest_post_multi(r);
+		//ngx_http_php_subrequest_post_multi(r);
 		return NGX_DONE;
 	}
+
+}
+
+ngx_int_t
+ngx_http_php_subrequest(ngx_http_request_t *r,
+    ngx_str_t *uri, ngx_str_t *args, ngx_http_request_t **psr,
+    ngx_http_post_subrequest_t *ps, ngx_uint_t flags)
+{
+    ngx_time_t                    *tp;
+    ngx_connection_t              *c;
+    ngx_http_request_t            *sr;
+    ngx_http_core_srv_conf_t      *cscf;
+    //ngx_http_postponed_request_t  *pr, *p;
+
+    r->main->subrequests--;
+
+    if (r->main->subrequests == 0) {
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+                      "subrequests cycle while processing \"%V\"", uri);
+        r->main->subrequests = 1;
+        return NGX_ERROR;
+    }
+
+    sr = ngx_pcalloc(r->pool, sizeof(ngx_http_request_t));
+    if (sr == NULL) {
+        return NGX_ERROR;
+    }
+
+    sr->signature = NGX_HTTP_MODULE;
+
+    c = r->connection;
+    sr->connection = c;
+
+    sr->ctx = ngx_pcalloc(r->pool, sizeof(void *) * ngx_http_max_module);
+    if (sr->ctx == NULL) {
+        return NGX_ERROR;
+    }
+
+    if (ngx_list_init(&sr->headers_out.headers, r->pool, 20,
+                      sizeof(ngx_table_elt_t))
+        != NGX_OK)
+    {
+        return NGX_ERROR;
+    }
+
+    cscf = ngx_http_get_module_srv_conf(r, ngx_http_core_module);
+    sr->main_conf = cscf->ctx->main_conf;
+    sr->srv_conf = cscf->ctx->srv_conf;
+    sr->loc_conf = cscf->ctx->loc_conf;
+
+    sr->pool = r->pool;
+
+    sr->headers_in.content_length_n = -1;
+    sr->headers_in.keep_alive_n = -1;
+
+    //sr->headers_in = r->headers_in;
+
+    ngx_http_clear_content_length(sr);
+    ngx_http_clear_accept_ranges(sr);
+    ngx_http_clear_last_modified(sr);
+
+    sr->request_body = r->request_body;
+
+#if (NGX_HTTP_SPDY)
+    sr->spdy_stream = r->spdy_stream;
+#endif
+
+    sr->method = NGX_HTTP_GET;
+    sr->http_version = r->http_version;
+
+    sr->request_line = r->request_line;
+    sr->uri = *uri;
+
+    if (args) {
+        sr->args = *args;
+    }
+
+    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,
+                   "http subrequest \"%V?%V\"", uri, &sr->args);
+
+    sr->subrequest_in_memory = (flags & NGX_HTTP_SUBREQUEST_IN_MEMORY) != 0;
+    sr->waited = (flags & NGX_HTTP_SUBREQUEST_WAITED) != 0;
+
+    sr->unparsed_uri = r->unparsed_uri;
+    sr->method_name = ngx_http_core_get_method;
+    sr->http_protocol = r->http_protocol;
+
+    ngx_http_set_exten(sr);
+
+    sr->main = r->main;
+    sr->parent = r;
+    sr->post_subrequest = ps;
+    sr->read_event_handler = ngx_http_request_empty_handler;
+    sr->write_event_handler = ngx_http_handler;
+
+    //if (c->data == r && r->postponed == NULL) {
+        c->data = sr;
+    //}
+
+    sr->variables = r->variables;
+
+    sr->log_handler = r->log_handler;
+
+    /*pr = ngx_palloc(r->pool, sizeof(ngx_http_postponed_request_t));
+    if (pr == NULL) {
+        return NGX_ERROR;
+    }
+
+    pr->request = sr;
+    pr->out = NULL;
+    pr->next = NULL;*/
+
+    //if (r->postponed) {
+    //    for (p = r->postponed; p->next; p = p->next) { /* void */ }
+    //    p->next = pr;
+
+    //} else {
+    //    r->postponed = pr;
+    //}
+
+    sr->internal = 1;
+
+    sr->discard_body = r->discard_body;
+    sr->expect_tested = 1;
+    sr->main_filter_need_in_memory = r->main_filter_need_in_memory;
+
+    sr->uri_changes = NGX_HTTP_MAX_URI_CHANGES + 1;
+
+    tp = ngx_timeofday();
+    sr->start_sec = tp->sec;
+    sr->start_msec = tp->msec;
+
+    r->main->count++;
+
+    *psr = sr;
+
+    return ngx_http_post_request(sr, NULL);
 }
 
 

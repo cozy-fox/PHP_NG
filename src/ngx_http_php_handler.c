@@ -677,8 +677,11 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 	}
 
 	ctx->enable_async = 0;
+
 	ctx->is_capture_multi = 0;
 	ctx->capture_multi_complete_total = 0;
+	ctx->is_capture_multi_complete = 0;
+
 	ctx->request_body_more = 1;
 
 	pthread_mutex_init(&(ctx->mutex), NULL);
