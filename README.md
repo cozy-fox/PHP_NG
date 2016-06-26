@@ -158,7 +158,12 @@ Directives
 #### php_ini_path
 **syntax:** *php_ini_path &lt;php.ini file path&gt;*  
 **context:** *http*  
-**phase:** *loading-config*
+**phase:** *loading-config*  
+
+加载php配置文件
+```nginx
+php_ini_path /usr/local/php/etc/php.ini;
+```
 
 #### init_by_php
 **syntax:** *init_by_php &lt;php script code&gt;*  
@@ -203,7 +208,9 @@ Directives
 #### content_async_by_php
 **syntax:** *content_async_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
-**phase:** *content*
+**phase:** *content*  
+
+异步的代码方式去执行非阻塞的php代码调用
 
 #### set_by_php
 **syntax:** *set_by_php &lt;php script code&gt;*  
