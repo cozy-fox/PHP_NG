@@ -282,7 +282,7 @@ echo $result;
 **syntax:** *ngx_location::capture_multi(array $uri)*  
 **context:** *content_sync_by_php*  
 
-和ngx_location::capture_async相似，但是可以支持完全非阻塞的并行调用
+和ngx_location::capture相似，但是可以支持完全非阻塞的并行调用
 ```php
 $capture_multi = array(
     '/foo',
