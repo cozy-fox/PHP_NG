@@ -240,7 +240,7 @@ Nginx API for php
 **syntax:** *ngx_location::capture_async(string $uri, mixed $closure)*  
 **context:** *content_async_by_php*  
 
-借助nginx subrequest，实现php完全非阻塞调用底层接口
+借助nginx底层强大的subrequest，实现php完全非阻塞的异步代码调用
 ```php
 ngx_location::capture_async('/list=s_sh000001', function($callback = 'callback'){
     echo $callback;
@@ -251,7 +251,7 @@ ngx_location::capture_async('/list=s_sh000001', function($callback = 'callback')
 **syntax:** *ngx_location::capture_multi_async(array $uri, mixed $closure)*  
 **context:** *content_async_by_php*  
 
-借助nginx subrequest，实现php完全非阻塞并行调用底层接口
+和ngx_location::capture_async相似，但是可以支持完全非阻塞的并行异步代码调用
 ```php
 $capture_multi = array(
     '/list=s_sh000001',
