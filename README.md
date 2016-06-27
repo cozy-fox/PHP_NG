@@ -263,6 +263,31 @@ ngx_location::capture_multi_async($capture_multi, function($callback = 'callback
 });
 ```
 
+#### ngx_location::capture
+**syntax:** *ngx_location::capture(string $uri)*  
+**context:** *content_sync_by_php*  
+
+借助nginx底层强大的subrequest，实现php完全非阻塞调用
+```php
+$result = ngx_location::capture('/foo');
+echo $result;
+```
+
+#### ngx_location::capture_multi
+**syntax:** *ngx_location::capture_multi(array $uri)*  
+**context:** *content_sync_by_php*  
+
+```php
+$capture_multi = array(
+    '/foo',
+    '/bar',
+    '/baz'
+);
+$result = ngx_location::capture_multi($capture_multi);
+var_dump($result);
+```
+
+
 Copyright and License
 ---------------------
 Copyright (c) 2016, rryqszq4 <phpngx@gmail.com>
