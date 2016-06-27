@@ -296,7 +296,7 @@ var_dump($result);
 
 Copyright and License
 ---------------------
-Copyright (c) 2016, rryqszq4 <phpngx@gmail.com>
+Copyright (c) 2016, rryqszq4 <ngxphp@gmail.com>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
