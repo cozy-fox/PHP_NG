@@ -21,6 +21,12 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_ngx_location_capture_multi_async, 0, 0, 2)
     ZEND_ARG_INFO(0, uri_arr)
     ZEND_ARG_INFO(0, closure)
 ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_INFO_EX(arginfo_ngx_location_capture, 0, 0, 1)
+    ZEND_ARG_INFO(0, uri)
+ZEND_END_ARG_INFO()
+ZEND_BEGIN_ARG_INFO_EX(arginfo_ngx_location_capture_multi, 0, 0, 1)
+    ZEND_ARG_INFO(0, uri_arr)
+ZEND_END_ARG_INFO()
 
 
 static int _php_count_recursive(zval *array, long mode TSRMLS_DC) /* {{{ */
@@ -303,9 +309,132 @@ PHP_METHOD(ngx_location, capture_multi_async)
 	return ;
 }
 
+PHP_METHOD(ngx_location, capture)
+{
+    char *uri_str;
+    int uri_len;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &uri_str, &uri_len) == FAILURE)
+    {
+        return ;
+    }
+
+    ngx_http_php_request_context_t *context = (ngx_http_php_request_context_t *)SG(server_context);
+    ngx_http_request_t *r = (ngx_http_request_t *)context->r;
+
+    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    if (ctx == NULL){
+        
+    }
+
+    ngx_str_t ns;
+    ns.data = (u_char *)uri_str;
+    ns.len = uri_len;
+
+    //ctx->capture_uri.data = (u_char *)uri_str;
+    ctx->capture_uri.len = uri_len;
+
+    ctx->capture_uri.data = ngx_pstrdup(r->pool, &ns);
+
+    ctx->enable_async = 1;
+
+    ctx->is_capture_multi = 0;
+
+    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+    pthread_mutex_lock(&(ctx->mutex));
+    pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
+    pthread_mutex_unlock(&(ctx->mutex));
+
+    ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    RETVAL_STRINGL((char *)ctx->capture_str.data, ctx->capture_str.len, 1);
+
+    return ;
+}
+
+PHP_METHOD(ngx_location, capture_multi)
+{
+    zval *uri_arr;
+    zval *result;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &uri_arr) == FAILURE)
+    {
+        return ;
+    }
+
+    ngx_http_php_request_context_t *context = (ngx_http_php_request_context_t *)SG(server_context);
+    ngx_http_request_t *r = (ngx_http_request_t *)context->r;
+
+    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    if (ctx == NULL){
+        
+    }
+
+    int count_uri = 0;
+    count_uri = _php_count_recursive(uri_arr, 0 TSRMLS_CC);
+    ctx->capture_multi = ngx_array_create(r->pool, (ngx_uint_t)count_uri, sizeof(ngx_http_php_capture_node_t));
+
+    zval **current;
+    ulong hash_index = 0;
+    char *hash_key = NULL;
+
+    for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(uri_arr));
+        zend_hash_get_current_data(Z_ARRVAL_P(uri_arr), (void **) &current) == SUCCESS;
+        zend_hash_move_forward(Z_ARRVAL_P(uri_arr))
+    ){
+        zend_hash_get_current_key(Z_ARRVAL_P(uri_arr), &hash_key, &hash_index, 0);
+        SEPARATE_ZVAL(current);
+        //php_printf("key: %s, index: %d", hash_key, hash_index);
+        if (Z_TYPE_PP(current) == IS_STRING){
+            ngx_str_t ns;
+            ns.data = (u_char *)Z_STRVAL_PP(current);
+            ns.len = Z_STRLEN_PP(current);
+            ngx_http_php_capture_node_t *tmp_node = ngx_array_push(ctx->capture_multi);
+            tmp_node->capture_uri.len = ns.len;
+            tmp_node->capture_uri.data = ngx_pstrdup(r->pool, &ns);
+            
+            //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_location : => %s [%d]", tmp_node->capture_uri.data,tmp_node->capture_uri.len);
+        }
+
+    }
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "count : ----[%d]", count_uri);
+
+    ctx->enable_async = 1;
+    ctx->is_capture_multi = 1;
+
+    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+
+    pthread_mutex_lock(&(ctx->mutex));
+    pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
+    pthread_mutex_unlock(&(ctx->mutex));
+
+    ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+
+    MAKE_STD_ZVAL(result);
+    array_init(result);
+
+    ngx_http_php_capture_node_t *capture_node = ctx->capture_multi->elts;
+    ngx_uint_t i;
+    for (i = 0; i < ctx->capture_multi->nelts; i++,capture_node++){
+        add_next_index_stringl(result, (char *)capture_node->capture_str.data, capture_node->capture_str.len, 1);
+    }
+
+    RETVAL_ZVAL(result, 1, 0);
+
+    return ;
+}
+
 static const zend_function_entry php_ngx_location_class_functions[] = {
 	PHP_ME(ngx_location, capture_async, arginfo_ngx_location_capture_async, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 	PHP_ME(ngx_location, capture_multi_async, arginfo_ngx_location_capture_multi_async, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(ngx_location, capture, arginfo_ngx_location_capture, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(ngx_location, capture_multi, arginfo_ngx_location_capture_multi, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 	{NULL, NULL, NULL, 0, 0}
 };
 

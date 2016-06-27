@@ -585,7 +585,8 @@ ngx_http_php_content_async_handler(ngx_http_request_t *r)
 	return plcf->content_async_handler(r);
 }
 
-void *ngx_http_php_async_inline_thread(void *arg)
+void *
+ngx_http_php_async_inline_thread(void *arg)
 {
 	TSRMLS_FETCH();
 	ngx_http_request_t *r = (ngx_http_request_t *)arg;
@@ -838,6 +839,81 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 
 }
 
+
+void *
+ngx_http_php_sync_inline_thread(void *arg)
+{
+	TSRMLS_FETCH();
+	ngx_http_request_t *r = (ngx_http_request_t *)arg;
+
+	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "pthread");
+	ngx_http_php_main_conf_t *pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+
+	//ngx_php_ngx_run(r, pmcf->state, plcf->content_async_inline_code);
+
+	NGX_HTTP_PHP_NGX_INIT;
+		
+		ngx_php_ngx_run(r, pmcf->state, plcf->content_inline_code);
+
+	NGX_HTTP_PHP_NGX_SHUTDOWN;
+
+
+	return NULL;
+}
+
+ngx_int_t 
+ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
+{
+	ngx_http_php_ctx_t *ctx;
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+	if (ctx == NULL){
+		ctx = ngx_pcalloc(r->pool, sizeof(*ctx));
+		if (ctx == NULL){
+			return NGX_ERROR;
+		}
+	}
+
+	ctx->enable_async = 0;
+
+	ctx->is_capture_multi = 0;
+	ctx->capture_multi_complete_total = 0;
+	ctx->is_capture_multi_complete = 0;
+
+	ctx->request_body_more = 1;
+
+	pthread_mutex_init(&(ctx->mutex), NULL);
+	pthread_cond_init(&(ctx->cond), NULL);
+	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+	ngx_php_request = r;
+
+	if (r->method == NGX_HTTP_POST){
+		return ngx_http_php_content_post_handler(r);
+	}
+
+	pthread_create(&(ctx->pthread_id), NULL, ngx_http_php_sync_inline_thread, r);
+
+	for(;;){
+		usleep(1);
+		ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
+
+		if (ctx->enable_async == 1){
+			//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
+			break;
+		}
+	}
+
+	if (ctx->is_capture_multi == 0){
+		ngx_http_php_subrequest_post(r);
+	} else {
+		ngx_http_php_subrequest_post_multi(r);
+	}
+
+	return NGX_DONE;
+}
 
 ngx_int_t 
 ngx_http_php_set_inline_handler(ngx_http_request_t *r, ngx_str_t *val, ngx_http_variable_value_t *v, void *data)

@@ -20,6 +20,9 @@
 PHP_METHOD(ngx_location, capture_async);
 PHP_METHOD(ngx_location, capture_multi_async);
 
+PHP_METHOD(ngx_location, capture);
+PHP_METHOD(ngx_location, capture_multi);
+
 void ngx_location_init(int module_number TSRMLS_DC);
 
 #endif
