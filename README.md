@@ -212,6 +212,11 @@ php_ini_path /usr/local/php/etc/php.ini;
 
 异步的代码方式去执行非阻塞的php代码调用
 
+#### content_sync_by_php
+**syntax:** *content_sync_by_php &lt;php script code&gt;*  
+**context:** *http, server, location, location if*  
+**phase:** *content*  
+
 #### set_by_php
 **syntax:** *set_by_php &lt;php script code&gt;*  
 **context:** *server, server if, location, location if*  
@@ -277,6 +282,7 @@ echo $result;
 **syntax:** *ngx_location::capture_multi(array $uri)*  
 **context:** *content_sync_by_php*  
 
+和ngx_location::capture_async相似，但是可以支持完全非阻塞的并行调用
 ```php
 $capture_multi = array(
     '/foo',
