@@ -733,7 +733,7 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
 
-		for(;;){
+		for ( ;; ){
 			usleep(1);
 			ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 			//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
@@ -895,7 +895,7 @@ ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
 
 	pthread_create(&(ctx->pthread_id), NULL, ngx_http_php_sync_inline_thread, r);
 
-	for(;;){
+	for ( ;; ){
 		usleep(1);
 		ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
