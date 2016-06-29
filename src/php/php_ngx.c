@@ -64,13 +64,13 @@ PHP_INI_END()
 
 /* {{{ php_php_ngx_init_globals
  */
-/* Uncomment this function if you have INI entries
+// Uncomment this function if you have INI entries
 static void php_php_ngx_init_globals(zend_php_ngx_globals *php_ngx_globals)
 {
-	php_ngx_globals->global_value = 0;
-	php_ngx_globals->global_string = NULL;
+	//php_ngx_globals->global_value = 0;
+	//php_ngx_globals->global_string = NULL;
 }
-*/
+
 /* }}} */
 
 /* {{{ PHP_MINIT_FUNCTION
@@ -80,6 +80,8 @@ PHP_MINIT_FUNCTION(php_ngx)
 	/* If you have INI entries, uncomment these lines 
 	REGISTER_INI_ENTRIES();
 	*/
+	ZEND_INIT_MODULE_GLOBALS(php_ngx, php_php_ngx_init_globals,NULL);
+
 	ngx_location_init(module_number TSRMLS_CC);
 	return SUCCESS;
 }
@@ -101,7 +103,9 @@ PHP_MSHUTDOWN_FUNCTION(php_ngx)
  */
 PHP_RINIT_FUNCTION(php_ngx)
 {
-	ngx_location_init(0 TSRMLS_CC);
+	//ngx_location_init(0 TSRMLS_CC);
+	PHP_NGX_G(global_r) = NULL;
+
 	return SUCCESS;
 }
 /* }}} */
@@ -211,9 +215,9 @@ static void php_ngx_register_variables(zval *track_vars_array TSRMLS_DC)
 	}*/
 }
 
-static void php_ngx_log_message(char *message)
+/*static void php_ngx_log_message(char *message)
 {
-}
+}*/
 
 /* {{{ sapi_module_struct php_ngx_module
 */
@@ -242,7 +246,7 @@ sapi_module_struct php_ngx_module = {
 	php_ngx_read_cookies,			/* read Cookies */
 
 	php_ngx_register_variables,		/* register server variables */
-	php_ngx_log_message,			/* Log message */
+	NULL,//php_ngx_log_message,			/* Log message */
 	NULL,							/* Get request time */
 	NULL,							/* Child terminate */
 
@@ -291,7 +295,7 @@ static const zend_function_entry additional_functions[] = {
 
 int php_ngx_module_init()
 {
-	
+	zend_llist global_vars;
 #ifdef ZTS
 	void ***tsrm_ls = NULL;
 #endif
@@ -310,6 +314,7 @@ int php_ngx_module_init()
 #ifdef ZTS
   tsrm_startup(1, 1, 0, NULL);
   tsrm_ls = ts_resource(0);
+  //*ptsrm_ls = tsrm_ls;
 #endif
 
   sapi_startup(&php_ngx_module);
@@ -332,6 +337,8 @@ int php_ngx_module_init()
   if (php_ngx_module.startup(&php_ngx_module) == FAILURE){
   	return FAILURE;
   }
+
+  zend_llist_init(&global_vars, sizeof(char *), NULL, 0); 
 
   return SUCCESS;
 }

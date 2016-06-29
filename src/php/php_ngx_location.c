@@ -138,8 +138,10 @@ PHP_METHOD(ngx_location, capture_async)
 #endif
 
 
-	ngx_http_php_request_context_t *context = (ngx_http_php_request_context_t *)SG(server_context);
-	ngx_http_request_t *r = (ngx_http_request_t *)context->r;
+	//ngx_http_php_request_context_t *context = (ngx_http_php_request_context_t *)SG(server_context);
+	//ngx_http_request_t *r = (ngx_http_request_t *)context->r;
+
+    ngx_http_request_t *r = PHP_NGX_G(global_r);
 
 	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
@@ -256,8 +258,10 @@ PHP_METHOD(ngx_location, capture_multi_async)
 	zend_create_closure(val, fptr, NULL, NULL TSRMLS_CC);
 #endif
 
-	ngx_http_php_request_context_t *context = (ngx_http_php_request_context_t *)SG(server_context);
-	ngx_http_request_t *r = (ngx_http_request_t *)context->r;
+	//ngx_http_php_request_context_t *context = (ngx_http_php_request_context_t *)SG(server_context);
+	//ngx_http_request_t *r = (ngx_http_request_t *)context->r;
+
+    ngx_http_request_t *r = PHP_NGX_G(global_r);
 
 	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
@@ -319,8 +323,11 @@ PHP_METHOD(ngx_location, capture)
         return ;
     }
 
-    ngx_http_php_request_context_t *context = (ngx_http_php_request_context_t *)SG(server_context);
-    ngx_http_request_t *r = (ngx_http_request_t *)context->r;
+    //ngx_http_php_request_context_t *context = (ngx_http_php_request_context_t *)SG(server_context);
+    //ngx_http_request_t *r = (ngx_http_request_t *)context->r;
+    
+    //ngx_http_php_request_context_t *context = (ngx_http_php_request_context_t *) PHP_NGX_G(request_context);
+    ngx_http_request_t *r = PHP_NGX_G(global_r);
 
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
@@ -343,6 +350,8 @@ PHP_METHOD(ngx_location, capture)
 
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "thread run");
+
     pthread_mutex_lock(&(ctx->mutex));
     pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
     pthread_mutex_unlock(&(ctx->mutex));
@@ -364,8 +373,10 @@ PHP_METHOD(ngx_location, capture_multi)
         return ;
     }
 
-    ngx_http_php_request_context_t *context = (ngx_http_php_request_context_t *)SG(server_context);
-    ngx_http_request_t *r = (ngx_http_request_t *)context->r;
+    //ngx_http_php_request_context_t *context = (ngx_http_php_request_context_t *)SG(server_context);
+    //ngx_http_request_t *r = (ngx_http_request_t *)context->r;
+
+    ngx_http_request_t *r = PHP_NGX_G(global_r);
 
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 

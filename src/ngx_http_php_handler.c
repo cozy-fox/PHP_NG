@@ -10,6 +10,8 @@
 #include "ngx_http_php_request.h"
 #include "ngx_http_php_subrequest.h"
 
+#include "php/php_ngx_location.h"
+
 ngx_int_t 
 ngx_http_php_rewrite_handler(ngx_http_request_t *r)
 {
@@ -599,6 +601,9 @@ ngx_http_php_async_inline_thread(void *arg)
 
 	NGX_HTTP_PHP_NGX_INIT;
 		
+		ngx_location_init(0 TSRMLS_CC);
+		PHP_NGX_G(global_r) = r;
+
 		ngx_php_ngx_run(r, pmcf->state, plcf->content_async_inline_code);
 	//zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
 
@@ -735,7 +740,7 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 
 		for ( ;; ){
 			usleep(1);
-			ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+			//ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 			//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
 
 			if (ctx->enable_async == 1){
@@ -853,8 +858,12 @@ ngx_http_php_sync_inline_thread(void *arg)
 	//ngx_php_ngx_run(r, pmcf->state, plcf->content_async_inline_code);
 
 	NGX_HTTP_PHP_NGX_INIT;
-		
+
+		ngx_location_init(0 TSRMLS_CC);
+		PHP_NGX_G(global_r) = r;
+
 		ngx_php_ngx_run(r, pmcf->state, plcf->content_inline_code);
+		
 
 	NGX_HTTP_PHP_NGX_SHUTDOWN;
 
@@ -897,7 +906,7 @@ ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
 
 	for ( ;; ){
 		usleep(1);
-		ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+		//ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
 
 		if (ctx->enable_async == 1){

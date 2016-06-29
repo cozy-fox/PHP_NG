@@ -17,6 +17,8 @@
 #include <ext/standard/php_standard.h>
 #include <ext/standard/info.h>
 
+#include "../ngx_http_php_request.h"
+
 int php_ngx_module_init();
 void php_ngx_module_shutdown(TSRMLS_D);
 
@@ -55,7 +57,10 @@ PHP_FUNCTION(confirm_php_ngx_compiled);	/* For testing, remove later. */
 ZEND_BEGIN_MODULE_GLOBALS(php_ngx)
 	long  global_value;
 	char *global_string;
+   ngx_http_request_t *global_r;
 ZEND_END_MODULE_GLOBALS(php_ngx)
+
+extern ZEND_DECLARE_MODULE_GLOBALS(php_ngx);
 
 
 /* In every utility function you add that needs to use variables 

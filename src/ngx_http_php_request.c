@@ -261,7 +261,7 @@ ngx_http_php_request_init(ngx_http_request_t *r TSRMLS_DC)
 
 	}
 
-	context->r = r;
+	//context->r = r;
 
 	SG(server_context) = context;
 
