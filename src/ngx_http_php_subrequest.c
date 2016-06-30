@@ -420,6 +420,9 @@ ngx_http_php_subrequest_post_multi_parent(ngx_http_request_t *r)
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (ctx->is_capture_multi_complete == 1){
+        pthread_cond_destroy(&(ctx->cond));
+        pthread_mutex_destroy(&(ctx->mutex));
+
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "total :=> %d", ctx->capture_multi_complete_total);
 		//r->main->count++;
 
