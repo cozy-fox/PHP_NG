@@ -151,7 +151,8 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
-
+    pthread_cond_destroy(&(ctx->cond));
+    pthread_mutex_destroy(&(ctx->mutex));
 
 	//NGX_HTTP_PHP_NGX_INIT;
 	/*zend_first_try {
