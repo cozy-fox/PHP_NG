@@ -659,6 +659,11 @@ ngx_http_php_async_inline_thread(void *arg)
   		}
 	NGX_HTTP_PHP_NGX_SHUTDOWN;
 
+	ngx_http_php_ctx_t *ctx;
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+	ctx->enable_async = 0;
+	ctx->enable_thread = 0;
+	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
 	return NULL;
 }
@@ -683,6 +688,7 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 	}
 
 	ctx->enable_async = 0;
+	ctx->enable_thread = 1;
 
 	ctx->is_capture_multi = 0;
 	ctx->capture_multi_complete_total = 0;
@@ -743,7 +749,7 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 			//ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 			//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
 
-			if (ctx->enable_async == 1){
+			if (ctx->enable_async == 1 ){
 				//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
 				break;
 			}
@@ -753,18 +759,20 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main uri %s", ctx->capture_uri.data);
 
-		if (ctx->is_capture_multi == 0){
-			ngx_http_php_subrequest_post(r);
-		} else {
-			ngx_http_php_subrequest_post_multi(r);
+		if (ctx->enable_async == 1){
+			if (ctx->is_capture_multi == 0){
+				ngx_http_php_subrequest_post(r);
+			} else {
+				ngx_http_php_subrequest_post_multi(r);
+			}
+			//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", ctx->enable_async);
+
+				//pthread_mutex_lock(&(ctx->mutex));
+				//pthread_cond_signal(&(ctx->cond));
+				//pthread_mutex_unlock(&(ctx->mutex));
+
+			return NGX_DONE;
 		}
-		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", ctx->enable_async);
-
-			//pthread_mutex_lock(&(ctx->mutex));
-			//pthread_cond_signal(&(ctx->cond));
-			//pthread_mutex_unlock(&(ctx->mutex));
-
-		return NGX_DONE;
 		// location content
 		//ngx_php_ngx_run(r, pmcf->state, plcf->content_async_inline_code);
 
@@ -863,10 +871,14 @@ ngx_http_php_sync_inline_thread(void *arg)
 		PHP_NGX_G(global_r) = r;
 
 		ngx_php_ngx_run(r, pmcf->state, plcf->content_inline_code);
-		
 
 	NGX_HTTP_PHP_NGX_SHUTDOWN;
 
+	ngx_http_php_ctx_t *ctx;
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+	ctx->enable_async = 0;
+	ctx->enable_thread = 0;
+	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
 	return NULL;
 }
@@ -874,6 +886,8 @@ ngx_http_php_sync_inline_thread(void *arg)
 ngx_int_t 
 ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
 {
+	ngx_int_t rc;
+
 	ngx_http_php_ctx_t *ctx;
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
@@ -885,6 +899,7 @@ ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
 	}
 
 	ctx->enable_async = 0;
+	ctx->enable_thread = 1;
 
 	ctx->is_capture_multi = 0;
 	ctx->capture_multi_complete_total = 0;
@@ -907,21 +922,90 @@ ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
 	for ( ;; ){
 		usleep(1);
 		//ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
+		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d %d", ctx->enable_async, ctx->enable_thread);
 
-		if (ctx->enable_async == 1){
+		if (ctx->enable_async == 1 || ctx->enable_thread == 0){
 			//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
 			break;
 		}
 	}
 
-	if (ctx->is_capture_multi == 0){
-		ngx_http_php_subrequest_post(r);
-	} else {
-		ngx_http_php_subrequest_post_multi(r);
+	if (ctx->enable_async == 1){
+		if (ctx->is_capture_multi == 0){
+			ngx_http_php_subrequest_post(r);
+		} else {
+			ngx_http_php_subrequest_post_multi(r);
+		}
+
+		return NGX_DONE;
 	}
 
-	return NGX_DONE;
+	ngx_http_php_rputs_chain_list_t *chain;
+	
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+	
+	pthread_join(ctx->pthread_id, NULL);
+
+	chain = ctx->rputs_chain;
+
+	if (ctx->rputs_chain == NULL){
+		ngx_buf_t *b;
+		ngx_str_t ns;
+		u_char *u_str;
+		ns.data = (u_char *)" ";
+		ns.len = 1;
+		
+		chain = ngx_pcalloc(r->pool, sizeof(ngx_http_php_rputs_chain_list_t));
+		chain->out = ngx_alloc_chain_link(r->pool);
+		chain->last = &chain->out;
+	
+		b = ngx_calloc_buf(r->pool);
+		(*chain->last)->buf = b;
+		(*chain->last)->next = NULL;
+
+		u_str = ngx_pstrdup(r->pool, &ns);
+		//u_str[ns.len] = '\0';
+		(*chain->last)->buf->pos = u_str;
+		(*chain->last)->buf->last = u_str + ns.len;
+		(*chain->last)->buf->memory = 1;
+		ctx->rputs_chain = chain;
+
+		if (r->headers_out.content_length_n == -1){
+			r->headers_out.content_length_n += ns.len + 1;
+		}else {
+			r->headers_out.content_length_n += ns.len;
+		}
+	}
+
+	//r->headers_out.content_type.len = sizeof("text/html") - 1;
+	//r->headers_out.content_type.data = (u_char *)"text/html";
+	if (!r->headers_out.status){
+		r->headers_out.status = NGX_HTTP_OK;
+	}
+
+	if (r->method == NGX_HTTP_HEAD){
+		rc = ngx_http_send_header(r);
+		if (rc != NGX_OK){
+			return rc;
+		}
+	}
+
+	if (chain != NULL){
+		(*chain->last)->buf->last_buf = 1;
+	}
+
+	rc = ngx_http_send_header(r);
+	if (rc != NGX_OK){
+		return rc;
+	}
+
+	ngx_http_output_filter(r, chain->out);
+
+	ngx_http_set_ctx(r, NULL, ngx_http_php_module);
+
+	return NGX_OK;
+
+
 }
 
 ngx_int_t 

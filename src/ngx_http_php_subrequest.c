@@ -117,12 +117,7 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 
 	}
 
-	pthread_mutex_lock(&(ctx->mutex));
-	pthread_cond_signal(&(ctx->cond));
-	pthread_mutex_unlock(&(ctx->mutex));
-	pthread_join(ctx->pthread_id, NULL);
-
-	pr->write_event_handler = ngx_http_php_subrequest_post_parent;
+	pr->write_event_handler = (ngx_http_event_handler_pt)ngx_http_php_subrequest_post_parent;
 
 	/*sleep(5);
 	pthread_mutex_lock(&(ctx->mutex));
@@ -135,14 +130,14 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 }
 
 
-void 
+ngx_int_t 
 ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
 {
 
 	//TSRMLS_FETCH();
 	if (r->headers_out.status != NGX_HTTP_OK){
 		ngx_http_finalize_request(r, r->headers_out.status);
-		return ;
+		return NGX_ERROR;
 	}
 
 	ngx_php_request = r;
@@ -150,6 +145,43 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
 	ngx_http_php_ctx_t *ctx;
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    ctx->enable_async = 0;
+    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+    pthread_mutex_lock(&(ctx->mutex));
+    pthread_cond_signal(&(ctx->cond));
+    pthread_mutex_unlock(&(ctx->mutex));
+
+    for ( ;; ){
+        usleep(1);
+        //ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+        //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "subrequests post parent %d %d", ctx->enable_async, ctx->enable_thread);
+
+        if (ctx->enable_async == 1 || ctx->enable_thread == 0){
+            //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
+            break;
+        }
+    }
+
+    ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "over %d %d", ctx->enable_async, ctx->enable_thread);
+
+
+    if (ctx->enable_async == 1){
+        r->count--;
+        if (ctx->is_capture_multi == 0){
+            ngx_http_php_subrequest_post(r);
+        } else {
+            ngx_http_php_subrequest_post_multi(r);
+        }
+        return NGX_DONE;
+    }
+
+    //if (ctx->enable_thread == 0){
+    pthread_join(ctx->pthread_id, NULL);
+    //}
+
 
     pthread_cond_destroy(&(ctx->cond));
     pthread_mutex_destroy(&(ctx->mutex));
@@ -306,6 +338,7 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
 	ngx_http_finalize_request(r,rc);
 
 	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", r->headers_out.status);
+    return NGX_OK;
 }
 
 

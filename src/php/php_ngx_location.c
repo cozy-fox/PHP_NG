@@ -350,8 +350,6 @@ PHP_METHOD(ngx_location, capture)
 
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
-    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "thread run");
-
     pthread_mutex_lock(&(ctx->mutex));
     pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
     pthread_mutex_unlock(&(ctx->mutex));
