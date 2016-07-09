@@ -26,8 +26,6 @@ ngx_http_php_subrequest_post(ngx_http_request_t *r)
 
 	//ctx->enable_async = 1;
 
-	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "sub uri %s", ctx->capture_uri.data);
-
 	ngx_http_post_subrequest_t *psr = ngx_palloc(r->pool, sizeof(ngx_http_post_subrequest_t));
 	if (psr == NULL){
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
@@ -107,7 +105,7 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 
 		ctx->capture_str.len = (&r->upstream->buffer)->last - (&r->upstream->buffer)->pos;
 		ctx->capture_str.data = (&r->upstream->buffer)->pos;
-		
+
         /*ctx->enable_async = 0;
         ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
@@ -168,6 +166,8 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "over %d %d", ctx->enable_async, ctx->enable_thread);
 
+    r->main->count = 1;
+
 
     if (ctx->enable_async == 1){
         if (ctx->is_capture_multi == 0){
@@ -185,8 +185,6 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
 
     pthread_cond_destroy(&(ctx->cond));
     pthread_mutex_destroy(&(ctx->mutex));
-
-    r->main->count = 1;
 
     ngx_int_t rc;
 	//ngx_http_php_ctx_t *ctx;
@@ -358,14 +356,19 @@ ngx_http_php_subrequest_post_multi_handler(ngx_http_request_t *r, void *data, ng
 
 	if (ctx->capture_multi_complete_total >= ctx->capture_multi->nelts){
 
-		pthread_mutex_lock(&(ctx->mutex));
-		pthread_cond_signal(&(ctx->cond));
-		pthread_mutex_unlock(&(ctx->mutex));
-		pthread_join(ctx->pthread_id, NULL);
-
 		ctx->is_capture_multi_complete = 1;
 
+        ctx->enable_async = 0;
+
+        ctx->is_capture_multi = 0;
+
+        ctx->capture_multi_complete_total = 0;
+
 		ngx_http_set_ctx(pr, ctx, ngx_http_php_module);
+
+        pthread_mutex_lock(&(ctx->mutex));
+        pthread_cond_signal(&(ctx->cond));
+        pthread_mutex_unlock(&(ctx->mutex));
 
 		pr->write_event_handler = (ngx_http_event_handler_pt)ngx_http_php_subrequest_post_multi_parent;
 
@@ -394,10 +397,33 @@ ngx_http_php_subrequest_post_multi_parent(ngx_http_request_t *r)
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (ctx->is_capture_multi_complete == 1){
+
+        ctx->is_capture_multi_complete = 0;
+
+        for ( ;; ){
+            usleep(1);
+
+            if (ctx->enable_async == 1 || ctx->enable_thread == 0){
+                break;
+            }
+        }
+
+        r->main->count = 1;
+
+        if (ctx->enable_async == 1){
+            if (ctx->is_capture_multi == 0){
+                ngx_http_php_subrequest_post(r);
+            } else {
+                ngx_http_php_subrequest_post_multi(r);
+            }
+            return NGX_DONE;
+        }
+
+        pthread_join(ctx->pthread_id, NULL);
+
         pthread_cond_destroy(&(ctx->cond));
         pthread_mutex_destroy(&(ctx->mutex));
 
-        r->main->count = 1;
 
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "total :=> %d", ctx->capture_multi_complete_total);
 		//r->main->count++;

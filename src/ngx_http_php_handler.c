@@ -749,7 +749,7 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 			//ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 			//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
 
-			if (ctx->enable_async == 1 ){
+			if (ctx->enable_async == 1 || ctx->enable_thread == 0){
 				//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
 				break;
 			}
