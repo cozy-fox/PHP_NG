@@ -605,7 +605,7 @@ ngx_http_php_async_inline_thread(void *arg)
 		PHP_NGX_G(global_r) = r;
 
 		ngx_php_ngx_run(r, pmcf->state, plcf->content_async_inline_code);
-	//zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
+		//zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
 
 		ngx_http_php_ctx_t *ctx;
 		ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);

@@ -360,7 +360,7 @@ ngx_http_php_subrequest_post_multi_handler(ngx_http_request_t *r, void *data, ng
 
         ctx->enable_async = 0;
 
-        ctx->is_capture_multi = 0;
+        //ctx->is_capture_multi = 0;
 
         ctx->capture_multi_complete_total = 0;
 
