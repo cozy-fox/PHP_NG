@@ -21,7 +21,7 @@ ngx_http_php_subrequest_post(ngx_http_request_t *r)
 		ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 	}*/
 
-	r->count++;
+	//r->count++;
 	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	//ctx->enable_async = 1;
@@ -115,7 +115,9 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 
 		NGX_HTTP_PHP_NGX_SHUTDOWN;*/
 
-	}
+	} else {
+        return NGX_ERROR;
+    }
 
 	pr->write_event_handler = (ngx_http_event_handler_pt)ngx_http_php_subrequest_post_parent;
 
@@ -165,11 +167,10 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
     }
 
     ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "over %d %d", ctx->enable_async, ctx->enable_thread);
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "over %d %d", ctx->enable_async, ctx->enable_thread);
 
 
     if (ctx->enable_async == 1){
-        r->count--;
         if (ctx->is_capture_multi == 0){
             ngx_http_php_subrequest_post(r);
         } else {
@@ -185,6 +186,8 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
 
     pthread_cond_destroy(&(ctx->cond));
     pthread_mutex_destroy(&(ctx->mutex));
+
+    r->main->count = 1;
 
 	//NGX_HTTP_PHP_NGX_INIT;
 	/*zend_first_try {
@@ -355,7 +358,7 @@ ngx_http_php_subrequest_post_multi(ngx_http_request_t *r)
 
 	//capture_node = capture_node + ctx->capture_multi_complete_total;
 
-	r->count = r->count + (2 - ctx->capture_multi->nelts);
+	//r->count = r->count + (2 - ctx->capture_multi->nelts);
 
 	ngx_uint_t i;
 	for (i = 0; i < ctx->capture_multi->nelts; i++,capture_node++){
@@ -414,7 +417,9 @@ ngx_http_php_subrequest_post_multi_handler(ngx_http_request_t *r, void *data, ng
 		//ngx_http_set_ctx(pr, ctx, ngx_http_php_module);
 		//ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "sub :=> %d", ctx->capture_multi_complete_total);
 
-	}
+	}else {
+        return NGX_ERROR;
+    }
 
 	if (ctx->capture_multi_complete_total >= ctx->capture_multi->nelts){
 
@@ -456,6 +461,8 @@ ngx_http_php_subrequest_post_multi_parent(ngx_http_request_t *r)
 	if (ctx->is_capture_multi_complete == 1){
         pthread_cond_destroy(&(ctx->cond));
         pthread_mutex_destroy(&(ctx->mutex));
+
+        r->main->count = 1;
 
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "total :=> %d", ctx->capture_multi_complete_total);
 		//r->main->count++;
