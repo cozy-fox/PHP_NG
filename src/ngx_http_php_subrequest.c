@@ -107,13 +107,13 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 
 		ctx->capture_str.len = (&r->upstream->buffer)->last - (&r->upstream->buffer)->pos;
 		ctx->capture_str.data = (&r->upstream->buffer)->pos;
-		//ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "%s", (&r->upstream->buffer)->pos);
+		
+        /*ctx->enable_async = 0;
+        ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
-		/*NGX_HTTP_PHP_NGX_INIT;
-
-			zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
-
-		NGX_HTTP_PHP_NGX_SHUTDOWN;*/
+        pthread_mutex_lock(&(ctx->mutex));
+        pthread_cond_signal(&(ctx->cond));
+        pthread_mutex_unlock(&(ctx->mutex));*/
 
 	} else {
         return NGX_ERROR;
@@ -166,7 +166,6 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
         }
     }
 
-    ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "over %d %d", ctx->enable_async, ctx->enable_thread);
 
 
@@ -188,70 +187,6 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
     pthread_mutex_destroy(&(ctx->mutex));
 
     r->main->count = 1;
-
-	//NGX_HTTP_PHP_NGX_INIT;
-	/*zend_first_try {
-		//zval *args[1];
-		//zval uri;
-		zval retval;
-
-		//args[0] = &uri;
-		//ZVAL_STRINGL(args[0], (char *)ctx->capture_buf->pos, ctx->capture_buf->last - ctx->capture_buf->pos, 1);
-
-		if (call_user_function(EG(function_table), NULL, ctx->closure, &retval, 0, NULL TSRMLS_CC) == FAILURE)
-  		{
-    		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed calling closure");
-    		//return ;
-  		}
-  		//zval_dtor(args[0]);
-  		zval_dtor(&retval);
-		//zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
-	} zend_catch {		
-	} zend_end_try();*/
-
-	//zend_eval_string_ex("echo 0;", NULL, "ngx_php run code", 1 TSRMLS_CC);
-
-	//NGX_HTTP_PHP_NGX_SHUTDOWN;
-
-	//ngx_http_php_request_clean(TSRMLS_C);
-	//php_request_shutdown_for_exec((void *)0);
-
-	//NGX_HTTP_PHP_NGX_INIT;
-	//NGX_HTTP_PHP_NGX_SHUTDOWN;
-	
-	//ngx_http_php_request_init(r TSRMLS_CC);
-
-	//ngx_http_php_request_clean(TSRMLS_C);
-
-	//php_ngx_request_init(TSRMLS_C);
-	//php_ngx_request_shutdown(TSRMLS_C);
-
-	//ngx_http_php_request_clean(TSRMLS_C);
-	//php_ngx_request_shutdown(TSRMLS_C);
-
-	//php_request_startup_for_hook(TSRMLS_C);
-	
-	//php_request_shutdown_for_exec((void *)0);
-
-
-	/*ngx_http_mytest_ctx_t *myctx = ngx_http_get_module_ctx(r,ngx_http_php_module);  
-    ngx_str_t output_format = ngx_string("stock[%V],Today current price: %V,volum: %V");  
-    int bodylen = output_format.len + myctx->stock[0].len + myctx->stock[1].len+myctx->stock[4].len - 6;  
-    r->headers_out.content_length_n = bodylen;  
-    ngx_buf_t *b = ngx_create_temp_buf(r->pool,bodylen);  
-    ngx_snprintf(b->pos,bodylen,(char*)output_format.data,&myctx->stock[0],&myctx->stock[1],&myctx->stock[4]);  
-    b->last = b->pos + bodylen;  
-    b->last_buf = 1;  
-    ngx_chain_t out;  
-    out.buf = b;  
-    out.next = NULL;  
-    static ngx_str_t type = ngx_string("text/plain; charset=GBK");  
-    r->headers_out.content_type = type;  
-    r->headers_out.status = NGX_HTTP_OK;  
-    r->connection->buffered |= NGX_HTTP_WRITE_BUFFERED;  
-    ngx_int_t ret = ngx_http_send_header(r);
-    ret = ngx_http_output_filter(r,&out);  
-    ngx_http_finalize_request(r,ret);*/
 
     ngx_int_t rc;
 	//ngx_http_php_ctx_t *ctx;
