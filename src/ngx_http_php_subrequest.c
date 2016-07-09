@@ -114,6 +114,7 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
         pthread_mutex_unlock(&(ctx->mutex));*/
 
 	} else {
+        ctx->error = NGX_HTTP_INTERNAL_SERVER_ERROR;
         return NGX_ERROR;
     }
 
@@ -135,16 +136,23 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
 {
 
 	//TSRMLS_FETCH();
-	if (r->headers_out.status != NGX_HTTP_OK){
+	/*if (r->headers_out.status != NGX_HTTP_OK){
 		ngx_http_finalize_request(r, r->headers_out.status);
 		return NGX_ERROR;
-	}
+	}*/
 
 	ngx_php_request = r;
 
 	ngx_http_php_ctx_t *ctx;
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    if (ctx->error != NGX_OK){
+        r->main->count = 1;
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "error");
+        ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
+        return NGX_HTTP_INTERNAL_SERVER_ERROR;
+    }
 
     ctx->enable_async = 0;
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
@@ -351,6 +359,7 @@ ngx_http_php_subrequest_post_multi_handler(ngx_http_request_t *r, void *data, ng
 		//ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "sub :=> %d", ctx->capture_multi_complete_total);
 
 	}else {
+        ctx->error = NGX_HTTP_INTERNAL_SERVER_ERROR;
         return NGX_ERROR;
     }
 
@@ -395,6 +404,14 @@ ngx_http_php_subrequest_post_multi_parent(ngx_http_request_t *r)
 	ngx_http_php_ctx_t *ctx;
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+
+    if (ctx->error != NGX_OK){
+        r->main->count = 1;
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "error");
+        ngx_http_finalize_request(r, NGX_HTTP_INTERNAL_SERVER_ERROR);
+        return NGX_HTTP_INTERNAL_SERVER_ERROR;
+    }
 
 	if (ctx->is_capture_multi_complete == 1){
 

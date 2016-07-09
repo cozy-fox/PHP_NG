@@ -74,6 +74,8 @@ typedef struct ngx_http_php_ctx_t {
 	pthread_mutex_t mutex;
 	pthread_cond_t cond;
 	pthread_t pthread_id;
+
+	ngx_int_t error;
 	
 } ngx_http_php_ctx_t;
 
