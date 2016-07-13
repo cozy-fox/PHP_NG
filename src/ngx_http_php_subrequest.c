@@ -40,10 +40,12 @@ ngx_http_php_subrequest_post(ngx_http_request_t *r)
 
 	ngx_http_request_t *sr;
 	rc = ngx_http_php_subrequest(r, &sub_location, NULL, &sr, psr, NGX_HTTP_SUBREQUEST_IN_MEMORY);
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "start post %d %d", &(ctx->pthread_id), rc);
 	if (rc != NGX_OK){
 		return NGX_ERROR;
 	}
-
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "success post %d, %d", r->main->count, r->main->subrequests );
 	return NGX_OK;
 }
 
@@ -56,7 +58,9 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
 
 	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(ngx_php_request, ngx_http_php_module);
 
-	pr->headers_out.status = r->headers_out.status;
+	//pr->headers_out.status = r->headers_out.status;
+
+    //ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "post %d, %d", &(ctx->pthread_id), r->headers_out.status);
 
 	if (r->headers_out.status == NGX_HTTP_OK){
 		//int flag = 0;
@@ -112,9 +116,24 @@ ngx_http_php_subrequest_post_handler(ngx_http_request_t *r, void *data, ngx_int_
         pthread_mutex_lock(&(ctx->mutex));
         pthread_cond_signal(&(ctx->cond));
         pthread_mutex_unlock(&(ctx->mutex));*/
-
 	} else {
         ctx->error = NGX_HTTP_INTERNAL_SERVER_ERROR;
+        /*r->main->count--;
+        r->main->subrequests++;
+        r->connection->data = r->parent;
+        pr->write_event_handler = ngx_http_core_run_phases;*/
+        //ngx_log_error(NGX_LOG_ERR, pr->connection->log, 0, "post %d, %d, %d", r->main->count, r->main->subrequests ,r->headers_out.status);
+        
+        //r->connection->data = r->parent;
+
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "subrequest error");
+
+        pthread_cancel(ctx->pthread_id);
+        pthread_join(ctx->pthread_id, NULL);
+
+
+        pthread_cond_destroy(&(ctx->cond));
+        pthread_mutex_destroy(&(ctx->mutex));
         return NGX_ERROR;
     }
 
@@ -160,6 +179,8 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
     pthread_mutex_lock(&(ctx->mutex));
     pthread_cond_signal(&(ctx->cond));
     pthread_mutex_unlock(&(ctx->mutex));
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "end %d", &(ctx->pthread_id));
 
     for ( ;; ){
         usleep(1);
@@ -360,6 +381,16 @@ ngx_http_php_subrequest_post_multi_handler(ngx_http_request_t *r, void *data, ng
 
 	}else {
         ctx->error = NGX_HTTP_INTERNAL_SERVER_ERROR;
+
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "subrequest error");
+
+        pthread_cancel(ctx->pthread_id);
+        pthread_join(ctx->pthread_id, NULL);
+
+
+        pthread_cond_destroy(&(ctx->cond));
+        pthread_mutex_destroy(&(ctx->mutex));
+
         return NGX_ERROR;
     }
 
@@ -605,6 +636,7 @@ ngx_http_php_subrequest(ngx_http_request_t *r,
     sr->write_event_handler = ngx_http_handler;
 
     //if (c->data == r && r->postponed == NULL) {
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "subrequest %p ", c->data);
         c->data = sr;
     //}
 
