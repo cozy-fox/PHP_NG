@@ -2,8 +2,9 @@ ngx_php
 ======
 [![Build Status](https://travis-ci.org/rryqszq4/ngx_php.svg?branch=master)](https://travis-ci.org/rryqszq4/ngx_php)
 
-Embedded php script language for nginx-module.  
-QQ群：558795330
+Embedded php scripting language for nginx-module.  
+[php7-nginx-module](https://github.com/rryqszq4/php7-nginx-module) for php7.  
+QQ group：558795330
 
 Features
 --------
