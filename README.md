@@ -1,6 +1,7 @@
 ngx_php
 ======
-[![Build Status](https://travis-ci.org/rryqszq4/ngx_php.svg?branch=master)](https://travis-ci.org/rryqszq4/ngx_php)
+[![Build Status](https://travis-ci.org/rryqszq4/ngx_php.svg?branch=master)](https://travis-ci.org/rryqszq4/ngx_php) 
+[![Gitter](https://badges.gitter.im/rryqszq4/ngx_php.svg)](https://gitter.im/rryqszq4/ngx_php?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 Embedded php scripting language for nginx-module.  
 [php7-nginx-module](https://github.com/rryqszq4/php7-nginx-module) for php7.  
