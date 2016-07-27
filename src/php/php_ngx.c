@@ -297,7 +297,7 @@ int php_ngx_module_init()
 {
 	zend_llist global_vars;
 #ifdef ZTS
-	void ***tsrm_ls = NULL;
+	__attribute__((__unused__)) void ***tsrm_ls = NULL;
 #endif
 
 #ifdef HAVE_SIGNAL_H
