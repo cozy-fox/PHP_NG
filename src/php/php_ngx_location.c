@@ -318,8 +318,7 @@ PHP_METHOD(ngx_location, capture)
     char *uri_str;
     int uri_len;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &uri_str, &uri_len) == FAILURE)
-    {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &uri_str, &uri_len) == FAILURE){
         return ;
     }
 
@@ -366,8 +365,7 @@ PHP_METHOD(ngx_location, capture_multi)
     zval *uri_arr;
     zval *result;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &uri_arr) == FAILURE)
-    {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &uri_arr) == FAILURE){
         return ;
     }
 

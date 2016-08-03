@@ -366,6 +366,7 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 	server_address.len = NGX_SOCKADDR_STRLEN;
 	server_address.data = server_addr;
 	if (ngx_connection_local_sockaddr(r->connection, &server_address, 0) != NGX_OK) {
+		
 	}
 	php_register_variable_safe("SERVER_ADDR", (char *)server_address.data, server_address.len, track_vars_array TSRMLS_CC);
 
