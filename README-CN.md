@@ -3,8 +3,8 @@ ngx_php
 [![Build Status](https://travis-ci.org/rryqszq4/ngx_php.svg?branch=master)](https://travis-ci.org/rryqszq4/ngx_php) 
 [![Gitter](https://badges.gitter.im/rryqszq4/ngx_php.svg)](https://gitter.im/rryqszq4/ngx_php?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-ngx_php是为nginx模块嵌入php脚本语言。别名为php-nginx-module。
-[php7-nginx-module](https://github.com/rryqszq4/php7-nginx-module) for php7.  
+ngx_php是为nginx模块嵌入php脚本语言。别名为php-nginx-module。  
+[php7-nginx-module](https://github.com/rryqszq4/php7-nginx-module)是php7的版本。  
 QQ 群：558795330
 
 特性
@@ -130,7 +130,7 @@ server {
 
 测试
 ----
-Using the perl of [Test::Nginx](https://github.com/openresty/test-nginx) module to testing, searching and finding out problem in ngx_php. 
+使用perl语言开发的[Test::Nginx](https://github.com/openresty/test-nginx)的测试模块进行测试, 用来发现ngx_php在开发与使用中存在的问题与缺陷。 
 
 ```sh
 cd /path/to/ngx_php
