@@ -73,6 +73,7 @@ if [ $? -eq 0 ];then
 	echo "nginx install ... done"
 	echo "ngx_php compile success."
 else 
+	echo "ngx_php compile failed.Contact author.You can Join QQ 558795330(ngx_php) ."
 	exit 1
 fi
 #echo "nginx install ... done"

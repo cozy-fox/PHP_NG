@@ -35,8 +35,7 @@ PHP_METHOD(ngx_socket_tcp, connect)
     int host_len, port;
     zval *options = NULL;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|la", &host_str, &host_len, &options) == FAILURE)
-    {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|la", &host_str, &host_len, &options) == FAILURE){
         RETURN_NULL();
     }
 }
