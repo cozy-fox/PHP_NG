@@ -9,6 +9,13 @@
 ngx_int_t 
 ngx_http_php_socket_tcp(ngx_http_request_t *r)
 {
+    ngx_http_php_socket_connect(r);
+    return NGX_OK;
+}
+
+ngx_int_t 
+ngx_http_php_socket_connect(ngx_http_request_t *r)
+{
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
     if (ngx_http_upstream_create(r) != NGX_OK)
@@ -43,30 +50,28 @@ ngx_http_php_socket_tcp(ngx_http_request_t *r)
     }
 
     static struct sockaddr_in backendSockAddr;
-    struct hostent *pHost = gethostbyname((char*)) "www.sina.com";
+    struct hostent *pHost = gethostbyname((char*)ctx->host.data);
     if (pHost = NULL){
         ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "gethostbyname fail. %s", strerror(errno));
         return NGX_ERROR;
     }
 
     backendSockAddr.sin_family = AF_INET;
-    backendSockAddr.sin_port = htons((in_por_t) 80);
+    backendSockAddr.sin_port = htons((in_por_t) ctx->port);
 
     u->resolved->sockaddr = (struct sockaddr *)&backendSockAddr;
     u->resolved->socklen = sizeof(struct sockaddr_in);
     u->resolved->naddrs = 1;
 
-    u->create_request = 
+    u->create_request = ngx_http_php_socket_tcp_send;
+    u->process_header = ngx_http_php_socket_tcp_receive;
+    u->finalize_request = ngx_http_php_socket_tcp_close;
 
     r->main->count++;
 
-    return NGX_OK;
-}
+    ngx_http_upstream_init(r);
 
-ngx_int_t 
-ngx_http_php_socket_connect(ngx_http_request_t *r)
-{
-    
+    return NGX_OK;
 }
 
 ngx_int_t 
@@ -97,6 +102,18 @@ ngx_http_php_socket_tcp_send(ngx_http_request_t *r)
     r->header_hash = 1;
 
     return NGX_OK;
+}
+
+ngx_int_t 
+ngx_http_php_socket_tcp_receive(ngx_http_request_t *r)
+{
+
+}
+
+ngx_int_t 
+ngx_http_php_socket_tcp_close(ngx_http_request_t *r)
+{
+
 }
 
 
