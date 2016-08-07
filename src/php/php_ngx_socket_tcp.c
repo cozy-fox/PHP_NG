@@ -97,6 +97,17 @@ PHP_METHOD(ngx_socket_tcp, send)
 PHP_METHOD(ngx_socket_tcp, receive)
 {
 
+    ngx_http_request_t *r = PHP_NGX_G(global_r);
+
+    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    if (ctx == NULL){
+        
+    }
+    
+    RETVAL_STRINGL((char *)ctx->receive_buf.data, ctx->receive_buf.len, 1);
+
+    return ;
 }
 
 PHP_METHOD(ngx_socket_tcp, close)
