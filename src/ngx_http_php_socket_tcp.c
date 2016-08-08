@@ -10,6 +10,8 @@
 ngx_int_t 
 ngx_http_php_socket_tcp(ngx_http_request_t *r)
 {
+    ngx_php_request = r;
+
     ngx_http_php_socket_connect(r);
     return NGX_OK;
 }
@@ -17,6 +19,8 @@ ngx_http_php_socket_tcp(ngx_http_request_t *r)
 ngx_int_t 
 ngx_http_php_socket_connect(ngx_http_request_t *r)
 {
+    ngx_php_request = r;
+
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
     if (ngx_http_upstream_create(r) != NGX_OK)
@@ -25,24 +29,35 @@ ngx_http_php_socket_connect(ngx_http_request_t *r)
         return NGX_ERROR;
     }
 
+    ngx_http_upstream_conf_t  *mycf_upstream;
+
+    mycf_upstream = (ngx_http_upstream_conf_t  *)ngx_pcalloc(r->pool, sizeof(ngx_http_upstream_conf_t));
+    if (mycf_upstream == NULL)
+    {
+        return NGX_ERROR;
+    }
+
+    mycf_upstream->connect_timeout = 60000;
+    mycf_upstream->send_timeout = 60000;
+    mycf_upstream->read_timeout = 60000;
+    mycf_upstream->store_access = 0600;
+
+    mycf_upstream->buffering = 0;
+    mycf_upstream->bufs.num = 8;
+    mycf_upstream->bufs.size = ngx_pagesize;
+    mycf_upstream->buffer_size = ngx_pagesize;
+    mycf_upstream->busy_buffers_size = 2 * ngx_pagesize;
+    mycf_upstream->temp_file_write_size = 2 * ngx_pagesize;
+    mycf_upstream->max_temp_file_size = 1024 * 1024 * 1024;
+
+    mycf_upstream->hide_headers = NGX_CONF_UNSET_PTR;
+    mycf_upstream->pass_headers = NGX_CONF_UNSET_PTR;
+
     ngx_http_upstream_t *u = r->upstream;
-    u->conf->connect_timeout = 60000;
-    u->conf->send_timeout = 60000;
-    u->conf->read_timeout = 60000;
-    u->conf->store_access = 0600;
 
-    u->conf->buffering = 0;
-    u->conf->bufs.num = 8;
-    u->conf->bufs.size = ngx_pagesize;
-    u->conf->buffer_size = ngx_pagesize;
-    u->conf->busy_buffers_size = 2 * ngx_pagesize;
-    u->conf->temp_file_write_size = 2 * ngx_pagesize;
-    u->conf->max_temp_file_size = 1024 * 1024 * 1024;
+    u->conf = mycf_upstream;
 
-    u->conf->hide_headers = NGX_CONF_UNSET_PTR;
-    u->conf->pass_headers = NGX_CONF_UNSET_PTR;
-
-    u->buffering = 0;
+    u->buffering = mycf_upstream->buffering;
 
     u->resolved = (ngx_http_upstream_resolved_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_upstream_resolved_t));
     if (u->resolved == NULL){
@@ -78,6 +93,7 @@ ngx_http_php_socket_connect(ngx_http_request_t *r)
 ngx_int_t 
 ngx_http_php_socket_tcp_send(ngx_http_request_t *r)
 {
+    ngx_php_request = r;
     //ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
     ngx_str_t backendQueryLine =
@@ -104,12 +120,17 @@ ngx_http_php_socket_tcp_send(ngx_http_request_t *r)
 
     r->header_hash = 1;
 
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+                      "start");
+
     return NGX_OK;
 }
 
 ngx_int_t 
 ngx_http_php_socket_tcp_receive(ngx_http_request_t *r)
 {
+    ngx_php_request = r;
+
     size_t len;
     ngx_int_t rc;
     ngx_http_upstream_t *u;
@@ -121,6 +142,8 @@ ngx_http_php_socket_tcp_receive(ngx_http_request_t *r)
 
     u = r->upstream;
 
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s", (&u->buffer)->pos);
+    
     rc = ngx_http_parse_status_line(r, &u->buffer, &ctx->receive_status);
 
     if (rc == NGX_AGAIN){
@@ -154,6 +177,8 @@ ngx_http_php_socket_tcp_receive(ngx_http_request_t *r)
 ngx_int_t
 ngx_http_php_socket_tcp_receive_parse(ngx_http_request_t *r)
 {
+    ngx_php_request = r;
+
     ngx_int_t                       rc;
     ngx_table_elt_t                *h;
     //ngx_http_upstream_header_t     *hh;
@@ -274,6 +299,21 @@ ngx_http_php_socket_tcp_receive_parse(ngx_http_request_t *r)
 void 
 ngx_http_php_socket_tcp_close(ngx_http_request_t *r, ngx_int_t rc)
 {
+    ngx_php_request = r;
+
+    ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0,
+                  "ngx_http_php_socket_tpc finalize_request");
+
+    ngx_http_php_socket_tcp_handler(r);
+
+    return ;
+}
+
+ngx_int_t
+ngx_http_php_socket_tcp_handler(ngx_http_request_t *r)
+{
+    ngx_php_request = r;
+
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
     for ( ;; ){
@@ -294,12 +334,12 @@ ngx_http_php_socket_tcp_close(ngx_http_request_t *r, ngx_int_t rc)
             ngx_http_php_subrequest_post_multi(r);
         }
 
-        //return NGX_DONE;
+        return NGX_DONE;
     }
 
     if (ctx->enable_upstream == 1){
         ngx_http_php_socket_tcp(r);
-        //return NGX_DONE;
+        return NGX_DONE;
     }
 
     pthread_join(ctx->pthread_id, NULL);
@@ -307,7 +347,7 @@ ngx_http_php_socket_tcp_close(ngx_http_request_t *r, ngx_int_t rc)
     pthread_cond_destroy(&(ctx->cond));
     pthread_mutex_destroy(&(ctx->mutex));
 
-    //ngx_int_t rc;
+    ngx_int_t rc;
 
     ngx_http_php_rputs_chain_list_t *chain;
 
@@ -351,7 +391,7 @@ ngx_http_php_socket_tcp_close(ngx_http_request_t *r, ngx_int_t rc)
     if (r->method == NGX_HTTP_HEAD){
         rc = ngx_http_send_header(r);
         if (rc != NGX_OK){
-            //return rc;
+            return rc;
         }
     }
 
@@ -361,14 +401,14 @@ ngx_http_php_socket_tcp_close(ngx_http_request_t *r, ngx_int_t rc)
 
     rc = ngx_http_send_header(r);
     if (rc != NGX_OK){
-        //return rc;
+        return rc;
     }
 
     ngx_http_output_filter(r, chain->out);
 
     ngx_http_set_ctx(r, NULL, ngx_http_php_module);
 
-    //return NGX_OK;
+    return NGX_OK;
 }
 
 
