@@ -52,13 +52,13 @@ ngx_http_php_socket_connect(ngx_http_request_t *r)
 
     static struct sockaddr_in backendSockAddr;
     struct hostent *pHost = gethostbyname((char*)ctx->host.data);
-    if (pHost = NULL){
+    if (pHost == NULL){
         ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "gethostbyname fail. %s", strerror(errno));
         return NGX_ERROR;
     }
 
     backendSockAddr.sin_family = AF_INET;
-    backendSockAddr.sin_port = htons((in_por_t) ctx->port);
+    backendSockAddr.sin_port = htons((in_port_t) ctx->port);
 
     u->resolved->sockaddr = (struct sockaddr *)&backendSockAddr;
     u->resolved->socklen = sizeof(struct sockaddr_in);
@@ -78,7 +78,7 @@ ngx_http_php_socket_connect(ngx_http_request_t *r)
 ngx_int_t 
 ngx_http_php_socket_tcp_send(ngx_http_request_t *r)
 {
-    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+    //ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
     ngx_str_t backendQueryLine =
         ngx_string("GET /search?q=%V HTTP/1.1\r\nHost: www.sina.com\r\nConnection: close\r\n\r\n");
@@ -134,7 +134,7 @@ ngx_http_php_socket_tcp_receive(ngx_http_request_t *r)
 
     u->headers_in.status_n = ctx->receive_status.code;
 
-    len = ctx->status.end - ctx->receive_status.start;
+    len = ctx->receive_status.end - ctx->receive_status.start;
     u->headers_in.status_line.len = len;
 
     u->headers_in.status_line.data = ngx_pnalloc(r->pool, len);
@@ -156,7 +156,7 @@ ngx_http_php_socket_tcp_receive_parse(ngx_http_request_t *r)
 {
     ngx_int_t                       rc;
     ngx_table_elt_t                *h;
-    ngx_http_upstream_header_t     *hh;
+    //ngx_http_upstream_header_t     *hh;
 
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
@@ -282,7 +282,7 @@ ngx_http_php_socket_tcp_close(ngx_http_request_t *r, ngx_int_t rc)
         if (ctx->enable_async == 1 || ctx->enable_thread == 0){
             break;
         }
-        if (ctx->enable_upstream == 1 || ctx->enable_thread = 0){
+        if (ctx->enable_upstream == 1 || ctx->enable_thread == 0){
             break;
         }
     }
@@ -294,12 +294,12 @@ ngx_http_php_socket_tcp_close(ngx_http_request_t *r, ngx_int_t rc)
             ngx_http_php_subrequest_post_multi(r);
         }
 
-        return NGX_DONE;
+        //return NGX_DONE;
     }
 
     if (ctx->enable_upstream == 1){
         ngx_http_php_socket_tcp(r);
-        return NGX_DONE;
+        //return NGX_DONE;
     }
 
     pthread_join(ctx->pthread_id, NULL);
@@ -307,7 +307,7 @@ ngx_http_php_socket_tcp_close(ngx_http_request_t *r, ngx_int_t rc)
     pthread_cond_destroy(&(ctx->cond));
     pthread_mutex_destroy(&(ctx->mutex));
 
-    ngx_int_t rc;
+    //ngx_int_t rc;
 
     ngx_http_php_rputs_chain_list_t *chain;
 
@@ -351,7 +351,7 @@ ngx_http_php_socket_tcp_close(ngx_http_request_t *r, ngx_int_t rc)
     if (r->method == NGX_HTTP_HEAD){
         rc = ngx_http_send_header(r);
         if (rc != NGX_OK){
-            return rc;
+            //return rc;
         }
     }
 
@@ -361,14 +361,14 @@ ngx_http_php_socket_tcp_close(ngx_http_request_t *r, ngx_int_t rc)
 
     rc = ngx_http_send_header(r);
     if (rc != NGX_OK){
-        return rc;
+        //return rc;
     }
 
     ngx_http_output_filter(r, chain->out);
 
     ngx_http_set_ctx(r, NULL, ngx_http_php_module);
 
-    return NGX_OK;
+    //return NGX_OK;
 }
 
 

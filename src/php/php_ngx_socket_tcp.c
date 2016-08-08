@@ -5,6 +5,9 @@
  */
 
 #include "php_ngx_socket_tcp.h"
+#include "../ngx_http_php_module.h"
+
+static zend_class_entry *php_ngx_socket_tcp_class_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(ngx_socket_tcp_construct_arginfo, 0, 0, 0)
 ZEND_END_ARG_INFO()

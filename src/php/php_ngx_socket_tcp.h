@@ -13,8 +13,6 @@
 #include <php_ini.h>
 #include <ext/standard/info.h>
 
-static zend_class_entry *php_ngx_socket_tcp_class_entry;
-
 PHP_METHOD(ngx_socket_tcp, __construct);
 PHP_METHOD(ngx_socket_tcp, connect);
 PHP_METHOD(ngx_socket_tcp, send);
