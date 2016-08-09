@@ -8,20 +8,16 @@
 #include "ngx_http_php_subrequest.h"
 
 ngx_int_t 
-ngx_http_php_socket_tcp(ngx_http_request_t *r)
+ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
 {
     ngx_php_request = r;
-
-    ngx_http_php_socket_connect(r);
-    return NGX_OK;
-}
-
-ngx_int_t 
-ngx_http_php_socket_connect(ngx_http_request_t *r)
-{
-    ngx_php_request = r;
+    u_char *host;
 
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    if (ctx == NULL){
+        return NGX_HTTP_INTERNAL_SERVER_ERROR;
+    }
 
     if (ngx_http_upstream_create(r) != NGX_OK)
     {
@@ -65,8 +61,13 @@ ngx_http_php_socket_connect(ngx_http_request_t *r)
         return NGX_ERROR;
     }
 
+    host = ngx_palloc(r->pool, ctx->host.len);
+    ngx_cpystrn((u_char *)host, ctx->host.data, ctx->host.len + 1);
+
     static struct sockaddr_in backendSockAddr;
-    struct hostent *pHost = gethostbyname((char*)ctx->host.data);
+    
+    struct hostent *pHost = gethostbyname((char*)host);
+    
     if (pHost == NULL){
         ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "gethostbyname fail. %s", strerror(errno));
         return NGX_ERROR;
@@ -79,9 +80,19 @@ ngx_http_php_socket_connect(ngx_http_request_t *r)
     u->resolved->socklen = sizeof(struct sockaddr_in);
     u->resolved->naddrs = 1;
 
-    u->create_request = ngx_http_php_socket_tcp_send;
-    u->process_header = ngx_http_php_socket_tcp_receive;
-    u->finalize_request = ngx_http_php_socket_tcp_close;
+    u->create_request = ngx_http_php_socket_tcp_create_request;
+    u->reinit_request = ngx_http_php_socket_tcp_reinit_request;
+    u->process_header = ngx_http_php_socket_tcp_process_header;
+    u->abort_request = ngx_http_php_socket_tcp_abort_request;
+    u->finalize_request = ngx_http_php_socket_tcp_finalize_request;
+
+    ctx->request = r;
+
+    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+    u->input_filter_init = ngx_http_php_socket_tcp_filter_init;
+    u->input_filter = ngx_http_php_socket_tcp_filter;
+    u->input_filter_ctx = ctx;
 
     r->main->count++;
 
@@ -91,7 +102,7 @@ ngx_http_php_socket_connect(ngx_http_request_t *r)
 }
 
 ngx_int_t 
-ngx_http_php_socket_tcp_send(ngx_http_request_t *r)
+ngx_http_php_socket_tcp_create_request(ngx_http_request_t *r)
 {
     ngx_php_request = r;
     //ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
@@ -118,7 +129,7 @@ ngx_http_php_socket_tcp_send(ngx_http_request_t *r)
     r->upstream->request_sent = 0;
     r->upstream->header_sent = 0;
 
-    r->header_hash = 1;
+    r->header_hash = 0;
 
     ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
                       "start");
@@ -127,12 +138,18 @@ ngx_http_php_socket_tcp_send(ngx_http_request_t *r)
 }
 
 ngx_int_t 
-ngx_http_php_socket_tcp_receive(ngx_http_request_t *r)
+ngx_http_php_socket_tcp_reinit_request(ngx_http_request_t *r)
+{
+    return NGX_OK;
+}
+
+ngx_int_t 
+ngx_http_php_socket_tcp_process_header(ngx_http_request_t *r)
 {
     ngx_php_request = r;
 
-    size_t len;
-    ngx_int_t rc;
+    //size_t len;
+    //ngx_int_t rc;
     ngx_http_upstream_t *u;
 
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
@@ -142,22 +159,29 @@ ngx_http_php_socket_tcp_receive(ngx_http_request_t *r)
 
     u = r->upstream;
 
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s", (&u->buffer)->pos);
-    
-    rc = ngx_http_parse_status_line(r, &u->buffer, &ctx->receive_status);
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s", (&u->buffer)->pos);
+
+    ctx->enable_upstream = 0;
+    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+    pthread_mutex_lock(&(ctx->mutex));
+    pthread_cond_signal(&(ctx->cond));
+    pthread_mutex_unlock(&(ctx->mutex));
+
+    /*rc = ngx_http_parse_status_line(r, &u->buffer, &ctx->receive_status);
 
     if (rc == NGX_AGAIN){
         return rc;
-    }
+    }*/
 
     if (u->state)
     {
-        u->state->status = ctx->receive_status.code;
+        u->state->status = 200;
     }
 
-    u->headers_in.status_n = ctx->receive_status.code;
+    u->headers_in.status_n = 200;
 
-    len = ctx->receive_status.end - ctx->receive_status.start;
+    /*len = ctx->receive_status.end - ctx->receive_status.start;
     u->headers_in.status_line.len = len;
 
     u->headers_in.status_line.data = ngx_pnalloc(r->pool, len);
@@ -170,7 +194,9 @@ ngx_http_php_socket_tcp_receive(ngx_http_request_t *r)
 
     u->process_header = ngx_http_php_socket_tcp_receive_parse;
 
-    return ngx_http_php_socket_tcp_receive_parse(r);
+    return ngx_http_php_socket_tcp_receive_parse(r);*/
+
+    return NGX_OK;
 
 }
 
@@ -182,15 +208,6 @@ ngx_http_php_socket_tcp_receive_parse(ngx_http_request_t *r)
     ngx_int_t                       rc;
     ngx_table_elt_t                *h;
     //ngx_http_upstream_header_t     *hh;
-
-    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-
-    ctx->enable_upstream = 0;
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
-
-    pthread_mutex_lock(&(ctx->mutex));
-    pthread_cond_signal(&(ctx->cond));
-    pthread_mutex_unlock(&(ctx->mutex));
 
     //循环的解析所有的http头部
     for ( ;; ) {
@@ -297,16 +314,47 @@ ngx_http_php_socket_tcp_receive_parse(ngx_http_request_t *r)
 }
 
 void 
-ngx_http_php_socket_tcp_close(ngx_http_request_t *r, ngx_int_t rc)
+ngx_http_php_socket_tcp_abort_request(ngx_http_request_t *r)
 {
-    ngx_php_request = r;
+    ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                   "ngx_http_php_socket_tcp abort_request");
+    return;
+}
 
-    ngx_log_error(NGX_LOG_DEBUG, r->connection->log, 0,
-                  "ngx_http_php_socket_tpc finalize_request");
+void 
+ngx_http_php_socket_tcp_finalize_request(ngx_http_request_t *r, ngx_int_t rc)
+{
+    ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                   "ngx_http_php_socket_tcp finalize_request");
 
     ngx_http_php_socket_tcp_handler(r);
 
     return ;
+}
+
+ngx_int_t 
+ngx_http_php_socket_tcp_filter_init(void *data)
+{
+    ngx_http_php_ctx_t *ctx = data;
+
+    ngx_http_upstream_t *u;
+
+    u = ctx->request->upstream;
+
+    if (u->headers_in.status_n != 404){
+
+    }else {
+        u->length = 0;
+    }
+
+    return NGX_OK;
+}
+
+ngx_int_t 
+ngx_http_php_socket_tcp_filter(void *data, ssize_t bytes)
+{
+
+     return NGX_OK;
 }
 
 ngx_int_t
@@ -338,7 +386,7 @@ ngx_http_php_socket_tcp_handler(ngx_http_request_t *r)
     }
 
     if (ctx->enable_upstream == 1){
-        ngx_http_php_socket_tcp(r);
+        ngx_http_php_socket_tcp_run(r);
         return NGX_DONE;
     }
 
@@ -347,7 +395,10 @@ ngx_http_php_socket_tcp_handler(ngx_http_request_t *r)
     pthread_cond_destroy(&(ctx->cond));
     pthread_mutex_destroy(&(ctx->mutex));
 
-    ngx_int_t rc;
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+                      "end");
+
+    /*ngx_int_t rc;
 
     ngx_http_php_rputs_chain_list_t *chain;
 
@@ -407,7 +458,7 @@ ngx_http_php_socket_tcp_handler(ngx_http_request_t *r)
     ngx_http_output_filter(r, chain->out);
 
     ngx_http_set_ctx(r, NULL, ngx_http_php_module);
-
+*/
     return NGX_OK;
 }
 

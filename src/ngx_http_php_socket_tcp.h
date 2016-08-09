@@ -9,17 +9,23 @@
 
 #include "ngx_http_php_module.h"
 
-ngx_int_t ngx_http_php_socket_tcp(ngx_http_request_t *r);
+ngx_int_t ngx_http_php_socket_tcp_run(ngx_http_request_t *r);
 
-ngx_int_t ngx_http_php_socket_connect(ngx_http_request_t *r);
+ngx_int_t ngx_http_php_socket_tcp_create_request(ngx_http_request_t *r);
 
-ngx_int_t ngx_http_php_socket_tcp_send(ngx_http_request_t *r);
+ngx_int_t ngx_http_php_socket_tcp_reinit_request(ngx_http_request_t *r);
 
-ngx_int_t ngx_http_php_socket_tcp_receive(ngx_http_request_t *r);
+ngx_int_t ngx_http_php_socket_tcp_process_header(ngx_http_request_t *r);
 
 ngx_int_t ngx_http_php_socket_tcp_receive_parse(ngx_http_request_t *r);
 
-void ngx_http_php_socket_tcp_close(ngx_http_request_t *r, ngx_int_t rc);
+void ngx_http_php_socket_tcp_abort_request(ngx_http_request_t *r);
+
+void ngx_http_php_socket_tcp_finalize_request(ngx_http_request_t *r, ngx_int_t rc);
+
+ngx_int_t ngx_http_php_socket_tcp_filter_init(void *data);
+
+ngx_int_t ngx_http_php_socket_tcp_filter(void *data, ssize_t bytes);
 
 ngx_int_t ngx_http_php_socket_tcp_handler(ngx_http_request_t *r);
 
