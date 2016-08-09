@@ -19,6 +19,6 @@ PHP_METHOD(ngx_socket_tcp, send);
 PHP_METHOD(ngx_socket_tcp, receive);
 PHP_METHOD(ngx_socket_tcp, close);
 
-void php_ngx_socket_tcp_init(int module_number TSRMLS_DC);
+void ngx_socket_tcp_init(int module_number TSRMLS_DC);
 
 #endif

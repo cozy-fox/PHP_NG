@@ -36,10 +36,11 @@ PHP_METHOD(ngx_socket_tcp, __construct)
 PHP_METHOD(ngx_socket_tcp, connect)
 {
     char *host_str;
-    int host_len, port;
-    zval *options = NULL;
+    int host_len;
+    long port;
+    //zval *options = NULL;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|la", &host_str, &host_len, &port, &options) == FAILURE){
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl", &host_str, &host_len, &port) == FAILURE){
         RETURN_NULL();
     }
 
@@ -128,7 +129,7 @@ static const zend_function_entry php_ngx_socket_tcp_class_functions[] = {
 };
 
 void 
-php_ngx_socket_tcp_init(int module_number TSRMLS_DC)
+ngx_socket_tcp_init(int module_number TSRMLS_DC)
 {
     zend_class_entry ngx_socket_tcp_class_entry;
     INIT_CLASS_ENTRY(ngx_socket_tcp_class_entry, "ngx_socket_tcp", php_ngx_socket_tcp_class_functions);
