@@ -147,5 +147,6 @@ RUN set -x \
 RUN mv /server/nginx/conf/nginx.conf /server/nginx/conf/nginx.conf.bak
 COPY nginx.conf /server/nginx/conf/
 RUN ln -s /usr/local/lib/libmcrypt.* /lib64/ 
+
 EXPOSE 80
 CMD ["/server/nginx/sbin/nginx"]
