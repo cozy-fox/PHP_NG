@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# chkconfig: - 85 15
+# description: nginx is a World Wide Web server. It is used to serve
+# Source Function Library
+# Nginx Settings
+NGINX_SBIN="/server/nginx/sbin/nginx"
+NGINX_CONF="/server/nginx/conf/nginx.conf"
+NGINX_PID="/server/nginx/logs/nginx.pid"
+RETVAL=0
+prog="Nginx"
+
+start() {
+        echo -n $"Starting $prog: "
+        mkdir -p /dev/shm/nginx_temp
+        $NGINX_SBIN -c $NGINX_CONF
+        RETVAL=$?
+        if [ $RETVAL -eq 0 ];then
+                echo "OK!"
+                else
+                echo "ERROR,please test the $NGINX_CONF"
+        fi
+}
+stop() {
+        echo -n $"Stopping $prog: "
+        pkill  nginx
+        rm -rf /dev/shm/nginx_temp
+        RETVAL=$?
+        if [ $RETVAL -eq 0 ];then
+                echo "OK!"
+                else
+                echo "ERROR,please test the $NGINX_CONF"
+        fi
+}
+
+reload(){
+        echo -n $"Reloading $prog: "
+        $NGINX_SBIN -s reload
+        RETVAL=$?
+        if [ $RETVAL -eq 0 ];then
+                echo "OK!"
+                else
+                echo "ERROR,please test the $NGINX_CONF"
+        fi
+}
+restart(){
+        stop
+        start
+}
+configtest(){
+    $NGINX_SBIN -c $NGINX_CONF -t
+    return 0
+}
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  reload)
+        reload
+        ;;
+  restart)
+restart
+        ;;
+  configtest)
+        configtest
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|reload|restart|configtest}"
+        RETVAL=1
+esac
+exit $RETVAL
