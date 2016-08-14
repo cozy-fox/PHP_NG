@@ -11,7 +11,11 @@ ngx_int_t
 ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
 {
     ngx_php_request = r;
-    u_char *host;
+    //ngx_str_t *host;
+    int port;
+    ngx_url_t url;
+
+    ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
 
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
@@ -25,35 +29,27 @@ ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
         return NGX_ERROR;
     }
 
-    ngx_http_upstream_conf_t  *mycf_upstream;
-
-    mycf_upstream = (ngx_http_upstream_conf_t  *)ngx_pcalloc(r->pool, sizeof(ngx_http_upstream_conf_t));
-    if (mycf_upstream == NULL)
-    {
-        return NGX_ERROR;
-    }
-
-    mycf_upstream->connect_timeout = 60000;
-    mycf_upstream->send_timeout = 60000;
-    mycf_upstream->read_timeout = 60000;
-    mycf_upstream->store_access = 0600;
-
-    mycf_upstream->buffering = 0;
-    mycf_upstream->bufs.num = 8;
-    mycf_upstream->bufs.size = ngx_pagesize;
-    mycf_upstream->buffer_size = ngx_pagesize;
-    mycf_upstream->busy_buffers_size = 2 * ngx_pagesize;
-    mycf_upstream->temp_file_write_size = 2 * ngx_pagesize;
-    mycf_upstream->max_temp_file_size = 1024 * 1024 * 1024;
-
-    mycf_upstream->hide_headers = NGX_CONF_UNSET_PTR;
-    mycf_upstream->pass_headers = NGX_CONF_UNSET_PTR;
-
     ngx_http_upstream_t *u = r->upstream;
 
-    u->conf = mycf_upstream;
+    u->conf = &plcf->upstream;
 
-    u->buffering = mycf_upstream->buffering;
+    u->buffering = plcf->upstream.buffering;
+
+    port = ctx->port;
+
+    ngx_memzero(&url, sizeof(ngx_url_t));
+    url.url.len = ctx->host.len;
+    url.url.data = ctx->host.data;
+    url.default_port = (in_port_t) port;
+    url.no_resolve = 1;
+
+    if (ngx_parse_url(r->pool, &url) != NGX_OK) {
+        if (url.err) {
+            ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+                          "%s in upstream \"%V\"", url.err, &url.url);
+        }
+        return NGX_ERROR;
+    }
 
     u->resolved = (ngx_http_upstream_resolved_t *)ngx_pcalloc(r->pool, sizeof(ngx_http_upstream_resolved_t));
     if (u->resolved == NULL){
@@ -61,24 +57,43 @@ ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
         return NGX_ERROR;
     }
 
-    host = ngx_palloc(r->pool, ctx->host.len);
+    /*host = ngx_palloc(r->pool, ctx->host.len);
     ngx_cpystrn((u_char *)host, ctx->host.data, ctx->host.len + 1);
 
-    static struct sockaddr_in backendSockAddr;
+    static struct sockaddr_in addr;
+    //bzero(&addr, sizeof(addr));
     
-    struct hostent *pHost = gethostbyname((char*)host);
+    struct hostent *pHost = gethostbyname((char*)"cha.17173.com");
     
     if (pHost == NULL){
         ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "gethostbyname fail. %s", strerror(errno));
         return NGX_ERROR;
     }
 
-    backendSockAddr.sin_family = AF_INET;
-    backendSockAddr.sin_port = htons((in_port_t) ctx->port);
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons((in_port_t) 80);
 
-    u->resolved->sockaddr = (struct sockaddr *)&backendSockAddr;
+    char* pDmsIP = inet_ntoa(*(struct in_addr*) (pHost->h_addr_list[0]));
+    //char* pDmsIP = inet_ntoa(*(struct in_addr*) ("10.10.0.2"));
+    addr.sin_addr.s_addr = inet_addr(pDmsIP);
+    //202.108.37.102
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s", pDmsIP);
+
+    u->resolved->sockaddr = (struct sockaddr *)&addr;
     u->resolved->socklen = sizeof(struct sockaddr_in);
-    u->resolved->naddrs = 1;
+    u->resolved->naddrs = 1;*/
+
+    if (url.addrs && url.addrs[0].sockaddr) {
+        u->resolved->sockaddr = url.addrs[0].sockaddr;
+        u->resolved->socklen = url.addrs[0].socklen;
+        u->resolved->naddrs = 1;
+        u->resolved->host = url.addrs[0].name;
+
+    } else {
+        u->resolved->host = url.host;
+        u->resolved->port = (in_port_t) (url.no_port ? port : url.port);
+        u->resolved->no_port = url.no_port;
+    }
 
     u->create_request = ngx_http_php_socket_tcp_create_request;
     u->reinit_request = ngx_http_php_socket_tcp_reinit_request;
@@ -88,8 +103,6 @@ ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
 
     ctx->request = r;
 
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
-
     u->input_filter_init = ngx_http_php_socket_tcp_filter_init;
     u->input_filter = ngx_http_php_socket_tcp_filter;
     u->input_filter_ctx = ctx;
@@ -98,6 +111,8 @@ ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
 
     ngx_http_upstream_init(r);
 
+    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
     return NGX_OK;
 }
 
@@ -105,34 +120,35 @@ ngx_int_t
 ngx_http_php_socket_tcp_create_request(ngx_http_request_t *r)
 {
     ngx_php_request = r;
-    //ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
-    ngx_str_t backendQueryLine =
-        ngx_string("GET /search?q=%V HTTP/1.1\r\nHost: www.sina.com\r\nConnection: close\r\n\r\n");
-    ngx_int_t queryLineLen = backendQueryLine.len + r->args.len - 2;
 
-    ngx_buf_t* b = ngx_create_temp_buf(r->pool, queryLineLen);
-    if (b == NULL)
+    ngx_buf_t* b = ngx_create_temp_buf(r->pool, ctx->send_buf.len);
+    if (b == NULL) {
         return NGX_ERROR;
+    }
     
-    b->last = b->pos + queryLineLen;
+    b->last = b->pos + ctx->send_buf.len;
 
-    ngx_snprintf(b->pos, queryLineLen, (char*)backendQueryLine.data, &r->args); 
+    ngx_snprintf(b->pos, ctx->send_buf.len, (char*)ctx->send_buf.data); 
               
     r->upstream->request_bufs = ngx_alloc_chain_link(r->pool);
-    if (r->upstream->request_bufs == NULL)
+    if (r->upstream->request_bufs == NULL) {
         return NGX_ERROR;
+    }
 
     r->upstream->request_bufs->buf = b;
     r->upstream->request_bufs->next = NULL;
 
-    r->upstream->request_sent = 0;
+    /*r->upstream->request_sent = 0;
     r->upstream->header_sent = 0;
 
-    r->header_hash = 0;
+    r->header_hash = 1;
+    */
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+    //                  "start %s %d", r->upstream->request_bufs->buf->pos, ctx->send_buf.len);
 
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-                      "start");
+    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
     return NGX_OK;
 }
@@ -160,6 +176,11 @@ ngx_http_php_socket_tcp_process_header(ngx_http_request_t *r)
     u = r->upstream;
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s", (&u->buffer)->pos);
+
+    ctx->receive_buf.len = (&u->buffer)->last - (&u->buffer)->pos;
+    ctx->receive_buf.data = (&u->buffer)->pos;
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "recv=%s", ctx->receive_buf.data);
 
     ctx->enable_upstream = 0;
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
@@ -198,119 +219,6 @@ ngx_http_php_socket_tcp_process_header(ngx_http_request_t *r)
 
     return NGX_OK;
 
-}
-
-ngx_int_t
-ngx_http_php_socket_tcp_receive_parse(ngx_http_request_t *r)
-{
-    ngx_php_request = r;
-
-    ngx_int_t                       rc;
-    ngx_table_elt_t                *h;
-    //ngx_http_upstream_header_t     *hh;
-
-    //循环的解析所有的http头部
-    for ( ;; ) {
-        // http框架提供了基础性的ngx_http_parse_header_line方法，它用于解析http头部
-        rc = ngx_http_parse_header_line(r, &r->upstream->buffer, 1);
-        //返回NGX_OK表示解析出一行http头部
-        if (rc == NGX_OK)
-        {
-            //向headers_in.headers这个ngx_list_t链表中添加http头部
-            h = ngx_list_push(&r->upstream->headers_in.headers);
-            if (h == NULL)
-            {
-                return NGX_ERROR;
-            }
-            //以下开始构造刚刚添加到headers链表中的http头部
-            h->hash = r->header_hash;
-
-            h->key.len = r->header_name_end - r->header_name_start;
-            h->value.len = r->header_end - r->header_start;
-            
-            //必须由内存池中分配解析出的这一行信息，存放解析出的这一行http头部的内存
-            h->key.data = ngx_pnalloc(r->pool,
-                                      h->key.len + 1 + h->value.len + 1 + h->key.len);
-            if (h->key.data == NULL)
-            {
-                return NGX_ERROR;
-            }
-
-            /* key + value + 小写key */
-            h->value.data = h->key.data + h->key.len + 1; //value存放在key后面
-            h->lowcase_key = h->key.data + h->key.len + 1 + h->value.len + 1; //最后存放key的小写字符串
-
-            ngx_memcpy(h->key.data, r->header_name_start, h->key.len);
-            h->key.data[h->key.len] = '\0';
-            ngx_memcpy(h->value.data, r->header_start, h->value.len);
-            h->value.data[h->value.len] = '\0';
-
-            if (h->key.len == r->lowcase_index)
-            {
-                ngx_memcpy(h->lowcase_key, r->lowcase_header, h->key.len);
-            }
-            else
-            {
-                ngx_strlow(h->lowcase_key, h->key.data, h->key.len);
-            }
-
-            continue;
-        }
-
-        //返回NGX_HTTP_PARSE_HEADER_DONE表示响应中所有的http头部都解析
-//完毕，接下来再接收到的都将是http包体
-        if (rc == NGX_HTTP_PARSE_HEADER_DONE)
-        {
-            //如果之前解析http头部时没有发现server和date头部，以下会
-            //根据http协议添加这两个头部
-            if (r->upstream->headers_in.server == NULL)
-            {
-                h = ngx_list_push(&r->upstream->headers_in.headers);
-                if (h == NULL)
-                {
-                    return NGX_ERROR;
-                }
-
-                h->hash = ngx_hash(ngx_hash(ngx_hash(ngx_hash(
-                                                         ngx_hash('s', 'e'), 'r'), 'v'), 'e'), 'r');
-
-                ngx_str_set(&h->key, "Server");
-                ngx_str_null(&h->value);
-                h->lowcase_key = (u_char *) "server";
-            }
-
-            if (r->upstream->headers_in.date == NULL)
-            {
-                h = ngx_list_push(&r->upstream->headers_in.headers);
-                if (h == NULL)
-                {
-                    return NGX_ERROR;
-                }
-
-                h->hash = ngx_hash(ngx_hash(ngx_hash('d', 'a'), 't'), 'e');
-
-                ngx_str_set(&h->key, "Date");
-                ngx_str_null(&h->value);
-                h->lowcase_key = (u_char *) "date";
-            }
-
-            return NGX_OK;
-        }
-
-        //如果返回NGX_AGAIN则表示状态机还没有解析到完整的http头部，
-//要求upstream模块继续接收新的字符流再交由process_header
-//回调方法解析
-        if (rc == NGX_AGAIN)
-        {
-            return NGX_AGAIN;
-        }
-
-        //其他返回值都是非法的
-        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-                      "upstream sent invalid header");
-
-        return NGX_HTTP_UPSTREAM_INVALID_HEADER;
-    }
 }
 
 void 
@@ -353,8 +261,24 @@ ngx_http_php_socket_tcp_filter_init(void *data)
 ngx_int_t 
 ngx_http_php_socket_tcp_filter(void *data, ssize_t bytes)
 {
+    ngx_http_php_ctx_t *ctx = data;
 
-     return NGX_OK;
+    ngx_http_request_t *r;
+    ngx_http_upstream_t *u;
+
+    r = ctx->request;
+    u = ctx->request->upstream;
+
+    ngx_http_php_rputs_chain_list_t *chain;
+
+    chain = ctx->rputs_chain;
+
+    if (ctx->rputs_chain == NULL){
+        //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", bytes);
+    }else {
+        //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s", (*chain->last)->buf->pos);
+    }
+    return NGX_OK;
 }
 
 ngx_int_t
@@ -395,10 +319,7 @@ ngx_http_php_socket_tcp_handler(ngx_http_request_t *r)
     pthread_cond_destroy(&(ctx->cond));
     pthread_mutex_destroy(&(ctx->mutex));
 
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-                      "end");
-
-    /*ngx_int_t rc;
+    ngx_int_t rc;
 
     ngx_http_php_rputs_chain_list_t *chain;
 
@@ -450,15 +371,15 @@ ngx_http_php_socket_tcp_handler(ngx_http_request_t *r)
         (*chain->last)->buf->last_buf = 1;
     }
 
-    rc = ngx_http_send_header(r);
-    if (rc != NGX_OK){
-        return rc;
-    }
+    //rc = ngx_http_send_header(r);
+    //if (rc != NGX_OK){
+    //    return rc;
+    //}
 
     ngx_http_output_filter(r, chain->out);
 
     ngx_http_set_ctx(r, NULL, ngx_http_php_module);
-*/
+
     return NGX_OK;
 }
 

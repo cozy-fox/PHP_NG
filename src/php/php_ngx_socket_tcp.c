@@ -108,6 +108,8 @@ PHP_METHOD(ngx_socket_tcp, receive)
     if (ctx == NULL){
         
     }
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "recv:%s", ctx->receive_buf.data);
     
     RETVAL_STRINGL((char *)ctx->receive_buf.data, ctx->receive_buf.len, 1);
 
