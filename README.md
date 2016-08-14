@@ -3,8 +3,7 @@ ngx_php
 [![Build Status](https://travis-ci.org/rryqszq4/ngx_php.svg?branch=master)](https://travis-ci.org/rryqszq4/ngx_php) 
 [![Gitter](https://badges.gitter.im/rryqszq4/ngx_php.svg)](https://gitter.im/rryqszq4/ngx_php?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-Embedded php scripting language for nginx-module.  
-[php7-nginx-module](https://github.com/rryqszq4/php7-nginx-module) for php7.  
+[ngx_php](https://github.com/rryqszq4/ngx_php)---Embedded php scripting language for nginx-module.Another name is php-nginx-module.   
 QQ group：558795330
 
 Features
@@ -15,6 +14,7 @@ Features
 * RFC 1867 protocol file upload
 * PHP error reporting output
 * Support PECL PHP extension
+* Support Nginx API for php
 
 Requirement
 -----------
@@ -31,7 +31,6 @@ Installation
 -------
 ```sh
 git clone https://github.com/rryqszq4/ngx_php.git
-cd ngx_php
 
 wget 'http://nginx.org/download/nginx-1.6.3.tar.gz'
 tar -zxvf nginx-1.6.3.tar.gz
@@ -86,7 +85,7 @@ http {
 Framework conf
 --------------
 
-**wordpress (多入口模式):**
+**wordpress :**
 
 ```nginx
 server {
@@ -101,7 +100,7 @@ server {
     }
 }
 ```
-**yaf & yii (单一入口模式):**
+**yaf & yii :**
 ```nginx
 server {
     listen 80;

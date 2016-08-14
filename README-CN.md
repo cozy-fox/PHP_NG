@@ -3,8 +3,7 @@ ngx_php
 [![Build Status](https://travis-ci.org/rryqszq4/ngx_php.svg?branch=master)](https://travis-ci.org/rryqszq4/ngx_php) 
 [![Gitter](https://badges.gitter.im/rryqszq4/ngx_php.svg)](https://gitter.im/rryqszq4/ngx_php?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-ngx_php是为nginx模块嵌入php脚本语言。别名为php-nginx-module。  
-[php7-nginx-module](https://github.com/rryqszq4/php7-nginx-module)是php7的版本。  
+[ngx_php](https://github.com/rryqszq4/ngx_php)是为nginx模块嵌入php脚本语言。别名为php-nginx-module。    
 QQ 群：558795330
 
 特性
@@ -15,6 +14,7 @@ QQ 群：558795330
 * 支持RFC 1867文件上传协议
 * 支持php错误输出
 * 支持加载与运行PECL扩展
+* 支持nginx的API在php中调用
 
 环境
 -----------
@@ -31,7 +31,6 @@ nginx-1.9.15
 -------
 ```sh
 git clone https://github.com/rryqszq4/ngx_php.git
-cd ngx_php
 
 wget 'http://nginx.org/download/nginx-1.6.3.tar.gz'
 tar -zxvf nginx-1.6.3.tar.gz
