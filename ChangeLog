@@ -9,6 +9,10 @@
 
 	* add php api "ngx_socket_tcp", "::connect, ::send, ::receive, ::close"
 
+	* merge docker file
+
+	* bumped version to 0.0.4
+
 2016-05-22 rryqszq4 <ngxphp@gmail.com>
 	* append ngx_devel_kit-0.2.19 module
 
