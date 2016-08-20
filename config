@@ -6,8 +6,10 @@ NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/src/ngx_http_php_module.c \
 				$ngx_addon_dir/src/ngx_http_php_handler.c \
 				$ngx_addon_dir/src/ngx_http_php_request.c \
 				$ngx_addon_dir/src/ngx_http_php_subrequest.c \
+				$ngx_addon_dir/src/ngx_http_php_socket_tcp.c \
 				$ngx_addon_dir/src/php/php_ngx.c \
 				$ngx_addon_dir/src/php/php_ngx_location.c \
+				$ngx_addon_dir/src/php/php_ngx_socket_tcp.c \
 				"
 NGX_ADDON_DEPS="$NGX_ADDON_DEPS $ngx_addon_dir/src/ngx_http_php_module.h \
 				$ngx_addon_dir/src/ngx_http_php_core.h \
@@ -15,8 +17,10 @@ NGX_ADDON_DEPS="$NGX_ADDON_DEPS $ngx_addon_dir/src/ngx_http_php_module.h \
 				$ngx_addon_dir/src/ngx_http_php_handler.h \
 				$ngx_addon_dir/src/ngx_http_php_request.h \
 				$ngx_addon_dir/src/ngx_http_php_subrequest.h \
+				$ngx_addon_dir/src/ngx_http_php_socket_tcp.h \
 				$ngx_addon_dir/src/php/php_ngx.h \
 				$ngx_addon_dir/src/php/php_ngx_location.h \
+				$ngx_addon_dir/src/php/php_ngx_socket_tcp.h \
 				"
 
 CORE_INCS="$CORE_INCS $PHP_INC $PHP_INC/main $PHP_INC/TSRM $PHP_INC/Zend $PHP_INC/ext $PHP_INC/ext/date/lib $PHP_INC/sapi/embed "
@@ -24,8 +28,8 @@ CORE_INCS="$CORE_INCS $PHP_INC $PHP_INC/main $PHP_INC/TSRM $PHP_INC/Zend $PHP_IN
 CORE_LIBS="$CORE_LIBS `$PHP_BIN/php-config --ldflags` -L$PHP_LIB -lphp5 `$PHP_BIN/php-config --libs` "
 
 
-#CORE_INCS="$CORE_INCS /usr/local/php53/include/php /usr/local/php53/include/php/main /usr/local/php53/include/php/TSRM /usr/local/php53/include/php/Zend /usr/local/php53/include/php/ext /usr/local/php53/include/php/ext/date/lib /usr/local/php53/include/php/sapi/embed "
+#CORE_INCS="$CORE_INCS /usr/local/php5329/include/php /usr/local/php5329/include/php/main /usr/local/php5329/include/php/TSRM /usr/local/php5329/include/php/Zend /usr/local/php5329/include/php/ext /usr/local/php53/include/php/ext/date/lib /usr/local/php5329/include/php/sapi/embed "
 
-#CORE_LIBS="$CORE_LIBS `/usr/local/php53/bin/php-config --ldflags` -L/usr/local/php53/lib -lphp5 `/usr/local/php/bin/php-config --libs` "
+#CORE_LIBS="$CORE_LIBS `/usr/local/php5329/bin/php-config --ldflags` -L/usr/local/php5329/lib -lphp5 `/usr/local/php/bin/php-config --libs` "
 
 have=NDK_SET_VAR . auto/have
