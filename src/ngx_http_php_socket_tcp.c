@@ -261,7 +261,7 @@ ngx_http_php_socket_tcp_filter_init(void *data)
 ngx_int_t 
 ngx_http_php_socket_tcp_filter(void *data, ssize_t bytes)
 {
-    ngx_http_php_ctx_t *ctx = data;
+    /*ngx_http_php_ctx_t *ctx = data;
 
     ngx_http_request_t *r;
     ngx_http_upstream_t *u;
@@ -274,10 +274,10 @@ ngx_http_php_socket_tcp_filter(void *data, ssize_t bytes)
     chain = ctx->rputs_chain;
 
     if (ctx->rputs_chain == NULL){
-        //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", bytes);
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", bytes);
     }else {
-        //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s", (*chain->last)->buf->pos);
-    }
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s", (*chain->last)->buf->pos);
+    }*/
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "input_filter");
 
