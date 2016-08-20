@@ -42,6 +42,8 @@ typedef struct {
 typedef struct {
 	ngx_str_t document_root;
 
+	ngx_http_upstream_conf_t upstream;
+
 	ngx_http_php_code_t *rewrite_code;
 	ngx_http_php_code_t *rewrite_inline_code;
 	ngx_http_php_code_t *access_code;

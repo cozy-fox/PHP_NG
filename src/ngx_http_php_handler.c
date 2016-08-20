@@ -9,8 +9,10 @@
 #include "ngx_http_php_module.h"
 #include "ngx_http_php_request.h"
 #include "ngx_http_php_subrequest.h"
+#include "ngx_http_php_socket_tcp.h"
 
 #include "php/php_ngx_location.h"
+#include "php/php_ngx_socket_tcp.h"
 
 ngx_int_t 
 ngx_http_php_rewrite_handler(ngx_http_request_t *r)
@@ -870,6 +872,8 @@ ngx_http_php_sync_inline_thread(void *arg)
 	NGX_HTTP_PHP_NGX_INIT;
 
 		ngx_location_init(0 TSRMLS_CC);
+		ngx_socket_tcp_init(0 TSRMLS_CC);
+
 		PHP_NGX_G(global_r) = r;
 
 		ngx_php_ngx_run(r, pmcf->state, plcf->content_inline_code);
@@ -901,6 +905,7 @@ ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
 	}
 
 	ctx->enable_async = 0;
+	ctx->enable_upstream = 0;
 	ctx->enable_thread = 1;
 
 	ctx->is_capture_multi = 0;
@@ -932,6 +937,9 @@ ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
 			//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
 			break;
 		}
+		if (ctx->enable_upstream == 1 || ctx->enable_thread == 0){
+			break;
+		}
 	}
 
 	if (ctx->enable_async == 1){
@@ -941,6 +949,11 @@ ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
 			ngx_http_php_subrequest_post_multi(r);
 		}
 
+		return NGX_DONE;
+	}
+
+	if (ctx->enable_upstream == 1){
+		ngx_http_php_socket_tcp_run(r);
 		return NGX_DONE;
 	}
 

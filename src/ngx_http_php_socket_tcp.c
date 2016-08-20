@@ -278,6 +278,9 @@ ngx_http_php_socket_tcp_filter(void *data, ssize_t bytes)
     }else {
         //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s", (*chain->last)->buf->pos);
     }
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "input_filter");
+
     return NGX_OK;
 }
 

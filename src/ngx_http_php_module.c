@@ -202,6 +202,18 @@ ngx_module_t ngx_http_php_module = {
 	NGX_MODULE_V1_PADDING
 };
 
+static ngx_str_t  ngx_http_php_hide_headers[] = {
+    ngx_string("Date"),
+    ngx_string("Server"),
+    ngx_string("X-Pad"),
+    ngx_string("X-Accel-Expires"),
+    ngx_string("X-Accel-Redirect"),
+    ngx_string("X-Accel-Limit-Rate"),
+    ngx_string("X-Accel-Buffering"),
+    ngx_string("X-Accel-Charset"),
+    ngx_null_string
+};
+
 static ngx_int_t 
 ngx_http_php_init(ngx_conf_t *cf)
 {
@@ -343,6 +355,22 @@ ngx_http_php_create_loc_conf(ngx_conf_t *cf)
 
 	plcf->content_async_inline_code = NGX_CONF_UNSET_PTR;
 
+	plcf->upstream.connect_timeout = 60000;
+    plcf->upstream.send_timeout = 60000;
+    plcf->upstream.read_timeout = 60000;
+    plcf->upstream.store_access = 0600;
+
+    plcf->upstream.buffering = 0;
+    plcf->upstream.bufs.num = 8;
+    plcf->upstream.bufs.size = ngx_pagesize;
+    plcf->upstream.buffer_size = ngx_pagesize;
+    plcf->upstream.busy_buffers_size = 2 * ngx_pagesize;
+    plcf->upstream.temp_file_write_size = 2 * ngx_pagesize;
+    plcf->upstream.max_temp_file_size = 1024 * 1024 * 1024;
+
+    plcf->upstream.hide_headers = NGX_CONF_UNSET_PTR;
+    plcf->upstream.pass_headers = NGX_CONF_UNSET_PTR;
+
 	return plcf;
 }
 
@@ -368,6 +396,18 @@ ngx_http_php_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 	prev->content_inline_code = conf->content_inline_code;
 
 	prev->content_async_inline_code = conf->content_async_inline_code;
+
+	ngx_hash_init_t		hash;
+	hash.max_size = 512;
+	hash.bucket_size = 1024;
+	hash.name = "ngx_php_headers_hash";
+
+	if (ngx_http_upstream_hide_headers_hash(cf, &conf->upstream,
+            &prev->upstream, ngx_http_php_hide_headers, &hash)
+        != NGX_OK)
+    {
+        return NGX_CONF_ERROR;
+    }
 
 	return NGX_CONF_OK;
 }
