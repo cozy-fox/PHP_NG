@@ -175,7 +175,7 @@ Result: PASS
 Directives
 ----------
 
-#### php_ini_path
+## php_ini_path
 **syntax:** *php_ini_path &lt;php.ini file path&gt;*  
 **context:** *http*  
 **phase:** *loading-config*  
@@ -186,21 +186,21 @@ Directives
 php_ini_path /usr/local/php/etc/php.ini;
 ```
 
-#### init_by_php
+## init_by_php
 **syntax:** *init_by_php &lt;php script code&gt;*  
 **context:** *http*  
 **phase:** *loading-config*
 
 * In nginx configuration initialization or boot time, run some php scripts.
 
-#### init_by_php_file
+## init_by_php_file
 **syntax:** *init_by_php_file &lt;php script file&gt;*  
 **context:** *http*  
 **phase:** *loading-config*
 
 * In nginx configuration initialization or boot time, run some php script file.
 
-#### rewrite_by_php
+## rewrite_by_php
 **syntax:** *rewrite_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *rewrite*
@@ -216,49 +216,49 @@ location /rewrite_by_php {
     }
 ```
 
-#### rewrite_by_php_file
+## rewrite_by_php_file
 **syntax:** *rewrite_by_php_file &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *rewrite*
 
 * Use php script file, redirect in nginx rewrite stage of.
 
-#### access_by_php
+## access_by_php
 **syntax:** *access_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *access*
 
 * Nginx in the access phase, the php script determine access.
 
-#### access_by_php_file
+## access_by_php_file
 **syntax:** *access_by_php_file &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *access*
 
 * Nginx in the access phase, the php script file Analyzing access。
 
-#### content_by_php
+## content_by_php
 **syntax:** *content_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*
 
 * Most central command, run php script nginx stage of content.
 
-#### content_by_php_file
+## content_by_php_file
 **syntax:** *content_by_php_file &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*
 
 * Most central command, run php script file nginx stage of content.
 
-#### content_async_by_php
+## content_async_by_php
 **syntax:** *content_async_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*  
 
 * Asynchronous mode code to execute php code to call non-blocking.
 
-#### content_sync_by_php
+## content_sync_by_php
 **syntax:** *content_sync_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*  
@@ -266,22 +266,22 @@ location /rewrite_by_php {
 * Very similar content by php, but way synchronization code to execute php code 
   to call non-blocking, the development is only a test of each instruction.
 
-#### set_by_php
+## set_by_php
 **syntax:** *set_by_php &lt;php script code&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
-#### set_run_by_php
+## set_run_by_php
 **syntax:** *set_run_by_php &lt;php script code&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
-#### set_by_php_file
+## set_by_php_file
 **syntax:** *set_by_php_file &lt;php script file&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
-#### set_run_by_php_file
+## set_run_by_php_file
 **syntax:** *set_run_by_php_file &lt;php script file&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
@@ -290,7 +290,7 @@ location /rewrite_by_php {
 Nginx API for php
 -----------------
 
-#### ngx_location::capture_async
+### ngx_location::capture_async
 **syntax:** *ngx_location::capture_async(string $uri, mixed $closure)*  
 **context:** *content_async_by_php*  
 
@@ -303,7 +303,7 @@ ngx_location::capture_async('/foo', function($callback = 'callback'){
 });
 ```
 
-#### ngx_location::capture_multi_async
+## ngx_location::capture_multi_async
 **syntax:** *ngx_location::capture_multi_async(array $uri, mixed $closure)*  
 **context:** *content_async_by_php*  
 
@@ -321,7 +321,7 @@ ngx_location::capture_multi_async($capture_multi, function($callback = 'callback
 });
 ```
 
-#### ngx_location::capture
+## ngx_location::capture
 **syntax:** *ngx_location::capture(string $uri)*  
 **context:** *content_sync_by_php*  
 
