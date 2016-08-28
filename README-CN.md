@@ -30,11 +30,25 @@ nginx-1.9.15
 
 安装
 -------
+- build php
+
+```sh
+wget http://php.net/distributions/php-5.3.29.tar.gz
+tar xf php-5.3.29.tar.gz
+cd php-5.3.29
+./configure --prefix=/path/to/php \
+            --enable-maintainer-zts \
+            --enable-embed
+make && make install
+```
+
+- build ngx_php
+
 ```sh
 git clone https://github.com/rryqszq4/ngx_php.git
 
 wget 'http://nginx.org/download/nginx-1.6.3.tar.gz'
-tar -zxvf nginx-1.6.3.tar.gz
+tar xf nginx-1.6.3.tar.gz
 cd nginx-1.6.3
 
 export PHP_BIN=/path/to/php/bin
@@ -46,6 +60,7 @@ export PHP_LIB=/path/to/php/lib
             --with-ld-opt="-Wl,-rpath,$PHP_LIB" \
             --add-module=/path/to/ngx_php/dev/ngx_devel_kit \
             --add-module=/path/to/ngx_php
+make && make install
 ```
 
 摘要
@@ -101,7 +116,9 @@ server {
     }
 }
 ```
+
 **yaf & yii (单一入口模式):**
+
 ```nginx
 server {
     listen 80;
@@ -137,6 +154,7 @@ cd /path/to/ngx_php
 export PATH=/path/to/nginx/sbin:$PATH
 prove -r t
 ```
+
 Test result:
 
 ```sh
@@ -163,6 +181,7 @@ nginx指令
 **phase:** *loading-config*  
 
 加载php配置文件
+
 ```nginx
 php_ini_path /usr/local/php/etc/php.ini;
 ```
@@ -248,6 +267,7 @@ Nginx的php接口
 **context:** *content_async_by_php*  
 
 借助nginx底层强大的subrequest，实现php完全非阻塞的异步代码调用
+
 ```php
 ngx_location::capture_async('/foo', function($callback = 'callback'){
     echo $callback;
@@ -259,6 +279,7 @@ ngx_location::capture_async('/foo', function($callback = 'callback'){
 **context:** *content_async_by_php*  
 
 和ngx_location::capture_async相似，但是可以支持完全非阻塞的并行异步代码调用
+
 ```php
 $capture_multi = array(
     '/foo',
@@ -275,6 +296,7 @@ ngx_location::capture_multi_async($capture_multi, function($callback = 'callback
 **context:** *content_sync_by_php*  
 
 借助nginx底层强大的subrequest，实现php完全非阻塞调用
+
 ```php
 $result = ngx_location::capture('/foo');
 echo $result;
@@ -285,6 +307,7 @@ echo $result;
 **context:** *content_sync_by_php*  
 
 和ngx_location::capture相似，但是可以支持完全非阻塞的并行调用
+
 ```php
 $capture_multi = array(
     '/foo',

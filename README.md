@@ -4,7 +4,7 @@ ngx_php
 [![Gitter](https://badges.gitter.im/rryqszq4/ngx_php.svg)](https://gitter.im/rryqszq4/ngx_php?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![image](https://img.shields.io/badge/license-BSD-blue.svg)](https://github.com/rryqszq4/ngx_php/blob/master/LICENSE)
 
-[ngx_php](https://github.com/rryqszq4/ngx_php)---Embedded php scripting language for nginx-module.Another name is php-nginx-module.   
+[ngx_php](https://github.com/rryqszq4/ngx_php)---Embedded php script language for nginx-module. Another name is php-nginx-module.   
 QQ group：558795330
 
 Features
@@ -30,11 +30,25 @@ nginx-1.9.15
 
 Installation
 -------
+- build php
+
+```sh
+wget http://php.net/distributions/php-5.3.29.tar.gz
+tar xf php-5.3.29.tar.gz
+cd php-5.3.29
+./configure --prefix=/path/to/php \
+            --enable-maintainer-zts \
+            --enable-embed
+make && make install
+```
+
+- build ngx_php
+
 ```sh
 git clone https://github.com/rryqszq4/ngx_php.git
 
 wget 'http://nginx.org/download/nginx-1.6.3.tar.gz'
-tar -zxvf nginx-1.6.3.tar.gz
+tar xf nginx-1.6.3.tar.gz
 cd nginx-1.6.3
 
 export PHP_BIN=/path/to/php/bin
@@ -46,6 +60,7 @@ export PHP_LIB=/path/to/php/lib
 			--with-ld-opt="-Wl,-rpath,$PHP_LIB" \
 			--add-module=/path/to/ngx_php/dev/ngx_devel_kit \
 			--add-module=/path/to/ngx_php
+make && make install
 ```
 
 Synopsis
@@ -101,7 +116,9 @@ server {
     }
 }
 ```
+
 **yaf & yii :**
+
 ```nginx
 server {
     listen 80;
@@ -162,7 +179,8 @@ Directives
 **context:** *http*  
 **phase:** *loading-config*  
 
-加载php配置文件
+* Loading php configuration file in nginx configuration initialization.
+
 ```nginx
 php_ini_path /usr/local/php/etc/php.ini;
 ```
@@ -172,52 +190,80 @@ php_ini_path /usr/local/php/etc/php.ini;
 **context:** *http*  
 **phase:** *loading-config*
 
+* In nginx configuration initialization or boot time, run some php scripts.
+
 #### init_by_php_file
 **syntax:** *init_by_php_file &lt;php script file&gt;*  
 **context:** *http*  
 **phase:** *loading-config*
+
+* In nginx configuration initialization or boot time, run some php script file.
 
 #### rewrite_by_php
 **syntax:** *rewrite_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *rewrite*
 
+* Use php script redirect in nginx rewrite stage of.
+
+```nginx
+location /rewrite_by_php {
+        rewrite_by_php "
+            echo "rewrite_by_php";
+            header('Location: http://www.baidu.com/');
+        ";
+    }
+```
+
 #### rewrite_by_php_file
 **syntax:** *rewrite_by_php_file &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *rewrite*
+
+* Use php script file, redirect in nginx rewrite stage of.
 
 #### access_by_php
 **syntax:** *access_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *access*
 
+* Nginx in the access phase, the php script determine access.
+
 #### access_by_php_file
 **syntax:** *access_by_php_file &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *access*
+
+* Nginx in the access phase, the php script file Analyzing access。
 
 #### content_by_php
 **syntax:** *content_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*
 
+* Most central command, run php script nginx stage of content.
+
 #### content_by_php_file
 **syntax:** *content_by_php_file &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*
+
+* Most central command, run php script file nginx stage of content.
 
 #### content_async_by_php
 **syntax:** *content_async_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*  
 
-异步的代码方式去执行非阻塞的php代码调用
+* Asynchronous mode code to execute php code to call non-blocking.
 
 #### content_sync_by_php
 **syntax:** *content_sync_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*  
+
+* Very similar content by php, but way synchronization code to execute php code 
+  to call non-blocking, the development is only a test of each instruction.
 
 #### set_by_php
 **syntax:** *set_by_php &lt;php script code&gt;*  
@@ -247,7 +293,9 @@ Nginx API for php
 **syntax:** *ngx_location::capture_async(string $uri, mixed $closure)*  
 **context:** *content_async_by_php*  
 
-借助nginx底层强大的subrequest，实现php完全非阻塞的异步代码调用
+* With nginx underlying strong subrequest, fully non-blocking asynchronous realize 
+  php code calls.
+
 ```php
 ngx_location::capture_async('/foo', function($callback = 'callback'){
     echo $callback;
@@ -258,7 +306,9 @@ ngx_location::capture_async('/foo', function($callback = 'callback'){
 **syntax:** *ngx_location::capture_multi_async(array $uri, mixed $closure)*  
 **context:** *content_async_by_php*  
 
-和ngx_location::capture_async相似，但是可以支持完全非阻塞的并行异步代码调用
+* And ngx location :: capture async similar, but can support fully non-blocking asynchronous 
+  parallel code calls.
+
 ```php
 $capture_multi = array(
     '/foo',
@@ -274,7 +324,8 @@ ngx_location::capture_multi_async($capture_multi, function($callback = 'callback
 **syntax:** *ngx_location::capture(string $uri)*  
 **context:** *content_sync_by_php*  
 
-借助nginx底层强大的subrequest，实现php完全非阻塞调用
+* With nginx underlying strong subrequest, php achieve full non-blocking calls.
+
 ```php
 $result = ngx_location::capture('/foo');
 echo $result;
@@ -284,7 +335,8 @@ echo $result;
 **syntax:** *ngx_location::capture_multi(array $uri)*  
 **context:** *content_sync_by_php*  
 
-和ngx_location::capture相似，但是可以支持完全非阻塞的并行调用
+* And ngx location :: capture similar, but can support full non-blocking concurrent calls.
+
 ```php
 $capture_multi = array(
     '/foo',
