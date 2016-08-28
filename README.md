@@ -30,19 +30,20 @@ nginx-1.9.15
 
 Installation
 -------
-- build php
+- **build php**
 
 ```sh
-wget http://php.net/distributions/php-5.3.29.tar.gz
+wget 'http://php.net/distributions/php-5.3.29.tar.gz'
 tar xf php-5.3.29.tar.gz
 cd php-5.3.29
+
 ./configure --prefix=/path/to/php \
             --enable-maintainer-zts \
             --enable-embed
 make && make install
 ```
 
-- build ngx_php
+- **build ngx_php**
 
 ```sh
 git clone https://github.com/rryqszq4/ngx_php.git
@@ -331,7 +332,7 @@ $result = ngx_location::capture('/foo');
 echo $result;
 ```
 
-#### ngx_location::capture_multi
+## ngx_location::capture_multi
 **syntax:** *ngx_location::capture_multi(array $uri)*  
 **context:** *content_sync_by_php*  
 
