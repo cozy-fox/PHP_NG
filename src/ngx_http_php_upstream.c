@@ -68,37 +68,29 @@ static void ngx_http_php_upstream_cleanup(void *data);
 static void ngx_http_php_upstream_finalize_request(ngx_http_request_t *r,
     ngx_http_upstream_t *u, ngx_int_t rc);
 
-#if (NGX_HTTP_GZIP)
-static ngx_int_t ngx_http_upstream_copy_content_encoding(ngx_http_request_t *r,
-    ngx_table_elt_t *h, ngx_uint_t offset);
-#endif
 
-static ngx_int_t ngx_http_upstream_add_variables(ngx_conf_t *cf);
-static ngx_int_t ngx_http_upstream_addr_variable(ngx_http_request_t *r,
-    ngx_http_variable_value_t *v, uintptr_t data);
-static ngx_int_t ngx_http_upstream_status_variable(ngx_http_request_t *r,
-    ngx_http_variable_value_t *v, uintptr_t data);
-static ngx_int_t ngx_http_upstream_response_time_variable(ngx_http_request_t *r,
-    ngx_http_variable_value_t *v, uintptr_t data);
-static ngx_int_t ngx_http_upstream_response_length_variable(
-    ngx_http_request_t *r, ngx_http_variable_value_t *v, uintptr_t data);
-
-static char *ngx_http_upstream(ngx_conf_t *cf, ngx_command_t *cmd, void *dummy);
-static char *ngx_http_upstream_server(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
-
-static ngx_addr_t *ngx_http_upstream_get_local(ngx_http_request_t *r,
+static ngx_addr_t *ngx_http_php_upstream_get_local(ngx_http_request_t *r,
     ngx_http_upstream_local_t *local);
-
-static void *ngx_http_upstream_create_main_conf(ngx_conf_t *cf);
-static char *ngx_http_upstream_init_main_conf(ngx_conf_t *cf, void *conf);
 
 
 #if (NGX_HTTP_SSL)
-static void ngx_http_upstream_ssl_init_connection(ngx_http_request_t *,
+static void ngx_http_php_upstream_ssl_init_connection(ngx_http_request_t *,
     ngx_http_upstream_t *u, ngx_connection_t *c);
-static void ngx_http_upstream_ssl_handshake(ngx_connection_t *c);
+static void ngx_http_php_upstream_ssl_handshake(ngx_connection_t *c);
 #endif
+
+static ngx_int_t ngx_http_php_upstream_copy_header_line(ngx_http_request_t *r,
+    ngx_table_elt_t *h, ngx_uint_t offset);
+
+static ngx_http_upstream_next_t  ngx_http_php_upstream_next_errors[] = {
+    { 500, NGX_HTTP_UPSTREAM_FT_HTTP_500 },
+    { 502, NGX_HTTP_UPSTREAM_FT_HTTP_502 },
+    { 503, NGX_HTTP_UPSTREAM_FT_HTTP_503 },
+    { 504, NGX_HTTP_UPSTREAM_FT_HTTP_504 },
+    { 403, NGX_HTTP_UPSTREAM_FT_HTTP_403 },
+    { 404, NGX_HTTP_UPSTREAM_FT_HTTP_404 },
+    { 0, 0 }
+};
 
 ngx_int_t
 ngx_http_php_upstream_create(ngx_http_request_t *r)
@@ -200,7 +192,7 @@ ngx_http_php_upstream_init_request(ngx_http_request_t *r)
         return;
     }
 
-    u->peer.local = ngx_http_upstream_get_local(r, u->conf->local);
+    u->peer.local = ngx_http_php_upstream_get_local(r, u->conf->local);
 
     clcf = ngx_http_get_module_loc_conf(r, ngx_http_core_module);
 
@@ -226,7 +218,7 @@ ngx_http_php_upstream_init_request(ngx_http_request_t *r)
 
         u->state = ngx_array_push(r->upstream_states);
         if (u->state == NULL) {
-            ngx_http_upstream_finalize_request(r, u,
+            ngx_http_php_upstream_finalize_request(r, u,
                                                NGX_HTTP_INTERNAL_SERVER_ERROR);
             return;
         }
@@ -989,11 +981,11 @@ ngx_http_php_upstream_send_request(ngx_http_request_t *r, ngx_http_upstream_t *u
     ngx_add_timer(c->read, u->conf->read_timeout);
 
     if (c->read->ready) {
-        ngx_http_upstream_process_header(r, u);
+        ngx_http_php_upstream_process_header(r, u);
         return;
     }
 
-    u->write_event_handler = ngx_http_upstream_dummy_handler;
+    u->write_event_handler = ngx_http_php_upstream_dummy_handler;
 
     if (ngx_handle_write_event(c->write, 0) != NGX_OK) {
         ngx_http_php_upstream_finalize_request(r, u,
@@ -1029,7 +1021,7 @@ ngx_http_php_upstream_send_request_handler(ngx_http_request_t *r,
 #endif
 
     if (u->header_sent) {
-        u->write_event_handler = ngx_http_upstream_dummy_handler;
+        u->write_event_handler = ngx_http_php_upstream_dummy_handler;
 
         (void) ngx_handle_write_event(c->write, 0);
 
@@ -1209,7 +1201,7 @@ ngx_http_php_upstream_process_header(ngx_http_request_t *r, ngx_http_upstream_t 
         return;
     }
 
-    u->read_event_handler = ngx_http_upstream_process_body_in_memory;
+    u->read_event_handler = ngx_http_php_upstream_process_body_in_memory;
 
     ngx_http_php_upstream_process_body_in_memory(r, u);
 }
@@ -1223,7 +1215,7 @@ ngx_http_php_upstream_test_next(ngx_http_request_t *r, ngx_http_upstream_t *u)
 
     status = u->headers_in.status_n;
 
-    for (un = ngx_http_upstream_next_errors; un->status; un++) {
+    for (un = ngx_http_php_upstream_next_errors; un->status; un++) {
 
         if (status != un->status) {
             continue;
@@ -2785,9 +2777,72 @@ ngx_http_php_upstream_finalize_request(ngx_http_request_t *r,
     ngx_http_finalize_request(r, rc);
 }
 
+static ngx_int_t
+ngx_http_php_upstream_copy_header_line(ngx_http_request_t *r, ngx_table_elt_t *h,
+    ngx_uint_t offset)
+{
+    ngx_table_elt_t  *ho, **ph;
 
+    ho = ngx_list_push(&r->headers_out.headers);
+    if (ho == NULL) {
+        return NGX_ERROR;
+    }
 
+    *ho = *h;
 
+    if (offset) {
+        ph = (ngx_table_elt_t **) ((char *) &r->headers_out + offset);
+        *ph = ho;
+    }
+
+    return NGX_OK;
+}
+
+static ngx_addr_t *
+ngx_http_php_upstream_get_local(ngx_http_request_t *r,
+    ngx_http_upstream_local_t *local)
+{
+    ngx_int_t    rc;
+    ngx_str_t    val;
+    ngx_addr_t  *addr;
+
+    if (local == NULL) {
+        return NULL;
+    }
+
+    if (local->value == NULL) {
+        return local->addr;
+    }
+
+    if (ngx_http_complex_value(r, local->value, &val) != NGX_OK) {
+        return NULL;
+    }
+
+    if (val.len == 0) {
+        return NULL;
+    }
+
+    addr = ngx_palloc(r->pool, sizeof(ngx_addr_t));
+    if (addr == NULL) {
+        return NULL;
+    }
+
+    rc = ngx_parse_addr(r->pool, addr, val.data, val.len);
+
+    switch (rc) {
+    case NGX_OK:
+        addr->name = val;
+        return addr;
+
+    case NGX_DECLINED:
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+                      "invalid local address \"%V\"", &val);
+        /* fall through */
+
+    default:
+        return NULL;
+    }
+}
 
 
 
