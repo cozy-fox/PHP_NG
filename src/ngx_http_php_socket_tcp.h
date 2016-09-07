@@ -8,6 +8,7 @@
 #define NGX_HTTP_PHP_SOCKET_TCP_H
 
 #include "ngx_http_php_module.h"
+#include "ngx_http_php_upstream.h"
 
 ngx_int_t ngx_http_php_socket_tcp_run(ngx_http_request_t *r);
 
