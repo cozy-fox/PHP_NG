@@ -4,7 +4,7 @@ ngx_php
 [![Gitter](https://badges.gitter.im/rryqszq4/ngx_php.svg)](https://gitter.im/rryqszq4/ngx_php?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![image](https://img.shields.io/badge/license-BSD-blue.svg)](https://github.com/rryqszq4/ngx_php/blob/master/LICENSE)
 
-[ngx_php](https://github.com/rryqszq4/ngx_php)---Embedded php script language for nginx-module. Another name is php-nginx-module.   
+[ngx_php](https://github.com/rryqszq4/ngx_php) - Embedded php script language for nginx-module. Another name is php-nginx-module.   
 QQ group：558795330
 
 Features
@@ -366,6 +366,55 @@ $capture_multi = array(
 $result = ngx_location::capture_multi($capture_multi);
 var_dump($result);
 ```
+
+ngx_socket_tcp::__construct
+---------------------------
+**syntax:** *ngx_socket_tcp::__construct()*  
+**context:** *content_sync_by_php*  
+
+```php
+$tcpsock = new ngx_socket_tcp();
+```
+
+ngx_socket_tcp::connect
+---------------------------
+**syntax:** *ngx_socket_tcp::connect(string $host, int $port)*  
+**context:** *content_sync_by_php*  
+
+```php
+$tcpsock = new ngx_socket_tcp();
+$tcpsock->connect('192.168.80.140',11211));
+```
+
+ngx_socket_tcp::send
+---------------------------
+**syntax:** *ngx_socket_tcp::send(string $buf)*  
+**context:** *content_sync_by_php*  
+
+```php
+$tcpsock = new ngx_socket_tcp();
+$tcpsock->connect('192.168.80.140',11211));
+$tcpsock->send('stats\r\n');
+```
+
+ngx_socket_tcp::receive
+---------------------------
+**syntax:** *ngx_socket_tcp::receive()*  
+**context:** *content_sync_by_php*  
+
+```php
+$tcpsock = new ngx_socket_tcp();
+$tcpsock->connect('192.168.80.140',11211));
+$tcpsock->send('stats\r\n');
+$result = $tcpsock->receive();
+var_dump($result);
+$tcpsock->close();
+```
+
+ngx_socket_tcp::close
+---------------------------
+**syntax:** *ngx_socket_tcp::close()*  
+**context:** *content_sync_by_php*  
 
 
 Copyright and License

@@ -318,6 +318,55 @@ $result = ngx_location::capture_multi($capture_multi);
 var_dump($result);
 ```
 
+ngx_socket_tcp::__construct
+---------------------------
+**syntax:** *ngx_socket_tcp::__construct()*  
+**context:** *content_sync_by_php*  
+
+```php
+$tcpsock = new ngx_socket_tcp();
+```
+
+ngx_socket_tcp::connect
+---------------------------
+**syntax:** *ngx_socket_tcp::connect(string $host, int $port)*  
+**context:** *content_sync_by_php*  
+
+```php
+$tcpsock = new ngx_socket_tcp();
+$tcpsock->connect('192.168.80.140',11211));
+```
+
+ngx_socket_tcp::send
+---------------------------
+**syntax:** *ngx_socket_tcp::send(string $buf)*  
+**context:** *content_sync_by_php*  
+
+```php
+$tcpsock = new ngx_socket_tcp();
+$tcpsock->connect('192.168.80.140',11211));
+$tcpsock->send('stats\r\n');
+```
+
+ngx_socket_tcp::receive
+---------------------------
+**syntax:** *ngx_socket_tcp::receive()*  
+**context:** *content_sync_by_php*  
+
+```php
+$tcpsock = new ngx_socket_tcp();
+$tcpsock->connect('192.168.80.140',11211));
+$tcpsock->send('stats\r\n');
+$result = $tcpsock->receive();
+var_dump($result);
+$tcpsock->close();
+```
+
+ngx_socket_tcp::close
+---------------------------
+**syntax:** *ngx_socket_tcp::close()*  
+**context:** *content_sync_by_php*  
+
 
 拷贝与授权
 ---------------------
