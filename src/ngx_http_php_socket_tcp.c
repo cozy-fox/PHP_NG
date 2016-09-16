@@ -23,7 +23,7 @@ ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
 
-    if (ngx_http_upstream_create(r) != NGX_OK)
+    if (ngx_http_php_upstream_create(r) != NGX_OK)
     {
         ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_http_upstream_create() failed");
         return NGX_ERROR;
@@ -107,9 +107,11 @@ ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
     u->input_filter = ngx_http_php_socket_tcp_filter;
     u->input_filter_ctx = ctx;
 
+    r->subrequest_in_memory = 1;
+
     r->main->count++;
 
-    ngx_http_upstream_init(r);
+    ngx_http_php_upstream_init(r);
 
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
@@ -245,9 +247,13 @@ ngx_http_php_socket_tcp_filter_init(void *data)
 {
     ngx_http_php_ctx_t *ctx = data;
 
+    ngx_http_request_t *r;
     ngx_http_upstream_t *u;
 
+    r = ctx->request;
     u = ctx->request->upstream;
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", u->headers_in.status_n);
 
     if (u->headers_in.status_n != 404){
 
@@ -277,9 +283,70 @@ ngx_http_php_socket_tcp_filter(void *data, ssize_t bytes)
         ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", bytes);
     }else {
         ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s", (*chain->last)->buf->pos);
-    }*/
+    }
 
-    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "input_filter");
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "input_filter");*/
+
+    //return NGX_OK;
+
+    ngx_http_php_ctx_t *ctx = data;
+
+    ngx_http_request_t *r;
+    r = ctx->request;
+
+    return ngx_http_php_socket_tcp_going(r);
+}
+
+ngx_int_t
+ngx_http_php_socket_tcp_going(ngx_http_request_t *r)
+{
+    ngx_php_request = r;
+
+    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    ngx_http_upstream_t *u;
+
+    u = ctx->request->upstream;
+
+    for ( ;; ){
+        usleep(1);
+
+        if (ctx->enable_async == 1 || ctx->enable_thread == 0){
+            break;
+        }
+        if (ctx->enable_upstream == 1 || ctx->enable_thread == 0){
+            break;
+        }
+    }
+
+    if (ctx->enable_async == 1){
+        if (ctx->is_capture_multi == 0){
+            ngx_http_php_subrequest_post(r);
+        } else {
+            ngx_http_php_subrequest_post_multi(r);
+        }
+
+        return NGX_DONE;
+    }
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", ctx->enable_upstream);
+
+    if (ctx->enable_upstream == 1){
+        ngx_http_php_socket_tcp_create_request(r);
+        u->request_sent = 0;
+
+        ngx_connection_t  *c;
+        c = u->peer.connection;
+        ngx_add_timer(c->write, u->conf->send_timeout);
+        
+        ngx_http_php_upstream_send_request(r, u);
+        return NGX_DONE;
+    }
+
+    pthread_join(ctx->pthread_id, NULL);
+
+    pthread_cond_destroy(&(ctx->cond));
+    pthread_mutex_destroy(&(ctx->mutex));
 
     return NGX_OK;
 }
@@ -290,6 +357,10 @@ ngx_http_php_socket_tcp_handler(ngx_http_request_t *r)
     ngx_php_request = r;
 
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    /*ngx_http_upstream_t *u;
+
+    u = ctx->request->upstream;
 
     for ( ;; ){
         usleep(1);
@@ -313,14 +384,21 @@ ngx_http_php_socket_tcp_handler(ngx_http_request_t *r)
     }
 
     if (ctx->enable_upstream == 1){
-        ngx_http_php_socket_tcp_run(r);
+        ngx_http_php_socket_tcp_create_request(r);
+        u->request_sent = 0;
+
+        ngx_connection_t  *c;
+        c = u->peer.connection;
+        ngx_add_timer(c->write, u->conf->send_timeout);
+        
+        ngx_http_php_upstream_send_request(r, u);
         return NGX_DONE;
     }
 
     pthread_join(ctx->pthread_id, NULL);
 
     pthread_cond_destroy(&(ctx->cond));
-    pthread_mutex_destroy(&(ctx->mutex));
+    pthread_mutex_destroy(&(ctx->mutex));*/
 
     ngx_int_t rc;
 
@@ -374,10 +452,10 @@ ngx_http_php_socket_tcp_handler(ngx_http_request_t *r)
         (*chain->last)->buf->last_buf = 1;
     }
 
-    //rc = ngx_http_send_header(r);
-    //if (rc != NGX_OK){
-    //    return rc;
-    //}
+    rc = ngx_http_send_header(r);
+    if (rc != NGX_OK){
+        return rc;
+    }
 
     ngx_http_output_filter(r, chain->out);
 
