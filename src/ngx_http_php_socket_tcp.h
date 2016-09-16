@@ -28,7 +28,7 @@ ngx_int_t ngx_http_php_socket_tcp_filter_init(void *data);
 
 ngx_int_t ngx_http_php_socket_tcp_filter(void *data, ssize_t bytes);
 
-ngx_int_t ngx_http_php_socket_tcp_going(ngx_http_request_t *r);
+ngx_int_t ngx_http_php_socket_tcp_rediscovery(ngx_http_request_t *r);
 
 ngx_int_t ngx_http_php_socket_tcp_handler(ngx_http_request_t *r);
 
