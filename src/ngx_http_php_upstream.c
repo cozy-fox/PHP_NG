@@ -12,12 +12,12 @@ static void ngx_http_php_upstream_rd_check_broken_connection(ngx_http_request_t 
 static void ngx_http_php_upstream_wr_check_broken_connection(ngx_http_request_t *r);
 static void ngx_http_php_upstream_check_broken_connection(ngx_http_request_t *r,
     ngx_event_t *ev);
-static void ngx_http_php_upstream_connect(ngx_http_request_t *r,
-    ngx_http_upstream_t *u);
+//static void ngx_http_php_upstream_connect(ngx_http_request_t *r,
+//    ngx_http_upstream_t *u);
 static ngx_int_t ngx_http_php_upstream_reinit(ngx_http_request_t *r,
     ngx_http_upstream_t *u);
-static void ngx_http_php_upstream_send_request(ngx_http_request_t *r,
-    ngx_http_upstream_t *u);
+//static void ngx_http_php_upstream_send_request(ngx_http_request_t *r,
+//    ngx_http_upstream_t *u);
 static void ngx_http_php_upstream_send_request_handler(ngx_http_request_t *r,
     ngx_http_upstream_t *u);
 static void ngx_http_php_upstream_process_header(ngx_http_request_t *r,
@@ -65,8 +65,8 @@ static void ngx_http_php_upstream_dummy_handler(ngx_http_request_t *r,
 static void ngx_http_php_upstream_next(ngx_http_request_t *r,
     ngx_http_upstream_t *u, ngx_uint_t ft_type);
 static void ngx_http_php_upstream_cleanup(void *data);
-static void ngx_http_php_upstream_finalize_request(ngx_http_request_t *r,
-    ngx_http_upstream_t *u, ngx_int_t rc);
+//static void ngx_http_php_upstream_finalize_request(ngx_http_request_t *r,
+//    ngx_http_upstream_t *u, ngx_int_t rc);
 
 
 static ngx_addr_t *ngx_http_php_upstream_get_local(ngx_http_request_t *r,
@@ -634,7 +634,7 @@ ngx_http_php_upstream_check_broken_connection(ngx_http_request_t *r,
 }
 
 
-static void
+void
 ngx_http_php_upstream_connect(ngx_http_request_t *r, ngx_http_upstream_t *u)
 {
     ngx_int_t          rc;
@@ -921,7 +921,7 @@ ngx_http_php_upstream_reinit(ngx_http_request_t *r, ngx_http_upstream_t *u)
 }
 
 
-static void
+void
 ngx_http_php_upstream_send_request(ngx_http_request_t *r, ngx_http_upstream_t *u)
 {
     ngx_int_t          rc;
@@ -1190,11 +1190,29 @@ ngx_http_php_upstream_process_header(ngx_http_request_t *r, ngx_http_upstream_t 
 
         u->state->response_length += n;
 
-        if (u->input_filter(u->input_filter_ctx, n) == NGX_ERROR) {
+        /*if (u->input_filter(u->input_filter_ctx, n) == NGX_ERROR) {
             ngx_http_php_upstream_finalize_request(r, u, NGX_ERROR);
             return;
+        }*/
+
+        // ngx_php dev
+        rc = u->input_filter(u->input_filter_ctx, n);
+        if (rc == NGX_OK){
+            ngx_http_php_upstream_finalize_request(r, u, 0);
+            return ;
+        }else if (rc == NGX_ERROR){
+            ngx_http_php_upstream_finalize_request(r, u, NGX_ERROR);
+            return ;
+        }else {
+            return ;
         }
     }
+
+    // ngx_php dev
+    ngx_http_php_upstream_finalize_request(r, u, NGX_ERROR);
+    return;
+
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", u->length);
 
     if (u->length == 0) {
         ngx_http_php_upstream_finalize_request(r, u, 0);
@@ -2145,6 +2163,7 @@ ngx_http_php_upstream_process_non_buffered_request(ngx_http_request_t *r,
                 if (u->length == 0
                     || (upstream->read->eof && u->length == -1))
                 {
+
                     ngx_http_php_upstream_finalize_request(r, u, 0);
                     return;
                 }
@@ -2174,7 +2193,7 @@ ngx_http_php_upstream_process_non_buffered_request(ngx_http_request_t *r,
         if (size && upstream->read->ready) {
 
             n = upstream->recv(upstream, b->last, size);
-
+            ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d %d", n, NGX_AGAIN);
             if (n == NGX_AGAIN) {
                 break;
             }
@@ -2644,7 +2663,7 @@ ngx_http_php_upstream_cleanup(void *data)
 }
 
 
-static void
+void
 ngx_http_php_upstream_finalize_request(ngx_http_request_t *r,
     ngx_http_upstream_t *u, ngx_int_t rc)
 {
