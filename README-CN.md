@@ -334,7 +334,7 @@ ngx_socket_tcp::connect
 
 ```php
 $tcpsock = new ngx_socket_tcp();
-$tcpsock->connect('192.168.80.140',11211));
+$tcpsock->connect('127.0.0.1',11211));
 ```
 
 ngx_socket_tcp::send
@@ -344,7 +344,7 @@ ngx_socket_tcp::send
 
 ```php
 $tcpsock = new ngx_socket_tcp();
-$tcpsock->connect('192.168.80.140',11211));
+$tcpsock->connect('127.0.0.1',11211));
 $tcpsock->send('stats\r\n');
 ```
 
@@ -355,7 +355,7 @@ ngx_socket_tcp::receive
 
 ```php
 $tcpsock = new ngx_socket_tcp();
-$tcpsock->connect('192.168.80.140',11211));
+$tcpsock->connect('127.0.0.1',11211));
 $tcpsock->send('stats\r\n');
 $result = $tcpsock->receive();
 var_dump($result);
