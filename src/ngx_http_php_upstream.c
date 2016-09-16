@@ -1212,8 +1212,6 @@ ngx_http_php_upstream_process_header(ngx_http_request_t *r, ngx_http_upstream_t 
     ngx_http_php_upstream_finalize_request(r, u, NGX_ERROR);
     return;
 
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", u->length);
-
     if (u->length == 0) {
         ngx_http_php_upstream_finalize_request(r, u, 0);
         return;
@@ -2193,7 +2191,7 @@ ngx_http_php_upstream_process_non_buffered_request(ngx_http_request_t *r,
         if (size && upstream->read->ready) {
 
             n = upstream->recv(upstream, b->last, size);
-            ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d %d", n, NGX_AGAIN);
+            
             if (n == NGX_AGAIN) {
                 break;
             }
