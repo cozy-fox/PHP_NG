@@ -1,3 +1,8 @@
+2016-09-16 rryqszq4 <ngxphp@gmail.com>
+	* dev code "ngx_http_php_stream.h", "ngx_http_php_stream.c"
+	
+	* fixd php api "ngx_socket_tcp", "::connect, ::send, ::receive, ::close" support rediscovery
+
 2016-05-30 rryqszq4 <ngxphp@gmail.com>
 	* change nginx directive "php_init_code"=>"init_by_php", "php_init_file"=>"init_by_php_file", "php_rewrite_handler"=>"rewrite_by_php_file", "php_rewrite_handler_code"=>"rewrite_by_php", "php_access_handler"=>"access_by_php_file", "php_access_handler_code"=>"access_by_php", "php_content_handler"=>"content_by_php_file", "php_content_handler_code"=>"content_by_php","php_set_code"=>"set_by_php", "php_set_run_code"=>"set_run_by_php", "php_set_file"=>"set_by_php_file", "php_set_run_file"=>"set_run_by_php_file"
 
