@@ -304,6 +304,15 @@ set_run_by_php_file
 
 Nginx API for php
 -----------------
+* ngx_location::capture_async
+* ngx_location::capture_multi_async
+* ngx_location::capture
+* ngx_location::capture_multi
+* ngx_socket_tcp::__construct
+* ngx_socket_tcp::connect
+* ngx_socket_tcp::send
+* ngx_socket_tcp::receive
+* ngx_socket_tcp::close
 
 ngx_location::capture_async
 ---------------------------

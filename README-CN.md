@@ -260,7 +260,16 @@ php_ini_path /usr/local/php/etc/php.ini;
 
 
 Nginx的php接口
------------------
+-------------
+* ngx_location::capture_async
+* ngx_location::capture_multi_async
+* ngx_location::capture
+* ngx_location::capture_multi
+* ngx_socket_tcp::__construct
+* ngx_socket_tcp::connect
+* ngx_socket_tcp::send
+* ngx_socket_tcp::receive
+* ngx_socket_tcp::close
 
 #### ngx_location::capture_async
 **syntax:** *ngx_location::capture_async(string $uri, mixed $closure)*  
