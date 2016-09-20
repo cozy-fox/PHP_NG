@@ -34,6 +34,7 @@ ngx_int_t ngx_http_php_content_async_inline_handler(ngx_http_request_t *r);
 void *ngx_http_php_async_inline_thread(void *arg);
 
 ngx_int_t ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r);
+ngx_int_t ngx_http_php_content_thread_inline_handler(ngx_http_request_t *r);
 void *ngx_http_php_sync_inline_thread(void *arg);
 
 ngx_int_t ngx_http_php_set_inline_handler(ngx_http_request_t *r, ngx_str_t *val, ngx_http_variable_value_t *v, void *data);
