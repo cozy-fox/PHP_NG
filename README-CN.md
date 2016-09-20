@@ -238,6 +238,12 @@ php_ini_path /usr/local/php/etc/php.ini;
 **context:** *http, server, location, location if*  
 **phase:** *content*  
 
+content_thread_by_php
+---------------------
+**syntax:** *content_sync_by_php &lt;php script code&gt;*  
+**context:** *http, server, location, location if*  
+**phase:** *content* 
+
 #### set_by_php
 **syntax:** *set_by_php &lt;php script code&gt;*  
 **context:** *server, server if, location, location if*  
@@ -302,7 +308,7 @@ ngx_location::capture_multi_async($capture_multi, function($callback = 'callback
 
 #### ngx_location::capture
 **syntax:** *ngx_location::capture(string $uri)*  
-**context:** *content_sync_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 借助nginx底层强大的subrequest，实现php完全非阻塞调用
 
@@ -313,7 +319,7 @@ echo $result;
 
 #### ngx_location::capture_multi
 **syntax:** *ngx_location::capture_multi(array $uri)*  
-**context:** *content_sync_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 和ngx_location::capture相似，但是可以支持完全非阻塞的并行调用
 
@@ -330,7 +336,7 @@ var_dump($result);
 ngx_socket_tcp::__construct
 ---------------------------
 **syntax:** *ngx_socket_tcp::__construct()*  
-**context:** *content_sync_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -339,7 +345,7 @@ $tcpsock = new ngx_socket_tcp();
 ngx_socket_tcp::connect
 ---------------------------
 **syntax:** *ngx_socket_tcp::connect(string $host, int $port)*  
-**context:** *content_sync_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -349,7 +355,7 @@ $tcpsock->connect('127.0.0.1',11211));
 ngx_socket_tcp::send
 ---------------------------
 **syntax:** *ngx_socket_tcp::send(string $buf)*  
-**context:** *content_sync_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -360,7 +366,7 @@ $tcpsock->send('stats\r\n');
 ngx_socket_tcp::receive
 ---------------------------
 **syntax:** *ngx_socket_tcp::receive()*  
-**context:** *content_sync_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -374,8 +380,25 @@ $tcpsock->close();
 ngx_socket_tcp::close
 ---------------------------
 **syntax:** *ngx_socket_tcp::close()*  
-**context:** *content_sync_by_php*  
+**context:** *content_thread_by_php*  *content_sync_by_php*  
 
+问题
+--------
+[issues #6](https://github.com/rryqszq4/ngx_php/issues/6) - Using in php-5.3.29, libxml2 2.7.6 not thread safety. Please disable xml in php install.
+```sh
+./configure --prefix=/usr/local/php5329 \
+            --with-config-file-path=/usr/local/php5329/etc \
+            --with-iconv=/usr/local/libiconv \
+            --disable-xml \
+            --disable-libxml \
+            --disable-dom \
+            --disable-simplexml \
+            --disable-xmlreader \
+            --disable-xmlwriter \
+            --without-pear \
+            --enable-maintainer-zts  \
+            --enable-embed
+```
 
 拷贝与授权
 ---------------------

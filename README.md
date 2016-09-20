@@ -277,6 +277,12 @@ content_sync_by_php
 * Very similar content by php, but way synchronization code to execute php code 
   to call non-blocking, the development is only a test of each instruction.
 
+content_thread_by_php
+---------------------
+**syntax:** *content_sync_by_php &lt;php script code&gt;*  
+**context:** *http, server, location, location if*  
+**phase:** *content*  
+
 set_by_php
 ----------
 **syntax:** *set_by_php &lt;php script code&gt;*  
@@ -350,7 +356,7 @@ ngx_location::capture_multi_async($capture_multi, function($callback = 'callback
 ngx_location::capture
 ---------------------
 **syntax:** *ngx_location::capture(string $uri)*  
-**context:** *content_sync_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 * With nginx underlying strong subrequest, php achieve full non-blocking calls.
 
@@ -362,7 +368,7 @@ echo $result;
 ngx_location::capture_multi
 ---------------------------
 **syntax:** *ngx_location::capture_multi(array $uri)*  
-**context:** *content_sync_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 * And ngx location :: capture similar, but can support full non-blocking concurrent calls.
 
@@ -379,7 +385,7 @@ var_dump($result);
 ngx_socket_tcp::__construct
 ---------------------------
 **syntax:** *ngx_socket_tcp::__construct()*  
-**context:** *content_sync_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -388,7 +394,7 @@ $tcpsock = new ngx_socket_tcp();
 ngx_socket_tcp::connect
 ---------------------------
 **syntax:** *ngx_socket_tcp::connect(string $host, int $port)*  
-**context:** *content_sync_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -398,7 +404,7 @@ $tcpsock->connect('127.0.0.1',11211));
 ngx_socket_tcp::send
 ---------------------------
 **syntax:** *ngx_socket_tcp::send(string $buf)*  
-**context:** *content_sync_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -409,7 +415,7 @@ $tcpsock->send('stats\r\n');
 ngx_socket_tcp::receive
 ---------------------------
 **syntax:** *ngx_socket_tcp::receive()*  
-**context:** *content_sync_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -423,7 +429,7 @@ $tcpsock->close();
 ngx_socket_tcp::close
 ---------------------------
 **syntax:** *ngx_socket_tcp::close()*  
-**context:** *content_sync_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 Question
 --------
