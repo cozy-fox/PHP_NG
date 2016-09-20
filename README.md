@@ -425,6 +425,14 @@ ngx_socket_tcp::close
 **syntax:** *ngx_socket_tcp::close()*  
 **context:** *content_sync_by_php*  
 
+Question
+--------
+Issues #6
+---------
+Using in php-5.3.29, libxml2 2.7.6 not thread safety. Please disable xml in php install.
+```sh
+./configure --prefix=/usr/local/php5329 --with-config-file-path=/usr/local/php5329/etc --with-iconv=/usr/local/libiconv --disable-xml --disable-libxml --disable-dom --disable-simplexml --disable-xmlreader --disable-xmlwriter --without-pear --enable-maintainer-zts  --enable-embed
+```
 
 Copyright and License
 ---------------------
