@@ -251,7 +251,7 @@ ngx_http_php_socket_tcp_filter_init(void *data)
     ngx_http_upstream_t *u;
 
     r = ctx->request;
-    u = ctx->request->upstream;
+    u = r->upstream;
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", u->headers_in.status_n);
 
