@@ -118,7 +118,34 @@ PHP_METHOD(ngx_socket_tcp, receive)
 
 PHP_METHOD(ngx_socket_tcp, close)
 {
-    
+
+    ngx_http_request_t *r = PHP_NGX_G(global_r);
+
+    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    if (ctx == NULL){
+        
+    }
+
+    ngx_http_upstream_t *u;
+    u = ctx->request->upstream;
+
+    if (u->peer.connection) {
+
+        ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                       "close http upstream connection: %d",
+                       u->peer.connection->fd);
+
+        if (u->peer.connection->pool) {
+            ngx_destroy_pool(u->peer.connection->pool);
+        }
+
+        ngx_close_connection(u->peer.connection);
+    }
+
+    u->peer.connection = NULL;
+
+    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 }
 
 static const zend_function_entry php_ngx_socket_tcp_class_functions[] = {
