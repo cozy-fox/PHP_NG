@@ -661,11 +661,17 @@ ngx_http_php_upstream_connect(ngx_http_request_t *r, ngx_http_upstream_t *u)
 
     r->connection->log->action = "connecting to upstream";
 
+#if defined(nginx_version) && nginx_version >= 1009001
+    if (u->state && u->state->response_time) {
+        u->state->response_time = ngx_current_msec - u->state->response_time;
+    }
+#else
     if (u->state && u->state->response_sec) {
         tp = ngx_timeofday();
         u->state->response_sec = tp->sec - u->state->response_sec;
         u->state->response_msec = tp->msec - u->state->response_msec;
     }
+#endif
 
     u->state = ngx_array_push(r->upstream_states);
     if (u->state == NULL) {
@@ -676,10 +682,15 @@ ngx_http_php_upstream_connect(ngx_http_request_t *r, ngx_http_upstream_t *u)
 
     ngx_memzero(u->state, sizeof(ngx_http_upstream_state_t));
 
+#if defined(nginx_version) && nginx_version >= 1009001
+    u->state->response_time = ngx_current_msec;
+    u->state->connect_time = (ngx_msec_t) -1;
+    u->state->header_time = (ngx_msec_t) -1;
+#else
     tp = ngx_timeofday();
     u->state->response_sec = tp->sec;
     u->state->response_msec = tp->msec;
-
+#endif
     rc = ngx_event_connect_peer(&u->peer);
 
     ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
@@ -2705,15 +2716,25 @@ ngx_http_php_upstream_finalize_request(ngx_http_request_t *r,
         u->resolved->ctx = NULL;
     }
 
-    if (u->state && u->state->response_sec) {
-        tp = ngx_timeofday();
-        u->state->response_sec = tp->sec - u->state->response_sec;
-        u->state->response_msec = tp->msec - u->state->response_msec;
-
+#if defined(nginx_version) && nginx_version >= 1009001
+    if (u->state && u->state->response_time) {
+        u->state->response_time = ngx_current_msec - u->state->response_time;
+        
         if (u->pipe && u->pipe->read_length) {
             u->state->response_length = u->pipe->read_length;
         }
     }
+#else
+    if (u->state && u->state->response_sec) {
+        tp = ngx_timeofday();
+        u->state->response_sec = tp->sec - u->state->response_sec;
+        u->state->response_msec = tp->msec - u->state->response_msec;
+    
+    if (u->pipe && u->pipe->read_length) {
+            u->state->response_length = u->pipe->read_length;
+        }
+    }
+#endif
 
     u->finalize_request(r, rc);
 
