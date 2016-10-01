@@ -52,6 +52,8 @@ PHP_METHOD(ngx_socket_tcp, connect)
         
     }
 
+    ctx->enable_upstream = 1;
+
     ngx_str_t ns;
     ns.data = (u_char *)host_str;
     ns.len = host_len;
@@ -82,6 +84,7 @@ PHP_METHOD(ngx_socket_tcp, send)
     }
 
     ctx->enable_upstream = 1;
+    ctx->read_or_write = 0;
 
     ngx_str_t ns;
     ns.data = (u_char *)buf_str;
@@ -91,10 +94,6 @@ PHP_METHOD(ngx_socket_tcp, send)
     ctx->send_buf.data = ngx_pstrdup(r->pool, &ns);
 
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
-
-    pthread_mutex_lock(&(ctx->mutex));
-    pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
-    pthread_mutex_unlock(&(ctx->mutex));
 
 }
 
@@ -108,6 +107,17 @@ PHP_METHOD(ngx_socket_tcp, receive)
     if (ctx == NULL){
         
     }
+
+    ctx->enable_upstream = 1;
+    ctx->read_or_write = 1;
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_socket_tcp receive");
+
+    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+    pthread_mutex_lock(&(ctx->mutex));
+    pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
+    pthread_mutex_unlock(&(ctx->mutex));
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "recv:%s", ctx->receive_buf.data);
     

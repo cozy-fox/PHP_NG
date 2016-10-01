@@ -111,9 +111,37 @@ ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
 
     r->main->count++;
 
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_http_php_upstream_init");
+
     ngx_http_php_upstream_init(r);
 
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+    if (ctx->read_or_write == 0) {
+        /*u->create_request(r);
+        u->request_sent = 0;
+
+        ngx_connection_t  *c;
+        c = u->peer.connection;
+        ngx_add_timer(c->write, u->conf->send_timeout);*/
+        ngx_http_php_upstream_send_request(r, u);
+    }else if (ctx->read_or_write == 1) {
+
+        //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_http_php_upstream_process_header");
+
+        ngx_connection_t  *c;
+        c = u->peer.connection;
+
+        if (c->write->timer_set) {
+            ngx_del_timer(c->write);
+        }
+
+        ngx_add_timer(c->read, u->conf->read_timeout);
+
+        if (c->read->ready) {
+            ngx_http_php_upstream_process_header(r, u);
+        }
+    }
 
     return NGX_OK;
 }
@@ -124,34 +152,34 @@ ngx_http_php_socket_tcp_create_request(ngx_http_request_t *r)
     ngx_php_request = r;
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
+    if (ctx->send_buf.data) {
+        ngx_buf_t* b = ngx_create_temp_buf(r->pool, ctx->send_buf.len);
+        if (b == NULL) {
+            return NGX_ERROR;
+        }
+        
+        b->last = b->pos + ctx->send_buf.len;
 
-    ngx_buf_t* b = ngx_create_temp_buf(r->pool, ctx->send_buf.len);
-    if (b == NULL) {
-        return NGX_ERROR;
+        ngx_snprintf(b->pos, ctx->send_buf.len, (char*)ctx->send_buf.data); 
+                  
+        r->upstream->request_bufs = ngx_alloc_chain_link(r->pool);
+        if (r->upstream->request_bufs == NULL) {
+            return NGX_ERROR;
+        }
+
+        r->upstream->request_bufs->buf = b;
+        r->upstream->request_bufs->next = NULL;
+
+        /*r->upstream->request_sent = 0;
+        r->upstream->header_sent = 0;
+
+        r->header_hash = 1;
+        */
+        //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+        //                  "start %s %d", r->upstream->request_bufs->buf->pos, ctx->send_buf.len);
+
+        ngx_http_set_ctx(r, ctx, ngx_http_php_module);
     }
-    
-    b->last = b->pos + ctx->send_buf.len;
-
-    ngx_snprintf(b->pos, ctx->send_buf.len, (char*)ctx->send_buf.data); 
-              
-    r->upstream->request_bufs = ngx_alloc_chain_link(r->pool);
-    if (r->upstream->request_bufs == NULL) {
-        return NGX_ERROR;
-    }
-
-    r->upstream->request_bufs->buf = b;
-    r->upstream->request_bufs->next = NULL;
-
-    /*r->upstream->request_sent = 0;
-    r->upstream->header_sent = 0;
-
-    r->header_hash = 1;
-    */
-    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-    //                  "start %s %d", r->upstream->request_bufs->buf->pos, ctx->send_buf.len);
-
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
-
     return NGX_OK;
 }
 
@@ -182,7 +210,7 @@ ngx_http_php_socket_tcp_process_header(ngx_http_request_t *r)
     ctx->receive_buf.len = (&u->buffer)->last - (&u->buffer)->pos;
     ctx->receive_buf.data = (&u->buffer)->pos;
 
-    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "recv=%s", ctx->receive_buf.data);
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "recv=%s,len=%d", ctx->receive_buf.data, ctx->receive_buf.len);
 
     ctx->enable_upstream = 0;
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
@@ -332,15 +360,34 @@ ngx_http_php_socket_tcp_rediscovery(ngx_http_request_t *r)
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", ctx->enable_upstream);
 
     if (ctx->enable_upstream == 1){
-        ngx_http_php_socket_tcp_create_request(r);
-        u->request_sent = 0;
 
-        ngx_connection_t  *c;
-        c = u->peer.connection;
-        ngx_add_timer(c->write, u->conf->send_timeout);
-        
-        ngx_http_php_upstream_send_request(r, u);
+        if (ctx->read_or_write == 0) {
+            ngx_http_php_socket_tcp_create_request(r);
+            u->request_sent = 0;
+
+            ngx_connection_t  *c;
+            c = u->peer.connection;
+            ngx_add_timer(c->write, u->conf->send_timeout);
+            
+            ngx_http_php_upstream_send_request(r, u);
+        }else if (ctx->read_or_write == 1) {
+
+            ngx_connection_t  *c;
+            c = u->peer.connection;
+
+            if (c->write->timer_set) {
+                ngx_del_timer(c->write);
+            }
+
+            ngx_add_timer(c->read, u->conf->read_timeout);
+
+            if (c->read->ready) {
+                ngx_http_php_upstream_process_header(r, u);
+            }
+        }
+
         return NGX_DONE;
+
     }
 
     pthread_join(ctx->pthread_id, NULL);
