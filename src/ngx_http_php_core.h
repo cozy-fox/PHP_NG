@@ -73,6 +73,8 @@ typedef struct ngx_http_php_ctx_t {
 
 	unsigned enable_upstream : 1;
 
+	unsigned read_or_write : 1;
+
 	ngx_str_t host;
 	int port;
 	ngx_str_t send_buf;
