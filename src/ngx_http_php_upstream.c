@@ -87,7 +87,9 @@ static ngx_http_upstream_next_t  ngx_http_php_upstream_next_errors[] = {
     { 502, NGX_HTTP_UPSTREAM_FT_HTTP_502 },
     { 503, NGX_HTTP_UPSTREAM_FT_HTTP_503 },
     { 504, NGX_HTTP_UPSTREAM_FT_HTTP_504 },
+#ifdef NGX_HTTP_UPSTREAM_FT_HTTP_403
     { 403, NGX_HTTP_UPSTREAM_FT_HTTP_403 },
+#endif
     { 404, NGX_HTTP_UPSTREAM_FT_HTTP_404 },
     { 0, 0 }
 };
@@ -366,10 +368,15 @@ ngx_http_php_upstream_resolve_handler(ngx_resolver_ctx_t *ctx)
 
 #if (NGX_DEBUG)
     {
+#if defined(nginx_version) && nginx_version >= 1005008
     u_char      text[NGX_SOCKADDR_STRLEN];
     ngx_str_t   addr;
+#else
+    in_addr_t   addr;
+#endif
     ngx_uint_t  i;
 
+#if defined(nginx_version) && nginx_version >= 1005008
     addr.data = text;
 
     for (i = 0; i < ctx->naddrs; i++) {
@@ -379,6 +386,17 @@ ngx_http_php_upstream_resolve_handler(ngx_resolver_ctx_t *ctx)
         ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                        "name was resolved to %V", &addr);
     }
+#else
+    for (i = 0; i < ctx->naddrs; i++) {
+
+        addr = ntohl(ctx->addrs[i]);
+
+        ngx_log_debug4(NGX_LOG_DEBUG_HTTP, c->log, 0,
+                       "name was resolved to %ud.%ud.%ud.%ud",
+                       (addr >> 24) & 0xff, (addr >> 16) & 0xff,
+                       (addr >> 8) & 0xff, addr & 0xff);
+    }
+#endif
     }
 #endif
 
@@ -2551,8 +2569,12 @@ ngx_http_php_upstream_next(ngx_http_request_t *r, ngx_http_upstream_t *u,
 
     if (u->peer.sockaddr) {
 
+#ifdef NGX_HTTP_UPSTREAM_FT_HTTP_403
         if (ft_type == NGX_HTTP_UPSTREAM_FT_HTTP_403
             || ft_type == NGX_HTTP_UPSTREAM_FT_HTTP_404)
+#else
+        if (ft_type == NGX_HTTP_UPSTREAM_FT_HTTP_404)
+#endif
         {
             state = NGX_PEER_NEXT;
 
@@ -2587,9 +2609,11 @@ ngx_http_php_upstream_next(ngx_http_request_t *r, ngx_http_upstream_t *u,
             status = NGX_HTTP_INTERNAL_SERVER_ERROR;
             break;
 
+#ifdef NGX_HTTP_UPSTREAM_FT_HTTP_403
         case NGX_HTTP_UPSTREAM_FT_HTTP_403:
             status = NGX_HTTP_FORBIDDEN;
             break;
+#endif
 
         case NGX_HTTP_UPSTREAM_FT_HTTP_404:
             status = NGX_HTTP_NOT_FOUND;
