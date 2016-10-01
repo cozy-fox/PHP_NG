@@ -20,8 +20,8 @@ static ngx_int_t ngx_http_php_upstream_reinit(ngx_http_request_t *r,
 //    ngx_http_upstream_t *u);
 static void ngx_http_php_upstream_send_request_handler(ngx_http_request_t *r,
     ngx_http_upstream_t *u);
-static void ngx_http_php_upstream_process_header(ngx_http_request_t *r,
-    ngx_http_upstream_t *u);
+//static void ngx_http_php_upstream_process_header(ngx_http_request_t *r,
+//    ngx_http_upstream_t *u);
 static ngx_int_t ngx_http_php_upstream_test_next(ngx_http_request_t *r,
     ngx_http_upstream_t *u);
 static ngx_int_t ngx_http_php_upstream_intercept_errors(ngx_http_request_t *r,
@@ -775,7 +775,7 @@ ngx_http_php_upstream_connect(ngx_http_request_t *r, ngx_http_upstream_t *u)
 
 #endif
 
-    ngx_http_php_upstream_send_request(r, u);
+    //ngx_http_php_upstream_send_request(r, u);
 }
 
 #if (NGX_HTTP_SSL)
@@ -1032,7 +1032,7 @@ ngx_http_php_upstream_send_request_handler(ngx_http_request_t *r,
 }
 
 
-static void
+void
 ngx_http_php_upstream_process_header(ngx_http_request_t *r, ngx_http_upstream_t *u)
 {
     ssize_t            n;

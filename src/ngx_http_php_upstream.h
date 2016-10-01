@@ -22,6 +22,8 @@ void ngx_http_php_upstream_connect(ngx_http_request_t *r,
     ngx_http_upstream_t *u);
 void ngx_http_php_upstream_send_request(ngx_http_request_t *r,
     ngx_http_upstream_t *u);
+void ngx_http_php_upstream_process_header(ngx_http_request_t *r,
+    ngx_http_upstream_t *u);
 void ngx_http_php_upstream_finalize_request(ngx_http_request_t *r,
     ngx_http_upstream_t *u, ngx_int_t rc);
 
