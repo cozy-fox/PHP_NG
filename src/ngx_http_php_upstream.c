@@ -656,7 +656,9 @@ void
 ngx_http_php_upstream_connect(ngx_http_request_t *r, ngx_http_upstream_t *u)
 {
     ngx_int_t          rc;
+#if defined(nginx_version) && nginx_version < 1009001
     ngx_time_t        *tp;
+#endif
     ngx_connection_t  *c;
 
     r->connection->log->action = "connecting to upstream";
@@ -2701,7 +2703,9 @@ ngx_http_php_upstream_finalize_request(ngx_http_request_t *r,
     ngx_http_upstream_t *u, ngx_int_t rc)
 {
     ngx_uint_t   flush;
+#if defined(nginx_version) && nginx_version < 1009001
     ngx_time_t  *tp;
+#endif
 
     ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                    "finalize http upstream request: %i", rc);

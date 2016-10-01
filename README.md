@@ -158,22 +158,39 @@ prove -r t
 Test result:
 
 ```sh
-t/001-hello.t .... ok   
-t/002-ini.t ...... ok   
-t/003-_GET.t ..... ok   
-t/004-_POST.t .... ok   
-t/005-_SERVER.t .. ok   
-t/006-_COOKIE.t .. ok   
-t/007-_FILES.t ... ok   
-t/008-error.t .... ok
-t/009-session.t .. ok     
+t/001-hello.t ........... ok
+t/002-ini.t ............. ok
+t/003-_GET.t ............ ok
+t/004-_POST.t ........... ok
+t/005-_SERVER.t ......... ok
+t/006-_COOKIE.t ......... ok
+t/007-_FILES.t .......... ok
+t/008-error.t ........... ok
+t/009-session.t ......... ok
+t/100-ngx_socket_tcp.t .. ok
 All tests successful.
-Files=9, Tests=20,  2 wallclock secs ( 0.03 usr  0.03 sys +  1.20 cusr  0.31 csys =  1.57 CPU)
+Files=10, Tests=22,  3 wallclock secs ( 0.04 usr  0.01 sys +  0.94 cusr  0.27 csys =  1.26 CPU)
 Result: PASS
 ```
 
 Directives
 ----------
+* php_ini_path
+* init_by_php
+* init_by_php_file
+* rewrite_by_php
+* rewrite_by_php_file
+* access_by_php
+* access_by_php_file
+* content_by_php
+* content_by_php_file
+* content_async_by_php
+* content_sync_by_php
+* content_thread_by_php
+* set_by_php
+* set_run_by_php
+* set_by_php_file
+* set_run_by_php_file
 
 php_ini_path
 ------------
