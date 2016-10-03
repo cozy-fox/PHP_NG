@@ -360,8 +360,7 @@ ngx_http_php_socket_tcp_rediscovery(ngx_http_request_t *r)
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", ctx->enable_upstream);
 
     if (ctx->enable_upstream == 1){
-
-        if (ctx->read_or_write == 0) {
+        //if (ctx->read_or_write == 0) {
             ngx_http_php_socket_tcp_create_request(r);
             u->request_sent = 0;
 
@@ -370,7 +369,7 @@ ngx_http_php_socket_tcp_rediscovery(ngx_http_request_t *r)
             ngx_add_timer(c->write, u->conf->send_timeout);
             
             ngx_http_php_upstream_send_request(r, u);
-        }else if (ctx->read_or_write == 1) {
+        /*}else if (ctx->read_or_write == 1) {
 
             ngx_connection_t  *c;
             c = u->peer.connection;
@@ -384,7 +383,7 @@ ngx_http_php_socket_tcp_rediscovery(ngx_http_request_t *r)
             if (c->read->ready) {
                 ngx_http_php_upstream_process_header(r, u);
             }
-        }
+        }*/
 
         return NGX_DONE;
 
