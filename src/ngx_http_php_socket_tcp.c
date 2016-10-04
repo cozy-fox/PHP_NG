@@ -149,15 +149,28 @@ ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
 ngx_int_t 
 ngx_http_php_socket_tcp_create_request(ngx_http_request_t *r)
 {
+    ngx_buf_t  *b;
+    ngx_chain_t *cl;
+
     ngx_php_request = r;
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
     if (ctx->send_buf.data) {
-        ngx_buf_t* b = ngx_create_temp_buf(r->pool, ctx->send_buf.len);
+        b = ngx_create_temp_buf(r->pool, ctx->send_buf.len+1);
         if (b == NULL) {
             return NGX_ERROR;
         }
         
+        cl = ngx_alloc_chain_link(r->pool);
+
+        cl->buf = b;
+        cl->next = NULL;
+
+        r->upstream->request_bufs = cl;
+
+        b->last = ngx_copy(b->last, ctx->send_buf.data, ctx->send_buf.len);
+
+        /*
         b->last = b->pos + ctx->send_buf.len;
 
         ngx_snprintf(b->pos, ctx->send_buf.len, (char*)ctx->send_buf.data); 
@@ -169,6 +182,7 @@ ngx_http_php_socket_tcp_create_request(ngx_http_request_t *r)
 
         r->upstream->request_bufs->buf = b;
         r->upstream->request_bufs->next = NULL;
+        */
 
         /*r->upstream->request_sent = 0;
         r->upstream->header_sent = 0;
@@ -176,7 +190,7 @@ ngx_http_php_socket_tcp_create_request(ngx_http_request_t *r)
         r->header_hash = 1;
         */
         //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-        //                  "start %s %d", r->upstream->request_bufs->buf->pos, ctx->send_buf.len);
+        //                  "start %s %d", r->upstream->request_bufs->buf->last, ctx->send_buf.len);
 
         ngx_http_set_ctx(r, ctx, ngx_http_php_module);
     }
