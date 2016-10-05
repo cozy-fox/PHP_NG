@@ -219,12 +219,12 @@ ngx_http_php_socket_tcp_process_header(ngx_http_request_t *r)
 
     u = r->upstream;
 
-    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%s", (&u->buffer)->pos);
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%*s", (&u->buffer)->last - (&u->buffer)->pos,(&u->buffer)->pos);
 
     ctx->receive_buf.len = (&u->buffer)->last - (&u->buffer)->pos;
     ctx->receive_buf.data = (&u->buffer)->pos;
 
-    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "recv=%s,len=%d", ctx->receive_buf.data, ctx->receive_buf.len);
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "recv=%*s,len=%d", ctx->receive_buf.len, ctx->receive_buf.data, ctx->receive_buf.len);
 
     ctx->enable_upstream = 0;
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);

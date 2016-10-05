@@ -119,7 +119,7 @@ PHP_METHOD(ngx_socket_tcp, receive)
     pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
     pthread_mutex_unlock(&(ctx->mutex));
 
-    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "recv:%s", ctx->receive_buf.data);
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "recv:%*s", ctx->receive_buf.len, ctx->receive_buf.data);
     
     RETVAL_STRINGL((char *)ctx->receive_buf.data, ctx->receive_buf.len, 1);
 
