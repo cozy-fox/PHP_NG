@@ -128,6 +128,15 @@ static ngx_command_t ngx_http_php_commands[] = {
 	 ngx_http_php_content_sync_inline_handler
 	},
 
+	{ngx_string("content_thread_by_php_file"),
+	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+	 	|NGX_CONF_TAKE1,
+	 ngx_http_php_content_phase,
+	 NGX_HTTP_LOC_CONF_OFFSET,
+	 0,
+	 ngx_http_php_content_thread_file_handler
+	},
+
 	{ngx_string("content_thread_by_php"),
 	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
 	 	|NGX_CONF_TAKE1,

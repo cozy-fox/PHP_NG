@@ -187,6 +187,7 @@ Directives
 * content_async_by_php
 * content_sync_by_php
 * content_thread_by_php
+* content_thread_by_php_file
 * set_by_php
 * set_run_by_php
 * set_by_php_file
@@ -296,9 +297,15 @@ content_sync_by_php
 
 content_thread_by_php
 ---------------------
-**syntax:** *content_sync_by_php &lt;php script code&gt;*  
+**syntax:** *content_thread_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*  
+
+content_thread_by_php_file
+--------------------------
+**syntax:** *content_thread_by_php_file &lt;php script file&gt;*  
+**context:** *http, server, location, location if*  
+**phase:** *content* 
 
 set_by_php
 ----------
