@@ -348,6 +348,7 @@ Nginx API for php
 ngx_location::capture_async
 ---------------------------
 **syntax:** *ngx_location::capture_async(string $uri, mixed $closure)*  
+
 **context:** *content_async_by_php*  
 
 * With nginx underlying strong subrequest, fully non-blocking asynchronous realize 
@@ -362,6 +363,7 @@ ngx_location::capture_async('/foo', function($callback = 'callback'){
 ngx_location::capture_multi_async
 ---------------------------------
 **syntax:** *ngx_location::capture_multi_async(array $uri, mixed $closure)*  
+
 **context:** *content_async_by_php*  
 
 * And ngx location :: capture async similar, but can support fully non-blocking asynchronous 
@@ -381,6 +383,7 @@ ngx_location::capture_multi_async($capture_multi, function($callback = 'callback
 ngx_location::capture
 ---------------------
 **syntax:** *ngx_location::capture(string $uri)*  
+
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
 * With nginx underlying strong subrequest, php achieve full non-blocking calls.
@@ -393,6 +396,7 @@ echo $result;
 ngx_location::capture_multi
 ---------------------------
 **syntax:** *ngx_location::capture_multi(array $uri)*  
+
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
 * And ngx location :: capture similar, but can support full non-blocking concurrent calls.
@@ -410,6 +414,7 @@ var_dump($result);
 ngx_socket_tcp::__construct
 ---------------------------
 **syntax:** *ngx_socket_tcp::__construct()*  
+
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
@@ -419,6 +424,7 @@ $tcpsock = new ngx_socket_tcp();
 ngx_socket_tcp::connect
 ---------------------------
 **syntax:** *ngx_socket_tcp::connect(string $host, int $port)*  
+
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
@@ -428,7 +434,8 @@ $tcpsock->connect('127.0.0.1',11211));
 
 ngx_socket_tcp::send
 ---------------------------
-**syntax:** *ngx_socket_tcp::send(string $buf)*  
+**syntax:** *ngx_socket_tcp::send(string $buf)* 
+
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
@@ -439,8 +446,9 @@ $tcpsock->send('stats\r\n');
 
 ngx_socket_tcp::receive
 ---------------------------
-**syntax:** *ngx_socket_tcp::receive()*  
-**context:** *content_thread_by_php* *content_sync_by_php*  
+**syntax:** *ngx_socket_tcp::receive()* 
+
+**context:** *content_thread_by_php* *content_sync_by_php* 
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -476,7 +484,8 @@ Nginx log of level in php.
 ```php
 ngx_log::error(ngx_log::ERR, "test");
 
-# 2016/10/06 22:10:19 [error] 51402#0: *1 test while reading response header from upstream, client: 192.168.80.1, server: localhost, request: "GET /_mysql HTTP/1.1", upstream: "127.0.0.1:3306", host: "192.168.80.140"
+# 2016/10/06 22:10:19 [error] 51402#0: *1 test while reading response header from upstream, client: 192.168.80.1, 
+server: localhost, request: "GET /_mysql HTTP/1.1", upstream: "127.0.0.1:3306", host: "192.168.80.140"
 ```
 
 Question

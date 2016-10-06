@@ -204,54 +204,64 @@ nginx指令
 php_ini_path /usr/local/php/etc/php.ini;
 ```
 
-#### init_by_php
+init_by_php
+-----------
 **syntax:** *init_by_php &lt;php script code&gt;*  
 **context:** *http*  
 **phase:** *loading-config*
 
-#### init_by_php_file
+init_by_php_file
+----------------
 **syntax:** *init_by_php_file &lt;php script file&gt;*  
 **context:** *http*  
 **phase:** *loading-config*
 
-#### rewrite_by_php
+rewrite_by_php
+--------------
 **syntax:** *rewrite_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *rewrite*
 
-#### rewrite_by_php_file
+rewrite_by_php_file
+-------------------
 **syntax:** *rewrite_by_php_file &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *rewrite*
 
-#### access_by_php
+access_by_php
+-------------
 **syntax:** *access_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *access*
 
-#### access_by_php_file
+access_by_php_file
+------------------
 **syntax:** *access_by_php_file &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *access*
 
-#### content_by_php
+content_by_php
+--------------
 **syntax:** *content_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*
 
-#### content_by_php_file
+content_by_php_file
+-------------------
 **syntax:** *content_by_php_file &lt;php script file&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*
 
-#### content_async_by_php
+content_async_by_php
+--------------------
 **syntax:** *content_async_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*  
 
 异步的代码方式去执行非阻塞的php代码调用
 
-#### content_sync_by_php
+content_sync_by_php
+-------------------
 **syntax:** *content_sync_by_php &lt;php script code&gt;*  
 **context:** *http, server, location, location if*  
 **phase:** *content*  
@@ -268,22 +278,26 @@ content_thread_by_php_file
 **context:** *http, server, location, location if*  
 **phase:** *content* 
 
-#### set_by_php
+set_by_php
+----------
 **syntax:** *set_by_php &lt;php script code&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
-#### set_run_by_php
+set_run_by_php
+--------------
 **syntax:** *set_run_by_php &lt;php script code&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
-#### set_by_php_file
+set_by_php_file
+---------------
 **syntax:** *set_by_php_file &lt;php script file&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
 
-#### set_run_by_php_file
+set_run_by_php_file
+-------------------
 **syntax:** *set_run_by_php_file &lt;php script file&gt;*  
 **context:** *server, server if, location, location if*  
 **phase:** *content*
@@ -302,8 +316,10 @@ Nginx的php接口
 * ngx_socket_tcp::close
 * ngx_log::error
 
-#### ngx_location::capture_async
+ngx_location::capture_async
+---------------------------
 **syntax:** *ngx_location::capture_async(string $uri, mixed $closure)*  
+
 **context:** *content_async_by_php*  
 
 借助nginx底层强大的subrequest，实现php完全非阻塞的异步代码调用
@@ -314,8 +330,10 @@ ngx_location::capture_async('/foo', function($callback = 'callback'){
 });
 ```
 
-#### ngx_location::capture_multi_async
+ngx_location::capture_multi_async
+---------------------------------
 **syntax:** *ngx_location::capture_multi_async(array $uri, mixed $closure)*  
+
 **context:** *content_async_by_php*  
 
 和ngx_location::capture_async相似，但是可以支持完全非阻塞的并行异步代码调用
@@ -331,8 +349,10 @@ ngx_location::capture_multi_async($capture_multi, function($callback = 'callback
 });
 ```
 
-#### ngx_location::capture
+ngx_location::capture
+---------------------
 **syntax:** *ngx_location::capture(string $uri)*  
+
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
 借助nginx底层强大的subrequest，实现php完全非阻塞调用
@@ -342,8 +362,10 @@ $result = ngx_location::capture('/foo');
 echo $result;
 ```
 
-#### ngx_location::capture_multi
+ngx_location::capture_multi
+---------------------------
 **syntax:** *ngx_location::capture_multi(array $uri)*  
+
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
 和ngx_location::capture相似，但是可以支持完全非阻塞的并行调用
@@ -361,6 +383,7 @@ var_dump($result);
 ngx_socket_tcp::__construct
 ---------------------------
 **syntax:** *ngx_socket_tcp::__construct()*  
+
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
@@ -370,6 +393,7 @@ $tcpsock = new ngx_socket_tcp();
 ngx_socket_tcp::connect
 ---------------------------
 **syntax:** *ngx_socket_tcp::connect(string $host, int $port)*  
+
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
@@ -380,6 +404,7 @@ $tcpsock->connect('127.0.0.1',11211));
 ngx_socket_tcp::send
 ---------------------------
 **syntax:** *ngx_socket_tcp::send(string $buf)*  
+
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
@@ -391,6 +416,7 @@ $tcpsock->send('stats\r\n');
 ngx_socket_tcp::receive
 ---------------------------
 **syntax:** *ngx_socket_tcp::receive()*  
+
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
@@ -427,7 +453,8 @@ Nginx的错误日志等级，在php中的实现。
 ```php
 ngx_log::error(ngx_log::ERR, "test");
 
-# 2016/10/06 22:10:19 [error] 51402#0: *1 test while reading response header from upstream, client: 192.168.80.1, server: localhost, request: "GET /_mysql HTTP/1.1", upstream: "127.0.0.1:3306", host: "192.168.80.140"
+# 2016/10/06 22:10:19 [error] 51402#0: *1 test while reading response header from upstream, client: 192.168.80.1, 
+server: localhost, request: "GET /_mysql HTTP/1.1", upstream: "127.0.0.1:3306", host: "192.168.80.140"
 ```
 
 问题
