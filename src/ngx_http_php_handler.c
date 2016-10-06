@@ -13,6 +13,7 @@
 
 #include "php/php_ngx_location.h"
 #include "php/php_ngx_socket_tcp.h"
+#include "php/php_ngx_log.h"
 
 ngx_int_t 
 ngx_http_php_rewrite_handler(ngx_http_request_t *r)
@@ -872,6 +873,7 @@ ngx_http_php_sync_inline_thread(void *arg)
 	NGX_HTTP_PHP_NGX_INIT;
 
 		ngx_location_init(0 TSRMLS_CC);
+		php_ngx_log_init(0 TSRMLS_CC);
 		ngx_socket_tcp_init(0 TSRMLS_CC);
 
 		PHP_NGX_G(global_r) = r;
@@ -1180,6 +1182,7 @@ ngx_http_php_sync_file_thread(void *arg)
 	NGX_HTTP_PHP_NGX_INIT;
 
 		ngx_location_init(0 TSRMLS_CC);
+		php_ngx_log_init(0 TSRMLS_CC);
 		ngx_socket_tcp_init(0 TSRMLS_CC);
 
 		PHP_NGX_G(global_r) = r;
