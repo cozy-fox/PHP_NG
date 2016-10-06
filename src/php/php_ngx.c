@@ -10,6 +10,7 @@
 #include "../ngx_http_php_request.h"
 
 #include "php_ngx_location.h"
+#include "php_ngx_log.h"
 #include "php_ngx_socket_tcp.h"
 
 // If you declare any globals in php_php_ngx.h uncomment this:
@@ -83,9 +84,9 @@ PHP_MINIT_FUNCTION(php_ngx)
 	*/
 	ZEND_INIT_MODULE_GLOBALS(php_ngx, php_php_ngx_init_globals,NULL);
 
-	ngx_location_init(module_number TSRMLS_CC);
-
-	ngx_socket_tcp_init(module_number TSRMLS_CC);
+	//ngx_location_init(module_number TSRMLS_CC);
+	//php_ngx_log_init(module_number TSRMLS_CC);
+	//ngx_socket_tcp_init(module_number TSRMLS_CC);
 
 	return SUCCESS;
 }
