@@ -343,6 +343,7 @@ Nginx API for php
 * ngx_socket_tcp::send
 * ngx_socket_tcp::receive
 * ngx_socket_tcp::close
+* ngx_log::error
 
 ngx_location::capture_async
 ---------------------------
@@ -454,6 +455,29 @@ ngx_socket_tcp::close
 ---------------------------
 **syntax:** *ngx_socket_tcp::close()*  
 **context:** *content_thread_by_php* *content_sync_by_php*  
+
+ngx_log::error
+--------------
+**syntax:** *ngx_log::error(int level, string log)* 
+
+**context:** *content_thread_by_php* *content_sync_by_php* 
+
+Nginx log of level in php.
+* ngx_log::STDERR
+* ngx_log::EMERG
+* ngx_log::ALERT
+* ngx_log::CRIT
+* ngx_log::ERR
+* ngx_log::WARN
+* ngx_log::NOTICE
+* ngx_log::INFO
+* ngx_log::DEBUG
+
+```php
+ngx_log::error(ngx_log::ERR, "test");
+
+# 2016/10/06 22:10:19 [error] 51402#0: *1 test while reading response header from upstream, client: 192.168.80.1, server: localhost, request: "GET /_mysql HTTP/1.1", upstream: "127.0.0.1:3306", host: "192.168.80.140"
+```
 
 Question
 --------
