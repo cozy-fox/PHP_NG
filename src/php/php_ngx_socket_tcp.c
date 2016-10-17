@@ -54,12 +54,20 @@ PHP_METHOD(ngx_socket_tcp, connect)
 
     ctx->enable_upstream = 1;
 
-    ngx_str_t ns;
+    /*ngx_str_t ns;
     ns.data = (u_char *)host_str;
     ns.len = host_len;
 
     ctx->host.len = host_len;
     ctx->host.data = ngx_pstrdup(r->pool, &ns);
+    ctx->port = port;*/
+    ctx->host.data = ngx_palloc(r->pool, host_len + 1);
+
+    ctx->host.len = host_len;
+
+    ngx_memcpy(ctx->host.data, (u_char *)host_str, host_len + 1);
+    ctx->host.data[host_len] = '\0';
+
     ctx->port = port;
 
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);

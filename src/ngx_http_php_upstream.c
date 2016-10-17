@@ -806,6 +806,7 @@ ngx_http_php_upstream_connect(ngx_http_request_t *r, ngx_http_upstream_t *u)
 
 #endif
 
+    // ngx_php not
     //ngx_http_php_upstream_send_request(r, u);
 }
 
@@ -1221,6 +1222,7 @@ ngx_http_php_upstream_process_header(ngx_http_request_t *r, ngx_http_upstream_t 
 
         u->state->response_length += n;
 
+        // ngx_php not
         /*if (u->input_filter(u->input_filter_ctx, n) == NGX_ERROR) {
             ngx_http_php_upstream_finalize_request(r, u, NGX_ERROR);
             return;
