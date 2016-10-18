@@ -33,6 +33,14 @@ ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
 
     u->conf = &plcf->upstream;
 
+    if (ctx->timeout) {
+        u->conf->connect_timeout = ctx->timeout;
+        u->conf->send_timeout = ctx->timeout;
+        u->conf->read_timeout = ctx->timeout;
+    }
+
+    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", u->conf->connect_timeout);
+
     u->buffering = plcf->upstream.buffering;
 
     port = ctx->port;

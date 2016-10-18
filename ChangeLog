@@ -3,6 +3,8 @@
 
 	* fixd support dns resolver
 
+	* add php api "ngx_socket_tcp::settimeout"
+
 2016-09-16 rryqszq4 <ngxphp@gmail.com>
 	* dev code "ngx_http_php_stream.h", "ngx_http_php_stream.c"
 	
