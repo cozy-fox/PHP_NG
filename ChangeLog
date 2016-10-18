@@ -1,3 +1,8 @@
+2016-10-15 rryqszq4 <ngxphp@gmail.com>
+	* add php api "ngx_log::error"
+
+	* fixd support dns resolver
+
 2016-09-16 rryqszq4 <ngxphp@gmail.com>
 	* dev code "ngx_http_php_stream.h", "ngx_http_php_stream.c"
 	

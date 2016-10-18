@@ -117,15 +117,15 @@ ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
 
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
-    if (ctx->read_or_write == 0) {
+    //if (ctx->read_or_write == 0) {
         /*u->create_request(r);
         u->request_sent = 0;
 
         ngx_connection_t  *c;
         c = u->peer.connection;
         ngx_add_timer(c->write, u->conf->send_timeout);*/
-        ngx_http_php_upstream_send_request(r, u);
-    }else if (ctx->read_or_write == 1) {
+        //ngx_http_php_upstream_send_request(r, u);
+    /*}else if (ctx->read_or_write == 1) {
 
         //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_http_php_upstream_process_header");
 
@@ -141,7 +141,7 @@ ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
         if (c->read->ready) {
             ngx_http_php_upstream_process_header(r, u);
         }
-    }
+    }*/
 
     return NGX_OK;
 }
