@@ -345,6 +345,7 @@ Nginx API for php
 * ngx_socket_tcp::send
 * ngx_socket_tcp::receive
 * ngx_socket_tcp::close
+* ngx_socket_tcp::settimeout
 * ngx_log::error
 
 ngx_location::capture_async
@@ -466,6 +467,12 @@ $tcpsock->close();
 ngx_socket_tcp::close
 ---------------------------
 **syntax:** *ngx_socket_tcp::close()*  
+
+**context:** *content_thread_by_php* *content_sync_by_php*  
+
+ngx_socket_tcp::settimeout
+---------------------------
+**syntax:** *ngx_socket_tcp::settimeout()*  
 
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
