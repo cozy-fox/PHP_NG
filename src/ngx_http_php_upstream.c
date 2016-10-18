@@ -807,7 +807,7 @@ ngx_http_php_upstream_connect(ngx_http_request_t *r, ngx_http_upstream_t *u)
 #endif
 
     // ngx_php not
-    //ngx_http_php_upstream_send_request(r, u);
+    ngx_http_php_upstream_send_request(r, u);
 }
 
 #if (NGX_HTTP_SSL)

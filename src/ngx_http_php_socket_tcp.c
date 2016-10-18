@@ -279,7 +279,16 @@ ngx_http_php_socket_tcp_finalize_request(ngx_http_request_t *r, ngx_int_t rc)
     ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                    "ngx_http_php_socket_tcp finalize_request");
 
-    ngx_http_php_socket_tcp_handler(r);
+    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+    
+    if (rc == 0){
+        ngx_http_php_socket_tcp_handler(r);
+    } else {
+        pthread_cancel(ctx->pthread_id);
+
+        pthread_cond_destroy(&(ctx->cond));
+        pthread_mutex_destroy(&(ctx->mutex));
+    }
 
     return ;
 }

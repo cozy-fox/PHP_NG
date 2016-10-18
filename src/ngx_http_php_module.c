@@ -378,7 +378,7 @@ ngx_http_php_create_loc_conf(ngx_conf_t *cf)
     plcf->upstream.read_timeout = 60000;
     plcf->upstream.store_access = 0600;
 
-    plcf->upstream.buffering = 0;
+    plcf->upstream.buffering = 1;
     plcf->upstream.bufs.num = 8;
     plcf->upstream.bufs.size = ngx_pagesize;
     plcf->upstream.buffer_size = ngx_pagesize;
