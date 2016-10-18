@@ -26,9 +26,9 @@ PHP 5.6.*
 - nginx-1.4.7  
 nginx-1.6.3  
 nginx-1.8.1  
-nginx-1.9.15
-nginx-1.10.1
-nginx_1.11.4
+nginx-1.9.15  
+nginx-1.10.1  
+nginx_1.11.4  
 
 安装
 -------
@@ -398,6 +398,8 @@ ngx_socket_tcp::connect
 
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
+resolver 8.8.8.8;
+
 ```php
 $tcpsock = new ngx_socket_tcp();
 $tcpsock->connect('127.0.0.1',11211));
@@ -456,8 +458,10 @@ Nginx的错误日志等级，在php中的实现。
 ```php
 ngx_log::error(ngx_log::ERR, "test");
 
-# 2016/10/06 22:10:19 [error] 51402#0: *1 test while reading response header from upstream, client: 192.168.80.1, 
-# server: localhost, request: "GET /_mysql HTTP/1.1", upstream: "127.0.0.1:3306", host: "192.168.80.140"
+/*
+ 2016/10/06 22:10:19 [error] 51402#0: *1 test while reading response header from upstream, client: 192.168.80.1, 
+ server: localhost, request: "GET /_mysql HTTP/1.1", upstream: "127.0.0.1:3306", host: "192.168.80.140"
+*/
 ```
 
 问题
