@@ -304,6 +304,9 @@ ngx_http_php_upstream_init_request(ngx_http_request_t *r)
         }
 
         ctx->name = *host;
+#if !defined(nginx_version) || nginx_version < 1005008
+        ctx->type = NGX_RESOLVE_A;
+#endif
         ctx->handler = ngx_http_php_upstream_resolve_handler;
         ctx->data = r;
         ctx->timeout = clcf->resolver_timeout;
