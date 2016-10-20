@@ -9,6 +9,10 @@
 #if (NGX_HTTP_CACHE)
 static ngx_int_t ngx_http_php_upstream_cache(ngx_http_request_t *r,
     ngx_http_upstream_t *u);
+#if defined(nginx_version) && nginx_version >= 1007009
+static ngx_int_t ngx_http_upstream_cache_get(ngx_http_request_t *r,
+    ngx_http_upstream_t *u, ngx_http_file_cache_t **cache);
+#endif
 static ngx_int_t ngx_http_php_upstream_cache_send(ngx_http_request_t *r,
     ngx_http_upstream_t *u);
 /*static ngx_int_t ngx_http_php_upstream_cache_status(ngx_http_request_t *r,
@@ -390,6 +394,9 @@ ngx_http_php_upstream_cache(ngx_http_request_t *r, ngx_http_upstream_t *u)
 {
     ngx_int_t          rc;
     ngx_http_cache_t  *c;
+#if defined(nginx_version) && nginx_version >= 1007009
+    ngx_http_file_cache_t *cache;
+#endif
 
     c = r->cache;
 
@@ -398,6 +405,14 @@ ngx_http_php_upstream_cache(ngx_http_request_t *r, ngx_http_upstream_t *u)
         if (!(r->method & u->conf->cache_methods)) {
             return NGX_DECLINED;
         }
+
+#if defined(nginx_version) && nginx_version >= 1007009
+        rc = ngx_http_upstream_cache_get(r, u, &cache);
+
+        if (rc != NGX_OK) {
+            return rc;
+        }
+#endif
 
         if (r->method & NGX_HTTP_HEAD) {
             u->method = ngx_http_core_get_method;
@@ -428,6 +443,14 @@ ngx_http_php_upstream_cache(ngx_http_request_t *r, ngx_http_upstream_t *u)
 
         u->cacheable = 1;
 
+#if defined(nginx_version) && nginx_version >= 1007009
+        c = r->cache;
+
+        c->body_start = u->conf->buffer_size;
+        c->min_uses = u->conf->cache_min_uses;
+        c->file_cache = cache;
+#endif
+
         switch (ngx_http_test_predicates(r, u->conf->cache_bypass)) {
 
         case NGX_ERROR:
@@ -441,6 +464,8 @@ ngx_http_php_upstream_cache(ngx_http_request_t *r, ngx_http_upstream_t *u)
             break;
         }
 
+#if defined(nginx_version) && nginx_version >= 1007009
+
         c = r->cache;
 
         c->min_uses = u->conf->cache_min_uses;
@@ -450,6 +475,13 @@ ngx_http_php_upstream_cache(ngx_http_request_t *r, ngx_http_upstream_t *u)
         c->lock = u->conf->cache_lock;
         c->lock_timeout = u->conf->cache_lock_timeout;
 
+#else
+
+        c->lock = u->conf->cache_lock;
+        c->lock_timeout = u->conf->cache_lock_timeout;
+        c->lock_age = u->conf->cache_lock_age;
+
+#endif
         u->cache_status = NGX_HTTP_CACHE_MISS;
     }
 
@@ -2086,7 +2118,10 @@ ngx_http_php_upstream_send_response(ngx_http_request_t *r, ngx_http_upstream_t *
 
             r->cache->min_uses = u->conf->cache_min_uses;
             r->cache->body_start = u->conf->buffer_size;
+#if defined(nginx_version) && nginx_version >= 1007009
+#else
             r->cache->file_cache = u->conf->cache->data;
+#endif
 
             if (ngx_http_file_cache_create(r) != NGX_OK) {
                 ngx_http_php_upstream_finalize_request(r, u, NGX_ERROR);
