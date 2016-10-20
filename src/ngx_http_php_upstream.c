@@ -1564,7 +1564,7 @@ ngx_http_php_upstream_test_next(ngx_http_request_t *r, ngx_http_upstream_t *u)
 
     }
 
-#if (NGX_HTTP_CACHE)
+#if (NGX_HTTP_CACHE && defined(nginx_version) && nginx_version > 1004007)
 
     if (status == NGX_HTTP_NOT_MODIFIED
         && u->cache_status == NGX_HTTP_CACHE_EXPIRED
