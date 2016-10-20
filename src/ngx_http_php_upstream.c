@@ -464,7 +464,7 @@ ngx_http_php_upstream_cache(ngx_http_request_t *r, ngx_http_upstream_t *u)
             break;
         }
 
-#if defined(nginx_version) && nginx_version >= 1007009
+#if !defined(nginx_version) || nginx_version < 1007009
 
         c = r->cache;
 
