@@ -3,7 +3,7 @@ ngx_php
 [![Build Status](https://travis-ci.org/rryqszq4/ngx_php.svg?branch=master)](https://travis-ci.org/rryqszq4/ngx_php) 
 [![Gitter](https://badges.gitter.im/rryqszq4/ngx_php.svg)](https://gitter.im/rryqszq4/ngx_php?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![GitHub release](https://img.shields.io/github/release/rryqszq4/ngx_php.svg)](https://github.com/rryqszq4/ngx_php/releases/latest)
-[![license](https://img.shields.io/github/license/rryqszq4/ngx_php.svg)](https://github.com/rryqszq4/ngx_php/blob/master/LICENSE)
+[![license](https://img.shields.io/badge/license-BSD--2--clause-blue.svg)](https://github.com/rryqszq4/ngx_php/blob/master/LICENSE)
 
 [ngx_php](https://github.com/rryqszq4/ngx_php)是为nginx模块嵌入php脚本语言。别名为php-nginx-module。    
 QQ 群：558795330
