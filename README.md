@@ -3,7 +3,7 @@ ngx_php
 [![Build Status](https://travis-ci.org/rryqszq4/ngx_php.svg?branch=master)](https://travis-ci.org/rryqszq4/ngx_php) 
 [![Gitter](https://badges.gitter.im/rryqszq4/ngx_php.svg)](https://gitter.im/rryqszq4/ngx_php?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![GitHub release](https://img.shields.io/github/release/rryqszq4/ngx_php.svg)](https://github.com/rryqszq4/ngx_php/releases/latest)
-[![license](https://img.shields.io/badge/license-BSD--2--clause-blue.svg)](https://github.com/rryqszq4/ngx_php/blob/master/LICENSE)
+[![license](https://img.shields.io/badge/license-BSD--2--Clause-blue.svg)](https://github.com/rryqszq4/ngx_php/blob/master/LICENSE)
 
 [ngx_php](https://github.com/rryqszq4/ngx_php) - Embedded php script language for nginx-module. Another name is php-nginx-module.   
 QQ group：558795330
@@ -337,17 +337,17 @@ set_run_by_php_file
 
 Nginx API for php
 -----------------
-* ngx_location::capture_async
-* ngx_location::capture_multi_async
-* ngx_location::capture
-* ngx_location::capture_multi
-* ngx_socket_tcp::__construct
-* ngx_socket_tcp::connect
-* ngx_socket_tcp::send
-* ngx_socket_tcp::receive
-* ngx_socket_tcp::close
-* ngx_socket_tcp::settimeout
-* ngx_log::error
+* [ngx_location::capture_async](ngx_location::capture_async)
+* [ngx_location::capture_multi_async](ngx_location::capture_multi_async)
+* [ngx_location::capture](ngx_location::capture)
+* [ngx_location::capture_multi](ngx_location::capture_multi)
+* [ngx_socket_tcp::__construct](ngx_socket_tcp::__construct)
+* [ngx_socket_tcp::connect](ngx_socket_tcp::connect)
+* [ngx_socket_tcp::send](ngx_socket_tcp::send)
+* [ngx_socket_tcp::receive](ngx_socket_tcp::receive)
+* [ngx_socket_tcp::close](ngx_socket_tcp::close)
+* [ngx_socket_tcp::settimeout](ngx_socket_tcp::settimeout)
+* [ngx_log::error](ngx_log::error)
 
 ngx_location::capture_async
 ---------------------------
@@ -473,7 +473,7 @@ ngx_socket_tcp::close
 
 ngx_socket_tcp::settimeout
 ---------------------------
-**syntax:** *ngx_socket_tcp::settimeout()*  
+**syntax:** *ngx_socket_tcp::settimeout(int time)*  
 
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
