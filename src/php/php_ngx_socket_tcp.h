@@ -19,6 +19,7 @@ PHP_METHOD(ngx_socket_tcp, send);
 PHP_METHOD(ngx_socket_tcp, receive);
 PHP_METHOD(ngx_socket_tcp, close);
 PHP_METHOD(ngx_socket_tcp, settimeout);
+PHP_METHOD(ngx_socket_tcp, setkeepalive);
 
 void ngx_socket_tcp_init(int module_number TSRMLS_DC);
 

@@ -32,6 +32,10 @@ ZEND_BEGIN_ARG_INFO_EX(ngx_socket_tcp_settimeout_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, time)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(ngx_socket_tcp_setkeepalive_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, size)
+ZEND_END_ARG_INFO()
+
 PHP_METHOD(ngx_socket_tcp, __construct)
 {
 
@@ -192,6 +196,25 @@ PHP_METHOD(ngx_socket_tcp, settimeout)
 
 }
 
+PHP_METHOD(ngx_socket_tcp, setkeepalive)
+{
+    long size;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &size) == FAILURE){
+        RETURN_NULL();
+    }
+
+    ngx_http_request_t *r = PHP_NGX_G(global_r); 
+
+    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+    
+    if (ctx == NULL){
+        
+    }
+
+    ngx_http_set_ctx(r, ctx, ngx_http_php_module); 
+}
+
 static const zend_function_entry php_ngx_socket_tcp_class_functions[] = {
     PHP_ME(ngx_socket_tcp, __construct, ngx_socket_tcp_construct_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(ngx_socket_tcp, connect, ngx_socket_tcp_connect_arginfo, ZEND_ACC_PUBLIC)
@@ -199,6 +222,7 @@ static const zend_function_entry php_ngx_socket_tcp_class_functions[] = {
     PHP_ME(ngx_socket_tcp, receive, ngx_socket_tcp_receive_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(ngx_socket_tcp, close, ngx_socket_tcp_close_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(ngx_socket_tcp, settimeout, ngx_socket_tcp_settimeout_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(ngx_socket_tcp, setkeepalive, ngx_socket_tcp_setkeepalive_arginfo, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL, 0, 0}
 };
 
