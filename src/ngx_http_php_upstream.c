@@ -898,8 +898,6 @@ ngx_http_php_upstream_check_broken_connection(ngx_http_request_t *r,
             ev->error = 1;
         }
 
-        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d, %d", u->cacheable, u->peer.connection);
-
         if (!u->cacheable && u->peer.connection) {
             ngx_log_error(NGX_LOG_INFO, ev->log, err,
                         "epoll_wait() reported that client prematurely closed "
