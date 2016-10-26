@@ -22,7 +22,8 @@ ZEND_BEGIN_ARG_INFO_EX(ngx_socket_tcp_send_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, buf)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(ngx_socket_tcp_receive_arginfo, 0, 0, 0)
+ZEND_BEGIN_ARG_INFO_EX(ngx_socket_tcp_receive_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, size)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(ngx_socket_tcp_close_arginfo, 0, 0, 0)
@@ -115,6 +116,11 @@ PHP_METHOD(ngx_socket_tcp, send)
 
 PHP_METHOD(ngx_socket_tcp, receive)
 {
+    /*int size;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &size) == FAILURE){
+        RETURN_NULL();
+    }*/
 
     ngx_http_request_t *r = PHP_NGX_G(global_r);
 
