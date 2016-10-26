@@ -389,6 +389,8 @@ ngx_http_php_create_loc_conf(ngx_conf_t *cf)
     plcf->upstream.hide_headers = NGX_CONF_UNSET_PTR;
     plcf->upstream.pass_headers = NGX_CONF_UNSET_PTR;
 
+    //plcf->upstream.ignore_client_abort = 1;
+
 	return plcf;
 }
 

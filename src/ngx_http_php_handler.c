@@ -932,6 +932,8 @@ ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
 
 	pthread_create(&(ctx->pthread_id), NULL, ngx_http_php_sync_inline_thread, r);
 
+	pthread_detach(ctx->pthread_id);
+
 	for ( ;; ){
 		usleep(1);
 		//ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
@@ -965,7 +967,10 @@ ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 	
-	pthread_join(ctx->pthread_id, NULL);
+	//pthread_join(ctx->pthread_id, NULL);
+
+	pthread_cond_destroy(&(ctx->cond));
+    pthread_mutex_destroy(&(ctx->mutex));
 
 	chain = ctx->rputs_chain;
 
@@ -1071,6 +1076,8 @@ ngx_http_php_content_thread_inline_handler(ngx_http_request_t *r)
 
 	pthread_create(&(ctx->pthread_id), NULL, ngx_http_php_sync_inline_thread, r);
 
+	pthread_detach(ctx->pthread_id);
+	
 	for ( ;; ){
 		usleep(1);
 		//ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
@@ -1104,7 +1111,10 @@ ngx_http_php_content_thread_inline_handler(ngx_http_request_t *r)
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 	
-	pthread_join(ctx->pthread_id, NULL);
+	//pthread_join(ctx->pthread_id, NULL);
+
+	pthread_cond_destroy(&(ctx->cond));
+    pthread_mutex_destroy(&(ctx->mutex));
 
 	chain = ctx->rputs_chain;
 
@@ -1241,6 +1251,8 @@ ngx_http_php_content_thread_file_handler(ngx_http_request_t *r)
 
 	pthread_create(&(ctx->pthread_id), NULL, ngx_http_php_sync_file_thread, r);
 
+	pthread_detach(ctx->pthread_id);
+
 	for ( ;; ){
 		usleep(1);
 		//ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
@@ -1274,7 +1286,10 @@ ngx_http_php_content_thread_file_handler(ngx_http_request_t *r)
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 	
-	pthread_join(ctx->pthread_id, NULL);
+	//pthread_join(ctx->pthread_id, NULL);
+
+	pthread_cond_destroy(&(ctx->cond));
+    pthread_mutex_destroy(&(ctx->mutex));
 
 	chain = ctx->rputs_chain;
 

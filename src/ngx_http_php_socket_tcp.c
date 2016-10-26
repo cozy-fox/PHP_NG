@@ -420,7 +420,7 @@ ngx_http_php_socket_tcp_rediscovery(ngx_http_request_t *r)
 
     }
 
-    pthread_join(ctx->pthread_id, NULL);
+    //pthread_join(ctx->pthread_id, NULL);
 
     pthread_cond_destroy(&(ctx->cond));
     pthread_mutex_destroy(&(ctx->mutex));
@@ -472,7 +472,7 @@ ngx_http_php_socket_tcp_handler(ngx_http_request_t *r)
         return NGX_DONE;
     }
 
-    pthread_join(ctx->pthread_id, NULL);
+    //pthread_join(ctx->pthread_id, NULL);
 
     pthread_cond_destroy(&(ctx->cond));
     pthread_mutex_destroy(&(ctx->mutex));*/
