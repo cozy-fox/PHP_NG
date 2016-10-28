@@ -294,6 +294,13 @@ ngx_http_php_socket_tcp_finalize_request(ngx_http_request_t *r, ngx_int_t rc)
     } else {
         pthread_cancel(ctx->pthread_id);
 
+        for ( ;; ){
+            usleep(1);
+            if (ctx->enable_thread == 0){
+                break;
+            }
+        }
+
         pthread_cond_destroy(&(ctx->cond));
         pthread_mutex_destroy(&(ctx->mutex));
     }
