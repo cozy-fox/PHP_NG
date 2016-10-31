@@ -11,6 +11,8 @@
 
 	* fixd issues #11 core dump, main thread waiting for child thread enable , but part of ctx not use.
 
+	* bumped version to 0.0.6
+
 2016-09-16 rryqszq4 <ngxphp@gmail.com>
 	* dev code "ngx_http_php_stream.h", "ngx_http_php_stream.c"
 	
