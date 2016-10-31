@@ -78,8 +78,6 @@ PHP_METHOD(ngx_socket_tcp, connect)
         
     }
 
-    ctx->enable_upstream = 1;
-
     /*ngx_str_t ns;
     ns.data = (u_char *)host_str;
     ns.len = host_len;
@@ -95,6 +93,8 @@ PHP_METHOD(ngx_socket_tcp, connect)
     ctx->host.data[host_len] = '\0';
 
     ctx->port = port;
+
+    //ctx->enable_upstream = 1;
 
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
@@ -117,9 +117,6 @@ PHP_METHOD(ngx_socket_tcp, send)
         
     }
 
-    ctx->enable_upstream = 1;
-    ctx->read_or_write = 0;
-
     ngx_str_t ns;
     ns.data = (u_char *)buf_str;
     ns.len = buf_len;
@@ -127,6 +124,10 @@ PHP_METHOD(ngx_socket_tcp, send)
     ctx->send_buf.len = buf_len;
     ctx->send_buf.data = ngx_pstrdup(r->pool, &ns);
 
+
+    ctx->read_or_write = 0;
+    //ctx->enable_upstream = 1;
+    
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
 }
@@ -147,8 +148,8 @@ PHP_METHOD(ngx_socket_tcp, receive)
         
     }
 
-    ctx->enable_upstream = 1;
     ctx->read_or_write = 1;
+    ctx->enable_upstream = 1;
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_socket_tcp receive");
 

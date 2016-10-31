@@ -5,6 +5,12 @@
 
 	* add php api "ngx_socket_tcp::settimeout"
 
+	* change pthread status joinable to detached
+
+	* fixd issues #10 thread deadlock
+
+	* fixd issues #11 core dump, main thread waiting for child thread enable , but part of ctx not use.
+
 2016-09-16 rryqszq4 <ngxphp@gmail.com>
 	* dev code "ngx_http_php_stream.h", "ngx_http_php_stream.c"
 	
