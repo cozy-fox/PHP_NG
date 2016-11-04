@@ -1461,6 +1461,8 @@ ngx_http_php_upstream_process_header(ngx_http_request_t *r, ngx_http_upstream_t 
 
         n = c->recv(c, u->buffer.last, u->buffer.end - u->buffer.last);
 
+        //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d %d", u->buffer.last, n);
+
         if (n == NGX_AGAIN) {
 #if 0
             ngx_add_timer(rev, u->read_timeout);
