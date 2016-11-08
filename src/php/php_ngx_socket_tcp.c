@@ -172,7 +172,7 @@ PHP_METHOD(ngx_socket_tcp, receive)
 
         ngx_list_part_t *part = &(ctx->receive_list)->part;
         ngx_str_t *str = part->elts;
-        ngx_str_t *header;
+        //ngx_str_t *header;
         ngx_uint_t i;
         for (i = 0; /* void */; i++) {
             if (i >= part->nelts){
@@ -180,7 +180,7 @@ PHP_METHOD(ngx_socket_tcp, receive)
                     break;
                 }
                 part = part->next;
-                header = part->elts;
+                //header = part->elts;
                 i = 0;
             }
 
