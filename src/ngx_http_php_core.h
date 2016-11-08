@@ -80,6 +80,9 @@ typedef struct ngx_http_php_ctx_t {
 	ngx_str_t send_buf;
 	ngx_http_status_t receive_status;
 	ngx_str_t receive_buf;
+	ngx_int_t receive_stat;
+	ngx_int_t receive_total;
+	ngx_list_t *receive_list;
 	ngx_msec_t timeout;
 
 	pthread_mutex_t mutex;

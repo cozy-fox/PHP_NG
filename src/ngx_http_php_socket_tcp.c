@@ -215,6 +215,7 @@ ngx_int_t
 ngx_http_php_socket_tcp_process_header(ngx_http_request_t *r)
 {
     ngx_php_request = r;
+    ngx_uint_t receive_len = 0;
 
     //size_t len;
     //ngx_int_t rc;
@@ -229,18 +230,77 @@ ngx_http_php_socket_tcp_process_header(ngx_http_request_t *r)
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%*s", (&u->buffer)->last - (&u->buffer)->pos,(&u->buffer)->pos);
 
-    ctx->receive_buf.len = (&u->buffer)->last - (&u->buffer)->pos;
-    ctx->receive_buf.data = (&u->buffer)->pos;
+    //ctx->receive_buf.len = (&u->buffer)->last - (&u->buffer)->pos;
+    //ctx->receive_buf.data = (&u->buffer)->pos;
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "len=%d,recv=%*s", ctx->receive_buf.len, ctx->receive_buf.len, ctx->receive_buf.data);
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "len=%d", ctx->receive_buf.len);
 
-    if (ctx->receive_buf.len == u->conf->buffer_size){
+    receive_len = u->buffer.last - u->buffer.pos;
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "len=%d", receive_len);
+
+    if (ctx->receive_stat == 0){
+        ctx->receive_list = ngx_list_create(r->pool, 20, sizeof(ngx_str_t));
+        if (ctx->receive_list == NULL) {
+            return NGX_ERROR;
+        }
+    }
+
+    ngx_str_t *tmp_str = ngx_list_push(ctx->receive_list);
+
+    tmp_str->data = ngx_palloc(r->pool, receive_len + 1);
+    tmp_str->len = receive_len;
+    ngx_memcpy(tmp_str->data, u->buffer.pos, receive_len + 1);
+    tmp_str->data[receive_len] = '\0';
+
+    ctx->receive_stat++;
+    ctx->receive_total = ctx->receive_total + receive_len;
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", ctx->receive_stat);
+
+    if (receive_len < u->conf->buffer_size){
+        if (ctx->receive_stat == 1){
+            ctx->receive_stat = 0;
+            ctx->receive_buf.len = receive_len;
+            ctx->receive_buf.data = u->buffer.pos;
+        }
+    }else {
         u->buffer.pos = u->buffer.start;
         u->buffer.last = u->buffer.start;
         return NGX_AGAIN;
     }
+
+    /*if (receive_len == u->conf->buffer_size || ctx->receive_stat > 0){
+
+        if (ctx->receive_stat == 0){
+            ctx->receive_list = ngx_list_create(r->pool, 20, sizeof(ngx_str_t));
+            if (ctx->receive_list == NULL) {
+                return NGX_ERROR;
+            }
+        }
+
+        ngx_str_t *tmp_str = ngx_list_push(ctx->receive_list);
+
+        tmp_str->data = ngx_palloc(r->pool, receive_len + 1);
+        tmp_str->len = receive_len;
+        ngx_memcpy(tmp_str->data, u->buffer.pos, receive_len + 1);
+        tmp_str->data[receive_len] = '\0';
+
+        ctx->receive_stat++;
+        ctx->receive_total = ctx->receive_total + receive_len;
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", ctx->receive_stat);
+
+        //ctx->receive_buf.len = receive_len;
+        //ctx->receive_buf.data = u->buffer.pos;
+
+        u->buffer.pos = u->buffer.start;
+        u->buffer.last = u->buffer.start;
+        return NGX_AGAIN;
+    }else {
+        ctx->receive_buf.len = receive_len;
+        ctx->receive_buf.data = u->buffer.pos;
+    }*/
 
     ctx->enable_upstream = 0;
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);

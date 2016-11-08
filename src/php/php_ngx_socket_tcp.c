@@ -163,7 +163,44 @@ PHP_METHOD(ngx_socket_tcp, receive)
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "recv:%*s", ctx->receive_buf.len, ctx->receive_buf.data);
     
-    RETVAL_STRINGL((char *)ctx->receive_buf.data, ctx->receive_buf.len, 1);
+    if (ctx->receive_stat == 0){
+        RETVAL_STRINGL((char *)ctx->receive_buf.data, ctx->receive_buf.len, 1);
+    } else {
+
+        char *receive_str = emalloc(ctx->receive_total + 1);
+        int tmp_mark = 0;
+
+        ngx_list_part_t *part = &(ctx->receive_list)->part;
+        ngx_str_t *str = part->elts;
+        ngx_str_t *header;
+        ngx_uint_t i;
+        for (i = 0; /* void */; i++) {
+            if (i >= part->nelts){
+                if ( NULL == part->next){
+                    break;
+                }
+                part = part->next;
+                header = part->elts;
+                i = 0;
+            }
+
+            if (i == 0){
+                memcpy(receive_str, str[i].data, str[i].len);
+            }else {
+                memcpy(receive_str + tmp_mark, str[i].data, str[i].len);
+            }
+
+            tmp_mark += str[i].len;
+
+        }
+        //receive_str[ctx->receive_total] = '\0';
+        
+        RETVAL_STRINGL((char *)receive_str, ctx->receive_total, 1);
+        efree(receive_str);
+    }
+
+    ctx->receive_stat = 0;
+    ctx->receive_total = 0;
 
     return ;
 }

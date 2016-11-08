@@ -920,6 +920,9 @@ ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
 
 	ctx->request_body_more = 1;
 
+	ctx->receive_stat = 0;
+	ctx->receive_total = 0;
+
 	pthread_mutex_init(&(ctx->mutex), NULL);
 	pthread_cond_init(&(ctx->cond), NULL);
 	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
@@ -1063,6 +1066,9 @@ ngx_http_php_content_thread_inline_handler(ngx_http_request_t *r)
 	ctx->error = NGX_OK;
 
 	ctx->request_body_more = 1;
+
+	ctx->receive_stat = 0;
+	ctx->receive_total = 0;
 
 	pthread_mutex_init(&(ctx->mutex), NULL);
 	pthread_cond_init(&(ctx->cond), NULL);
@@ -1238,6 +1244,9 @@ ngx_http_php_content_thread_file_handler(ngx_http_request_t *r)
 	ctx->error = NGX_OK;
 
 	ctx->request_body_more = 1;
+
+	ctx->receive_stat = 0;
+	ctx->receive_total = 0;
 
 	pthread_mutex_init(&(ctx->mutex), NULL);
 	pthread_cond_init(&(ctx->cond), NULL);
