@@ -5,18 +5,28 @@ ngx_php
 [![GitHub release](https://img.shields.io/github/release/rryqszq4/ngx_php.svg)](https://github.com/rryqszq4/ngx_php/releases/latest)
 [![license](https://img.shields.io/badge/license-BSD--2--Clause-blue.svg)](https://github.com/rryqszq4/ngx_php/blob/master/LICENSE)
 
-[ngx_php](https://github.com/rryqszq4/ngx_php)是为nginx模块嵌入php脚本语言。别名为php-nginx-module。    
-QQ 群：558795330
+[ngx_php](https://github.com/rryqszq4/ngx_php)是嵌入php脚本的nginx模块。你也可以称它为nginx-php5-module。
+
+概述
+----
+我很有兴经历了apache的mod_php时代、nginx + php-fpm时代，之前写的代码都是以阻塞方式运行的。最近几年异步、非阻塞这些词在
+行业内非常热，特别是当我接触openresty的时候，我完全被折服的同时也反思了下，为什么不能把php嵌入nginx里面呢？
+借鉴了openresty的思想，我打算实现我的想法，于是ngx_php诞生了。搭载nginx之上借助nginx中的subrequest和upstream等模块，
+ngx_php可以实现非阻塞io通信，并且代码是至上而下顺序书写，避免了繁琐的回调写法。性能相比较php-fpm会高出几个量级。
 
 特性
 --------
 * 支持加载php.ini配置文件
+可以在nginx的配置文件中加载php的配置文件
 * 支持原生php的全局变量$_GET, $_POST, $_COOKIE, $_SERVER, $_FILES, $_SESSION...
 * 支持运行php代码与文件
+可以在nginx的配置文件中书写代码，也可以在配置文件中加载代码
 * 支持RFC 1867文件上传协议
 * 支持php错误输出
 * 支持加载与运行PECL扩展
+遗憾的是部分扩展是阻塞方式的，可以正常运行但在ngx_php中并不能换来性能的提升
 * 支持nginx的API在php中调用
+利用php扩展封装了一些nginx的底层接口，方便在php中调用
 
 环境
 -----------
@@ -33,8 +43,8 @@ nginx_1.11.4
 
 安装
 -------
-- build php
-
+- 安装php
+需要编译php，并且需要开启线程安全和编译动态共享库
 ```sh
 wget http://php.net/distributions/php-5.3.29.tar.gz
 tar xf php-5.3.29.tar.gz
@@ -45,8 +55,8 @@ cd php-5.3.29
 make && make install
 ```
 
-- build ngx_php
-
+- 安装ngx_php
+编译完php就可以开始安装ngx_php，需要重新编译nginx并加入ngx_php模块
 ```sh
 git clone https://github.com/rryqszq4/ngx_php.git
 
