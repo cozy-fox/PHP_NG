@@ -16,34 +16,26 @@ ngx_php可以实现非阻塞io通信，并且代码是至上而下顺序书写�
 
 特性
 --------
-* 支持加载php.ini配置文件
+* 支持加载php.ini配置文件  
 可以在nginx的配置文件中加载php的配置文件
 * 支持原生php的全局变量$_GET, $_POST, $_COOKIE, $_SERVER, $_FILES, $_SESSION...
-* 支持运行php代码与文件
+* 支持运行php代码与文件  
 可以在nginx的配置文件中书写代码，也可以在配置文件中加载代码
 * 支持RFC 1867文件上传协议
 * 支持php错误输出
-* 支持加载与运行PECL扩展
+* 支持加载与运行PECL扩展  
 遗憾的是部分扩展是阻塞方式的，可以正常运行但在ngx_php中并不能换来性能的提升
-* 支持nginx的API在php中调用
+* 支持nginx的API在php中调用  
 利用php扩展封装了一些nginx的底层接口，方便在php中调用
 
 环境
 -----------
-- PHP 5.3.*  
-PHP 5.4.*  
-PHP 5.5.*  
-PHP 5.6.*
-- nginx-1.4.7  
-nginx-1.6.3  
-nginx-1.8.1  
-nginx-1.9.15  
-nginx-1.10.1  
-nginx_1.11.4  
+- PHP 5.3.* ~ PHP 5.6.*
+- nginx-1.4.7 ~ nginx_1.11.4
 
 安装
 -------
-- 安装php
+- 安装php  
 需要编译php，并且需要开启线程安全和编译动态共享库
 ```sh
 wget http://php.net/distributions/php-5.3.29.tar.gz
@@ -55,7 +47,7 @@ cd php-5.3.29
 make && make install
 ```
 
-- 安装ngx_php
+- 安装ngx_php  
 编译完php就可以开始安装ngx_php，需要重新编译nginx并加入ngx_php模块
 ```sh
 git clone https://github.com/rryqszq4/ngx_php.git
