@@ -6,6 +6,7 @@ ngx_php
 [![license](https://img.shields.io/badge/license-BSD--2--Clause-blue.svg)](https://github.com/rryqszq4/ngx_php/blob/master/LICENSE)
 
 [ngx_php](https://github.com/rryqszq4/ngx_php) - Embedded php script language for nginx-module. Another name is nginx-php5-module.   
+[English document](https://github.com/rryqszq4/ngx_php/blob/master/README-EN.md) | [中文文档](https://github.com/rryqszq4/ngx_php)  
 QQ group：558795330
 
 Features
