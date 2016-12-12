@@ -18,8 +18,8 @@
 
 #include "ngx_http_php_core.h"
 
-#define MODULE_NAME "php_nginx_module"
-#define MODULE_VERSION	"0.0.6"
+#define NGX_HTTP_PHP_MODULE_NAME "ngx_php"
+#define NGX_HTTP_PHP_MODULE_VERSION	"0.0.6"
 
 extern ngx_module_t	ngx_http_php_module;
 ngx_http_request_t *ngx_php_request;
