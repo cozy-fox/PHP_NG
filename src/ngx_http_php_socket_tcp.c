@@ -371,6 +371,9 @@ ngx_http_php_socket_tcp_finalize_request(ngx_http_request_t *r, ngx_int_t rc)
 
         pthread_cond_destroy(&(ctx->cond));
         pthread_mutex_destroy(&(ctx->mutex));
+
+
+        ngx_http_finalize_request(r, NGX_HTTP_CLIENT_CLOSED_REQUEST);
     }
 
     return ;
