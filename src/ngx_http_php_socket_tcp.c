@@ -252,8 +252,8 @@ ngx_http_php_socket_tcp_process_header(ngx_http_request_t *r)
 
     tmp_str->data = ngx_palloc(r->pool, receive_len + 1);
     tmp_str->len = receive_len;
-    ngx_memcpy(tmp_str->data, u->buffer.pos, receive_len + 1);
-    tmp_str->data[receive_len] = '\0';
+    ngx_memcpy(tmp_str->data, u->buffer.pos, receive_len);
+    //tmp_str->data[receive_len] = '\0';
 
     ctx->receive_stat++;
     ctx->receive_total = ctx->receive_total + receive_len;
