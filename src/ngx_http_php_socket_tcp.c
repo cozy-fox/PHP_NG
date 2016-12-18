@@ -362,18 +362,48 @@ ngx_http_php_socket_tcp_finalize_request(ngx_http_request_t *r, ngx_int_t rc)
     } else {
         pthread_cancel(ctx->pthread_id);
 
-        for ( ;; ){
+        /*for ( ;; ){
             usleep(1);
             if (ctx->enable_thread == 0){
                 break;
             }
-        }
+        }*/
 
         pthread_cond_destroy(&(ctx->cond));
         pthread_mutex_destroy(&(ctx->mutex));
 
+        ngx_event_t *rev;
+        ngx_connection_t *c;
+
+        c = r->connection;
+        rev = c->read;
+
+        ngx_http_upstream_t *u;
+        u = r->upstream;
+
+        if (u->peer.connection) {
+
+            ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                           "close http upstream connection: %d",
+                           u->peer.connection->fd);
+
+            if (u->peer.connection->pool) {
+                ngx_destroy_pool(u->peer.connection->pool);
+            }
+
+            ngx_close_connection(u->peer.connection);
+        }
+
+        u->peer.connection = NULL;
+
+        if (rev->timer_set) {
+            ngx_del_timer(rev);
+        }
+
+        ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
         ngx_http_finalize_request(r, NGX_HTTP_CLIENT_CLOSED_REQUEST);
+
     }
 
     return ;
