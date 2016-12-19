@@ -1,6 +1,8 @@
 2016-11-09 rryqszq4 <ngxphp@gmail.com>
 	* fixd ngx_socket_tcp receive complete
 
+	* fixd ngx_socket_tcp epoll_wait error and disable keep-alive, when client active close
+
 2016-10-15 rryqszq4 <ngxphp@gmail.com>
 	* add php api "ngx_log::error"
 
