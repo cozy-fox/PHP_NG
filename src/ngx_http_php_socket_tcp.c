@@ -357,6 +357,9 @@ ngx_http_php_socket_tcp_finalize_request(ngx_http_request_t *r, ngx_int_t rc)
 
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
     
+    // close keep-alive
+    r->keepalive = 0;
+
     if (rc == 0){
         ngx_http_php_socket_tcp_handler(r);
     } else {
