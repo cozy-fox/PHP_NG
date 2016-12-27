@@ -10,10 +10,12 @@
 #include "ngx_http_php_request.h"
 #include "ngx_http_php_subrequest.h"
 #include "ngx_http_php_socket_tcp.h"
+#include "ngx_http_php_sleep.h"
 
 #include "php/php_ngx_location.h"
 #include "php/php_ngx_socket_tcp.h"
 #include "php/php_ngx_log.h"
+#include "php/php_ngx_time.h"
 
 ngx_int_t 
 ngx_http_php_rewrite_handler(ngx_http_request_t *r)
@@ -875,6 +877,7 @@ ngx_http_php_sync_inline_thread(void *arg)
 		ngx_location_init(0 TSRMLS_CC);
 		php_ngx_log_init(0 TSRMLS_CC);
 		ngx_socket_tcp_init(0 TSRMLS_CC);
+		php_ngx_time_init(0 TSRMLS_CC);
 
 		PHP_NGX_G(global_r) = r;
 
@@ -942,11 +945,10 @@ ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
 		//ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d %d", ctx->enable_async, ctx->enable_thread);
 
-		if (ctx->enable_async == 1 || ctx->enable_thread == 0){
-			//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
-			break;
-		}
-		if (ctx->enable_upstream == 1 || ctx->enable_thread == 0){
+		if (ctx->enable_async == 1 || 
+			ctx->enable_upstream == 1 || 
+			ctx->enable_sleep == 1 ||
+			ctx->enable_thread == 0){
 			break;
 		}
 	}
@@ -1055,6 +1057,7 @@ ngx_http_php_content_thread_inline_handler(ngx_http_request_t *r)
 
 	ctx->enable_async = 0;
 	ctx->enable_upstream = 0;
+	ctx->enable_sleep = 0;
 	ctx->enable_thread = 1;
 
 	ctx->read_or_write = 0;
@@ -1087,13 +1090,12 @@ ngx_http_php_content_thread_inline_handler(ngx_http_request_t *r)
 	for ( ;; ){
 		usleep(1);
 		//ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d %d", ctx->enable_async, ctx->enable_thread);
+		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d %d", ctx->enable_sleep, ctx->enable_thread);
 
-		if (ctx->enable_async == 1 || ctx->enable_thread == 0){
-			//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
-			break;
-		}
-		if (ctx->enable_upstream == 1 || ctx->enable_thread == 0){
+		if (ctx->enable_async == 1 || 
+			ctx->enable_upstream == 1 || 
+			ctx->enable_sleep == 1 ||
+			ctx->enable_thread == 0){
 			break;
 		}
 	}
@@ -1113,6 +1115,11 @@ ngx_http_php_content_thread_inline_handler(ngx_http_request_t *r)
 		return NGX_DONE;
 	}
 
+	if (ctx->enable_sleep == 1) {
+		ngx_http_php_sleep_run(r);
+		return NGX_DONE;
+	}
+	
 	ngx_http_php_rputs_chain_list_t *chain;
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
@@ -1200,6 +1207,7 @@ ngx_http_php_sync_file_thread(void *arg)
 		ngx_location_init(0 TSRMLS_CC);
 		php_ngx_log_init(0 TSRMLS_CC);
 		ngx_socket_tcp_init(0 TSRMLS_CC);
+		php_ngx_time_init(0 TSRMLS_CC);
 
 		PHP_NGX_G(global_r) = r;
 
@@ -1233,6 +1241,7 @@ ngx_http_php_content_thread_file_handler(ngx_http_request_t *r)
 
 	ctx->enable_async = 0;
 	ctx->enable_upstream = 0;
+	ctx->enable_sleep = 0;
 	ctx->enable_thread = 1;
 
 	ctx->read_or_write = 0;
@@ -1267,11 +1276,10 @@ ngx_http_php_content_thread_file_handler(ngx_http_request_t *r)
 		//ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 		//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d %d", ctx->enable_async, ctx->enable_thread);
 
-		if (ctx->enable_async == 1 || ctx->enable_thread == 0){
-			//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "main %d", ctx->enable_async);
-			break;
-		}
-		if (ctx->enable_upstream == 1 || ctx->enable_thread == 0){
+		if (ctx->enable_async == 1 || 
+			ctx->enable_upstream == 1 || 
+			ctx->enable_sleep == 1 ||
+			ctx->enable_thread == 0){
 			break;
 		}
 	}
@@ -1288,6 +1296,11 @@ ngx_http_php_content_thread_file_handler(ngx_http_request_t *r)
 
 	if (ctx->enable_upstream == 1){
 		ngx_http_php_socket_tcp_run(r);
+		return NGX_DONE;
+	}
+
+	if (ctx->enable_sleep == 1) {
+		ngx_http_php_sleep_run(r);
 		return NGX_DONE;
 	}
 

@@ -94,6 +94,9 @@ typedef struct ngx_http_php_ctx_t {
 	ngx_int_t error;
 
 	ngx_http_request_t* request;
+
+	unsigned enable_sleep : 1;
+	ngx_int_t delay_time;
 	
 } ngx_http_php_ctx_t;
 
