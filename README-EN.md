@@ -349,6 +349,7 @@ Nginx API for php
 * [ngx_socket_tcp::close](#ngx_socket_tcpclose)
 * [ngx_socket_tcp::settimeout](#ngx_socket_tcpsettimeout)
 * [ngx_log::error](#ngx_logerror)
+* [ngx_time::sleep](#ngx_timesleep)
 
 ngx_location::capture_async
 ---------------------------
@@ -502,6 +503,20 @@ ngx_log::error(ngx_log::ERR, "test");
  2016/10/06 22:10:19 [error] 51402#0: *1 test while reading response header from upstream, client: 192.168.80.1, 
  server: localhost, request: "GET /_mysql HTTP/1.1", upstream: "127.0.0.1:3306", host: "192.168.80.140"
 */
+```
+
+ngx_time::sleep
+---------------
+**语法:** *ngx_time::sleep(int seconds)* 
+
+**环境:** *content_thread_by_php*  
+
+```php
+echo "sleep_start\n";
+
+ngx_time::sleep(3);
+
+echo "sleep_end\n"; 
 ```
 
 Question
