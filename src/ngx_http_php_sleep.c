@@ -87,6 +87,8 @@ void ngx_http_php_sleep_handler(ngx_event_t *ev)
     // close keep-alive
     r->keepalive = 0;
 
+    r->main->count = 1;
+
     ctx->enable_sleep = 0;
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
