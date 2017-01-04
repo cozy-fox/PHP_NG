@@ -3,6 +3,11 @@
 
 	* fixd ngx_socket_tcp epoll_wait error and disable keep-alive, when client active close
 
+	* add php api "ngx_time::sleep"
+
+	* fixed isses #14 core dump, hight concurrence used of ngx_socket_tcp
+	  After system call pthread_cancel, wait for convar_clean and execute php end
+
 2016-10-15 rryqszq4 <ngxphp@gmail.com>
 	* add php api "ngx_log::error"
 
