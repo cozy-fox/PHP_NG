@@ -45,15 +45,15 @@ PHP_METHOD(ngx_socket_tcp, __construct)
 void
 _ngx_socket_tcp_pthread_cleanup(void *arg)
 {
-    TSRMLS_FETCH();
 
-    ngx_http_request_t *r = PHP_NGX_G(global_r);
+    ngx_http_request_t *r = (ngx_http_request_t *) arg;
 
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
     pthread_mutex_unlock(&(ctx->mutex));
 
     ctx->enable_thread = 0;
+
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
     return ;
@@ -155,7 +155,7 @@ PHP_METHOD(ngx_socket_tcp, receive)
 
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
-    pthread_cleanup_push(_ngx_socket_tcp_pthread_cleanup, NULL);
+    pthread_cleanup_push(_ngx_socket_tcp_pthread_cleanup, r);
     pthread_mutex_lock(&(ctx->mutex));
     pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
     pthread_mutex_unlock(&(ctx->mutex));
