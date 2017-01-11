@@ -8,7 +8,7 @@
 #include "ngx_http_php_subrequest.h"
 #include "ngx_http_php_socket_tcp.h"
 
-/*static void
+static void
 ngx_http_php_sleep_cleanup(void *data) 
 {
     ngx_http_request_t *r = data;
@@ -20,15 +20,19 @@ ngx_http_php_sleep_cleanup(void *data)
         return ;
     }
 
+    if (ctx->sleep.timer_set) {
+        ngx_del_timer(&ctx->sleep);
+        return ;
+    }
     
-}*/
+}
 
 ngx_int_t ngx_http_php_sleep_run(ngx_http_request_t *r)
 {
     //ngx_event_t ev;
-    ngx_event_t *wev;
-    ngx_connection_t *c;
-    //ngx_http_cleanup_t *cln;
+    //ngx_event_t *wev;
+    //ngx_connection_t *c;
+    ngx_http_cleanup_t *cln;
 
     ngx_php_request = r;
 
@@ -39,46 +43,48 @@ ngx_int_t ngx_http_php_sleep_run(ngx_http_request_t *r)
     }
 
     r->main->count++;
-    c = r->connection;
+    //c = r->connection;
     //c->fd = (ngx_socket_t) -1;
-    c->data = r;
+    //c->data = r;
 
-    //ngx_memzero(&ev, sizeof(ngx_event_t));
+    ngx_memzero(&ctx->sleep, sizeof(ngx_event_t));
 
-    /*ev.timer_set = 0;
-    ev.handler = ngx_http_php_sleep_handler;
-    ev.log = r->connection->log;
-    ev.data = c;*/
+    //ev.timer_set = 0;
+    ctx->sleep.handler = ngx_http_php_sleep_handler;
+    ctx->sleep.log = r->connection->log;
+    ctx->sleep.data = r;
 
-    wev = c->write;
+    /*wev = c->write;
     wev->log = c->log;
     wev->handler = ngx_http_php_sleep_handler;
-    wev->data = c;
+    wev->data = c;*/
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_add_timer");
 
-    ngx_add_timer(wev, (ngx_msec_t) ctx->delay_time);
+    ngx_add_timer(&ctx->sleep, (ngx_msec_t) ctx->delay_time);
 
-    /*cln = ngx_http_cleanup_add(r, 0);
+    cln = ngx_http_cleanup_add(r, 0);
     if (cln == NULL) {
         return NGX_ERROR;
     }
 
     cln->handler = ngx_http_php_sleep_cleanup;
     cln->data = r;
-*/
+
     return NGX_OK;
 }
 
 void ngx_http_php_sleep_handler(ngx_event_t *ev)
 {
     ngx_http_request_t *r;
-    ngx_connection_t *c;
+    //ngx_connection_t *c;
 
-    c = ev->data;
-    r = c->data;
+    //c = ev->data;
+    //r = c->data;
 
-    ngx_php_request = r;
+    r = ev->data;
+
+    //ngx_php_request = r;
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "sleep handler");
 
@@ -87,7 +93,7 @@ void ngx_http_php_sleep_handler(ngx_event_t *ev)
     // close keep-alive
     r->keepalive = 0;
 
-    r->main->count = 1;
+    r->main->count--;
 
     ctx->enable_sleep = 0;
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
