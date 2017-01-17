@@ -84,7 +84,7 @@ void ngx_http_php_sleep_handler(ngx_event_t *ev)
 
     r = ev->data;
 
-    //ngx_php_request = r;
+    ngx_php_request = r;
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "sleep handler");
 
@@ -93,7 +93,7 @@ void ngx_http_php_sleep_handler(ngx_event_t *ev)
     // close keep-alive
     r->keepalive = 0;
 
-    r->main->count--;
+    //r->main->count--;
 
     ctx->enable_sleep = 0;
     ngx_http_set_ctx(r, ctx, ngx_http_php_module);
