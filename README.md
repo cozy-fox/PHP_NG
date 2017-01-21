@@ -9,13 +9,6 @@ ngx_php
 [English document](https://github.com/rryqszq4/ngx_php/blob/master/README-en.md) | [中文文档](https://github.com/rryqszq4/ngx_php)  
 QQ 群：558795330
 
-概述
-----
-我很有幸经历了apache的mod_php时代、nginx + php-fpm时代，之前写的代码都是以阻塞方式运行的。最近几年异步、
-非阻塞这些词在行业内非常热，特别是当我接触openresty的时候，我完全被折服的同时也反思了下，为什么不能把php嵌入nginx里面呢？
-借鉴了openresty的思想，我打算实现我的想法，于是ngx_php诞生了。搭载nginx之上借助nginx中的subrequest和upstream等模块，
-ngx_php可以实现非阻塞io通信，并且代码是自上而下顺序书写，避免了繁琐的回调写法。性能相比较php-fpm会高出几个量级。
-
 特性
 --------
 * 支持加载php.ini配置文件  
