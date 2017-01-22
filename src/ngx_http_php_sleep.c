@@ -176,11 +176,11 @@ void ngx_http_php_sleep_handler(ngx_event_t *ev)
         
     }
 
-    ngx_http_output_filter(r, chain->out);
+    rc = ngx_http_output_filter(r, chain->out);
 
     ngx_http_set_ctx(r, NULL, ngx_http_php_module);
 
-    
+    ngx_http_finalize_request(r,rc);
 }
 
 
