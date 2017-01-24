@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright (c) 2016-2017, rryqszq4 <ngxphp@gmail.com>
 mkdir build
 cd build
 mkdir php
@@ -73,7 +74,7 @@ if [ $? -eq 0 ];then
 	echo "nginx install ... done"
 	echo "ngx_php compile success."
 else 
-	echo "ngx_php compile failed.Contact author.You can Join QQ 558795330(ngx_php) ."
+	echo "ngx_php compile failed."
 	exit 1
 fi
 #echo "nginx install ... done"
