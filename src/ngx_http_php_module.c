@@ -391,6 +391,14 @@ ngx_http_php_create_loc_conf(ngx_conf_t *cf)
 
     //plcf->upstream.ignore_client_abort = 1;
 
+    //-> feature: upstream connection pool
+    /*plcf->upstream.upstream = ngx_pcalloc(cf->pool,
+                       sizeof(ngx_http_upstream_srv_conf_t));
+
+    if (plcf->upstream.upstream == NULL) {
+    	return NGX_CONF_ERROR;
+    }*/
+
 	return plcf;
 }
 
