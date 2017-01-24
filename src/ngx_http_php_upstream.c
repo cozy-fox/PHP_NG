@@ -1537,9 +1537,10 @@ ngx_http_php_upstream_process_header(ngx_http_request_t *r, ngx_http_upstream_t 
         }
     }
 
-    if (ngx_http_php_upstream_process_headers(r, u) != NGX_OK) {
+    // ngx_php not
+    /*if (ngx_http_php_upstream_process_headers(r, u) != NGX_OK) {
         return;
-    }
+    }*/
 
     if (!r->subrequest_in_memory) {
         ngx_http_php_upstream_send_response(r, u);
