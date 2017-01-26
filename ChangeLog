@@ -14,6 +14,8 @@
 
 	* bumped copyright date to 2017.
 
+	* bumped version to 0.0.7
+
 2016-10-15 rryqszq4 <ngxphp@gmail.com>
 	* add php api "ngx_log::error"
 
