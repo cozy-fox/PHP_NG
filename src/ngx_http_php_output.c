@@ -54,7 +54,7 @@ ngx_http_php_set_output(char *buffer, int buffer_len)
 }
 
 void 
-ngx_http_php_set_output_empty()
+ngx_http_php_check_output_empty()
 {
     ngx_http_php_rputs_chain_list_t *chain;
     ngx_http_php_ctx_t *ctx;
