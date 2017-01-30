@@ -291,7 +291,18 @@ ngx_http_php_request_clean(TSRMLS_D)
 }
 
 
+ngx_int_t 
+ngx_http_php_set_request(ngx_http_request_t *r)
+{
+	ngx_php_request = r;
+	return NGX_OK;
+}
 
+ngx_http_request_t *
+ngx_http_php_get_request()
+{
+	return ngx_php_request;
+}
 
 
 

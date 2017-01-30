@@ -29,4 +29,7 @@ int ngx_http_php_request_read_body(ngx_http_request_t *r);
 void ngx_http_php_request_read_body_cb(ngx_http_request_t *r);
 ngx_str_t ngx_http_php_request_get_request_body(ngx_http_request_t *r);
 
+ngx_int_t ngx_http_php_set_request(ngx_http_request_t *r);
+ngx_http_request_t *ngx_http_php_get_request();
+
 #endif
