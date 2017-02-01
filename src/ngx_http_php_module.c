@@ -257,10 +257,11 @@ ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_http_php_main_con
 	ngx_http_handler_pt *h;
 	ngx_http_phases phase;
 	ngx_http_phases phases[] = {
-		//NGX_HTTP_POST_READ_PHASE,
+		NGX_HTTP_POST_READ_PHASE,
 		NGX_HTTP_REWRITE_PHASE,
 		NGX_HTTP_ACCESS_PHASE,
 		NGX_HTTP_CONTENT_PHASE,
+		//NGX_HTTP_LOG_PHASE,
 	};
 	ngx_int_t phases_c;
 
@@ -268,15 +269,13 @@ ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_http_php_main_con
 	for (i = 0; i < phases_c; i++){
 		phase = phases[i];
 		switch (phase){
-			/*case NGX_HTTP_POST_READ_PHASE:
-				if (pmcf->enabled_post_read_handler){
-					h = ngx_array_push(&cmcf->phases[phase].handlers);
-					if (h == NULL){
-						return NGX_ERROR;
-					}
-					*h = ngx_http_php_post_read_handler;
+			case NGX_HTTP_POST_READ_PHASE:
+				h = ngx_array_push(&cmcf->phases[phase].handlers);
+				if (h == NULL){
+					return NGX_ERROR;
 				}
-				break;*/
+				*h = ngx_http_php_post_read_handler;
+				break;
 			case NGX_HTTP_REWRITE_PHASE:
 				if (pmcf->enabled_rewrite_handler){
 					h = ngx_array_push(&cmcf->phases[phase].handlers);
