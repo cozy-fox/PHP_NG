@@ -20,8 +20,33 @@
 ngx_int_t
 ngx_http_php_post_read_handler(ngx_http_request_t *r)
 {
+	ngx_http_cleanup_t *cln;
+
 	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_http_php_post_read_handler");
+	
+	ngx_php_request = r;
+
+	cln = ngx_http_cleanup_add(r, 0);
+	if (cln == NULL) {
+		return NGX_ERROR;
+	}
+
+	cln->handler = ngx_http_php_request_cleanup_handler;
+	cln->data = NULL;
+
 	return NGX_OK;
+}
+
+void 
+ngx_http_php_request_cleanup_handler(void *data)
+{
+	ngx_http_request_t *r;
+
+	r = ngx_php_request;
+
+	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_http_php_request_cleanup_handler");
+
+	return ;
 }
 
 ngx_int_t 
