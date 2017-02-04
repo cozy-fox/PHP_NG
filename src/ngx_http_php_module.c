@@ -146,6 +146,24 @@ static ngx_command_t ngx_http_php_commands[] = {
 	 ngx_http_php_content_thread_inline_handler
 	},
 
+	{ngx_string("log_by_php_file"),
+	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+	 	|NGX_CONF_TAKE1,
+	 ngx_http_php_log_phase,
+	 NGX_HTTP_LOC_CONF_OFFSET,
+	 0,
+	 ngx_http_php_log_file_handler
+	},
+
+	{ngx_string("log_by_php"),
+	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
+	 	|NGX_CONF_TAKE1,
+	 ngx_http_php_log_inline_phase,
+	 NGX_HTTP_LOC_CONF_OFFSET,
+	 0,
+	 ngx_http_php_log_inline_handler
+	},
+
 #if defined(NDK) && NDK
 
 	{ngx_string("set_by_php"),
@@ -261,7 +279,7 @@ ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_http_php_main_con
 		NGX_HTTP_REWRITE_PHASE,
 		NGX_HTTP_ACCESS_PHASE,
 		NGX_HTTP_CONTENT_PHASE,
-		//NGX_HTTP_LOG_PHASE,
+		NGX_HTTP_LOG_PHASE,
 	};
 	ngx_int_t phases_c;
 
@@ -308,6 +326,15 @@ ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_http_php_main_con
 						return NGX_ERROR;
 					}
 					*h = ngx_http_php_content_async_handler;
+				}
+				break;
+			case NGX_HTTP_LOG_PHASE:
+				if (pmcf->enabled_log_handler) {
+					h = ngx_array_push(&cmcf->phases[phase].handlers);
+					if (h == NULL) {
+						return NGX_ERROR;
+					}
+					*h = ngx_http_php_log_handler;
 				}
 				break;
 			default:
@@ -372,6 +399,9 @@ ngx_http_php_create_loc_conf(ngx_conf_t *cf)
 
 	plcf->content_async_inline_code = NGX_CONF_UNSET_PTR;
 
+	plcf->log_code = NGX_CONF_UNSET_PTR;
+	plcf->log_inline_code = NGX_CONF_UNSET_PTR;
+
 	plcf->upstream.connect_timeout = 60000;
     plcf->upstream.send_timeout = 60000;
     plcf->upstream.read_timeout = 60000;
@@ -423,6 +453,9 @@ ngx_http_php_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 	prev->content_inline_code = conf->content_inline_code;
 
 	prev->content_async_inline_code = conf->content_async_inline_code;
+
+	prev->log_code = conf->log_code;
+	prev->log_inline_code = conf->log_inline_code;
 
 	ngx_hash_init_t		hash;
 	hash.max_size = 512;
