@@ -434,6 +434,8 @@ ngx_http_php_content_file_handler(ngx_http_request_t *r)
 			return NGX_ERROR;
 		}
 	}
+
+	ctx->request_body_more = 1;
 	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
 	ngx_php_request = r;
@@ -550,7 +552,7 @@ ngx_http_php_content_inline_handler(ngx_http_request_t *r)
 		}
 	}
 
-	//ctx->request_body_more = 1;
+	ctx->request_body_more = 1;
 	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
 	ngx_php_request = r;
