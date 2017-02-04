@@ -184,6 +184,8 @@ nginx指令
 * [access_by_php_file](#access_by_php_file)
 * [content_by_php](#content_by_php)
 * [content_by_php_file](#content_by_php_file)
+* [log_by_php](#log_by_php)
+* [log_by_php_file](#log_by_php_file)
 * [content_thread_by_php](#content_thread_by_php)
 * [content_thread_by_php_file](#content_thread_by_php_file)
 * [set_by_php](#set_by_php)
@@ -291,6 +293,24 @@ location /content_by_php_file {
         content_by_php_file /home/www/index.php;
 }
 ```
+
+log_by_php
+----------
+**语法:** *log_by_php &lt;php script code&gt;*  
+
+**环境:** *http, server, location, location if*  
+
+**阶段:** *log*  
+
+nginx的log阶段运行php代码。
+
+log_by_php_file
+---------------
+**语法:** *log_by_php_file &lt;php script file&gt;*  
+
+**环境:** *http, server, location, location if*  
+
+**阶段:** *log*
 
 content_thread_by_php
 ---------------------

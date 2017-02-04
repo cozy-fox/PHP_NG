@@ -188,6 +188,8 @@ Directives
 * access_by_php_file
 * content_by_php
 * content_by_php_file
+* [log_by_php](#log_by_php)
+* [log_by_php_file](#log_by_php_file)
 * content_async_by_php
 * content_sync_by_php
 * content_thread_by_php
@@ -264,7 +266,7 @@ access_by_php_file
 **context:** *http, server, location, location if*  
 **phase:** *access*
 
-* Nginx in the access phase, the php script file Analyzing access。
+* Nginx in the access phase, the php script file Analyzing access.
 
 content_by_php
 --------------
@@ -281,6 +283,18 @@ content_by_php_file
 **phase:** *content*
 
 * Most central command, run php script file nginx stage of content.
+
+log_by_php
+----------
+**syntax:** *log_by_php &lt;php script code&gt;*  
+**context:** *http, server, location, location if*  
+**phase:** *log*
+
+log_by_php_file
+---------------
+**syntax:** *log_by_php_file &lt;php script file&gt;*  
+**context:** *http, server, location, location if*  
+**phase:** *log*
 
 content_async_by_php
 --------------------
