@@ -174,7 +174,7 @@ ngx_http_php_subrequest_post_parent(ngx_http_request_t *r)
     }
 
     ctx->enable_async = 0;
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
     pthread_mutex_lock(&(ctx->mutex));
     pthread_cond_signal(&(ctx->cond));
@@ -404,7 +404,7 @@ ngx_http_php_subrequest_post_multi_handler(ngx_http_request_t *r, void *data, ng
 
         ctx->capture_multi_complete_total = 0;
 
-		ngx_http_set_ctx(pr, ctx, ngx_http_php_module);
+		//ngx_http_set_ctx(pr, ctx, ngx_http_php_module);
 
         pthread_mutex_lock(&(ctx->mutex));
         pthread_cond_signal(&(ctx->cond));

@@ -50,7 +50,7 @@ PHP_METHOD(ngx_time, sleep)
 
     ctx->enable_sleep = 1;
 
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "sleep start");
 

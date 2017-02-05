@@ -123,7 +123,7 @@ ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
 
     ngx_http_php_upstream_init(r);
 
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
     //if (ctx->read_or_write == 0) {
         /*u->create_request(r);
@@ -200,7 +200,7 @@ ngx_http_php_socket_tcp_create_request(ngx_http_request_t *r)
         //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
         //                  "start %s %d", r->upstream->request_bufs->buf->last, ctx->send_buf.len);
 
-        ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+        //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
     }
     return NGX_OK;
 }
@@ -303,7 +303,7 @@ ngx_http_php_socket_tcp_process_header(ngx_http_request_t *r)
     }*/
 
     ctx->enable_upstream = 0;
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
     pthread_mutex_lock(&(ctx->mutex));
     pthread_cond_signal(&(ctx->cond));
@@ -403,7 +403,7 @@ ngx_http_php_socket_tcp_finalize_request(ngx_http_request_t *r, ngx_int_t rc)
             ngx_del_timer(rev);
         }
 
-        ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+        //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
         ngx_http_finalize_request(r, NGX_HTTP_CLIENT_CLOSED_REQUEST);
 

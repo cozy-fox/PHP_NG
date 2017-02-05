@@ -54,7 +54,7 @@ _ngx_socket_tcp_pthread_cleanup(void *arg)
 
     ctx->enable_thread = 0;
 
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
     return ;
 }
@@ -96,7 +96,7 @@ PHP_METHOD(ngx_socket_tcp, connect)
 
     //ctx->enable_upstream = 1;
 
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
 }
 
@@ -128,7 +128,7 @@ PHP_METHOD(ngx_socket_tcp, send)
     ctx->read_or_write = 0;
     //ctx->enable_upstream = 1;
     
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
 }
 
@@ -153,7 +153,7 @@ PHP_METHOD(ngx_socket_tcp, receive)
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_socket_tcp receive");
 
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
     pthread_cleanup_push(_ngx_socket_tcp_pthread_cleanup, r);
     pthread_mutex_lock(&(ctx->mutex));
@@ -234,7 +234,7 @@ PHP_METHOD(ngx_socket_tcp, close)
 
     u->peer.connection = NULL;
 
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 }
 
 PHP_METHOD(ngx_socket_tcp, settimeout)
@@ -255,7 +255,7 @@ PHP_METHOD(ngx_socket_tcp, settimeout)
 
     ctx->timeout = time;
 
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
 }
 
@@ -275,7 +275,7 @@ PHP_METHOD(ngx_socket_tcp, setkeepalive)
         
     }
 
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module); 
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module); 
 }
 
 static const zend_function_entry php_ngx_socket_tcp_class_functions[] = {

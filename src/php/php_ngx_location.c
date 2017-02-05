@@ -164,7 +164,7 @@ PHP_METHOD(ngx_location, capture_async)
 
 	ctx->is_capture_multi = 0;
 
-	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+	//ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
 	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_location %s", (u_char *)uri_str);
 	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_location %d", ctx->capture_uri.len);
@@ -303,7 +303,7 @@ PHP_METHOD(ngx_location, capture_multi_async)
 	ctx->enable_async = 1;
 	ctx->is_capture_multi = 1;
 
-	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+	//ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
 
 	pthread_mutex_lock(&(ctx->mutex));
@@ -347,7 +347,7 @@ PHP_METHOD(ngx_location, capture)
 
     ctx->is_capture_multi = 0;
 
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
     pthread_mutex_lock(&(ctx->mutex));
     pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
@@ -413,7 +413,7 @@ PHP_METHOD(ngx_location, capture_multi)
     ctx->enable_async = 1;
     ctx->is_capture_multi = 1;
 
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
 
     pthread_mutex_lock(&(ctx->mutex));

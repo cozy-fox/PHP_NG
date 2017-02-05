@@ -96,7 +96,7 @@ void ngx_http_php_sleep_handler(ngx_event_t *ev)
     //r->main->count--;
 
     ctx->enable_sleep = 0;
-    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
     pthread_mutex_lock(&(ctx->mutex));
     pthread_cond_signal(&(ctx->cond));
