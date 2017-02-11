@@ -7,7 +7,6 @@ ngx_php
 
 [ngx_php](https://github.com/rryqszq4/ngx_php) - Embedded php script language for nginx-module. Another name is nginx-php5-module.   
 [English document](https://github.com/rryqszq4/ngx_php/blob/master/README-en.md) | [中文文档](https://github.com/rryqszq4/ngx_php)  
-QQ group：558795330
 
 Features
 --------
@@ -21,16 +20,8 @@ Features
 
 Requirement
 -----------
-- PHP 5.3.*  
-PHP 5.4.*  
-PHP 5.5.*  
-PHP 5.6.*
-- nginx-1.4.7  
-nginx-1.6.3  
-nginx-1.8.1  
-nginx-1.9.15  
-nginx-1.10.1  
-nginx_1.11.4  
+- PHP 5.3.* ~ PHP 5.6.*
+- nginx-1.4.7 ~ nginx-1.11.4
 
 Installation
 -------
@@ -106,22 +97,6 @@ http {
 Framework conf
 --------------
 
-**wordpress :**
-
-```nginx
-server {
-    listen 80;
-    server_name wordpress-sample.com;
-    
-    location ~ \.php$ {
-        root   /home/www/wordpress;
-        content_by_php "
-            require_once('/home/www/wordpress'.$_SERVER['DOCUMENT_URI']);
-        ";
-    }
-}
-```
-
 **yaf & yii :**
 
 ```nginx
@@ -148,6 +123,22 @@ server {
         ';
     }
 }  
+```
+
+**wordpress :**
+
+```nginx
+server {
+    listen 80;
+    server_name wordpress-sample.com;
+    
+    location ~ \.php$ {
+        root   /home/www/wordpress;
+        content_by_php "
+            require_once('/home/www/wordpress'.$_SERVER['DOCUMENT_URI']);
+        ";
+    }
+}
 ```
 
 Test
@@ -179,33 +170,33 @@ Result: PASS
 
 Directives
 ----------
-* php_ini_path
-* init_by_php
-* init_by_php_file
-* rewrite_by_php
-* rewrite_by_php_file
-* access_by_php
-* access_by_php_file
-* content_by_php
-* content_by_php_file
+* [php_ini_path](#php_ini_path)
+* [init_by_php](#init_by_php)
+* [init_by_php_file](#init_by_php_file)
+* [rewrite_by_php](#rewrite_by_php)
+* [rewrite_by_php_file](#rewrite_by_php_file)
+* [access_by_php](#access_by_php)
+* [access_by_php_file](#access_by_php_file)
+* [content_by_php](#content_by_php)
+* [content_by_php_file](#content_by_php_file)
 * [log_by_php](#log_by_php)
 * [log_by_php_file](#log_by_php_file)
-* content_async_by_php
-* content_sync_by_php
-* content_thread_by_php
-* content_thread_by_php_file
-* set_by_php
-* set_run_by_php
-* set_by_php_file
-* set_run_by_php_file
+* [content_thread_by_php](#content_thread_by_php)
+* [content_thread_by_php_file](#content_thread_by_php_file)
+* [set_by_php](#set_by_php)
+* [set_run_by_php](#set_run_by_php)
+* [set_by_php_file](#set_by_php_file)
+* [set_run_by_php_file](#set_run_by_php_file)
 
 php_ini_path
 ------------
 **syntax:** *php_ini_path &lt;php.ini file path&gt;*  
+
 **context:** *http*  
+
 **phase:** *loading-config*  
 
-* Loading php configuration file in nginx configuration initialization.
+Loading php configuration file in nginx configuration initialization.
 
 ```nginx
 php_ini_path /usr/local/php/etc/php.ini;
@@ -214,26 +205,32 @@ php_ini_path /usr/local/php/etc/php.ini;
 init_by_php
 -----------
 **syntax:** *init_by_php &lt;php script code&gt;*  
+
 **context:** *http*  
+
 **phase:** *loading-config*
 
-* In nginx configuration initialization or boot time, run some php scripts.
+In nginx configuration initialization or boot time, run some php scripts.
 
 init_by_php_file
 ----------------
 **syntax:** *init_by_php_file &lt;php script file&gt;*  
+
 **context:** *http*  
+
 **phase:** *loading-config*
 
-* In nginx configuration initialization or boot time, run some php script file.
+In nginx configuration initialization or boot time, run some php script file.
 
 rewrite_by_php
 --------------
 **syntax:** *rewrite_by_php &lt;php script code&gt;*  
+
 **context:** *http, server, location, location if*  
+
 **phase:** *rewrite*
 
-* Use php script redirect in nginx rewrite stage of.
+Use php script redirect in nginx rewrite stage of.
 
 ```nginx
 location /rewrite_by_php {
@@ -247,113 +244,120 @@ location /rewrite_by_php {
 rewrite_by_php_file
 -------------------
 **syntax:** *rewrite_by_php_file &lt;php script file&gt;*  
+
 **context:** *http, server, location, location if*  
+
 **phase:** *rewrite*
 
-* Use php script file, redirect in nginx rewrite stage of.
+Use php script file, redirect in nginx rewrite stage of.
 
 access_by_php
 -------------
 **syntax:** *access_by_php &lt;php script code&gt;*  
+
 **context:** *http, server, location, location if*  
+
 **phase:** *access*
 
-* Nginx in the access phase, the php script determine access.
+Nginx in the access phase, the php script determine access.
 
 access_by_php_file
 ------------------
 **syntax:** *access_by_php_file &lt;php script file&gt;*  
+
 **context:** *http, server, location, location if*  
+
 **phase:** *access*
 
-* Nginx in the access phase, the php script file Analyzing access.
+Nginx in the access phase, the php script file Analyzing access.
 
 content_by_php
 --------------
 **syntax:** *content_by_php &lt;php script code&gt;*  
+
 **context:** *http, server, location, location if*  
+
 **phase:** *content*
 
-* Most central command, run php script nginx stage of content.
+Most central command, run php script nginx stage of content.
 
 content_by_php_file
 -------------------
 **syntax:** *content_by_php_file &lt;php script file&gt;*  
+
 **context:** *http, server, location, location if*  
+
 **phase:** *content*
 
-* Most central command, run php script file nginx stage of content.
+Most central command, run php script file nginx stage of content.
 
 log_by_php
 ----------
 **syntax:** *log_by_php &lt;php script code&gt;*  
+
 **context:** *http, server, location, location if*  
+
 **phase:** *log*
 
 log_by_php_file
 ---------------
 **syntax:** *log_by_php_file &lt;php script file&gt;*  
+
 **context:** *http, server, location, location if*  
+
 **phase:** *log*
-
-content_async_by_php
---------------------
-**syntax:** *content_async_by_php &lt;php script code&gt;*  
-**context:** *http, server, location, location if*  
-**phase:** *content*  
-
-* Asynchronous mode code to execute php code to call non-blocking.
-
-content_sync_by_php
--------------------
-**syntax:** *content_sync_by_php &lt;php script code&gt;*  
-**context:** *http, server, location, location if*  
-**phase:** *content*  
-
-* Very similar content by php, but way synchronization code to execute php code 
-  to call non-blocking, the development is only a test of each instruction.
 
 content_thread_by_php
 ---------------------
 **syntax:** *content_thread_by_php &lt;php script code&gt;*  
+
 **context:** *http, server, location, location if*  
+
 **phase:** *content*  
 
 content_thread_by_php_file
 --------------------------
 **syntax:** *content_thread_by_php_file &lt;php script file&gt;*  
+
 **context:** *http, server, location, location if*  
+
 **phase:** *content* 
 
 set_by_php
 ----------
 **syntax:** *set_by_php &lt;php script code&gt;*  
+
 **context:** *server, server if, location, location if*  
+
 **phase:** *content*
 
 set_run_by_php
 --------------
 **syntax:** *set_run_by_php &lt;php script code&gt;*  
+
 **context:** *server, server if, location, location if*  
+
 **phase:** *content*
 
 set_by_php_file
 ---------------
 **syntax:** *set_by_php_file &lt;php script file&gt;*  
+
 **context:** *server, server if, location, location if*  
+
 **phase:** *content*
 
 set_run_by_php_file
 -------------------
 **syntax:** *set_run_by_php_file &lt;php script file&gt;*  
+
 **context:** *server, server if, location, location if*  
+
 **phase:** *content*
 
 
 Nginx API for php
 -----------------
-* [ngx_location::capture_async](#ngx_locationcapture_async)
-* [ngx_location::capture_multi_async](#ngx_locationcapture_multi_async)
 * [ngx_location::capture](#ngx_locationcapture)
 * [ngx_location::capture_multi](#ngx_locationcapture_multi)
 * [ngx_socket_tcp::__construct](#ngx_socket_tcp__construct)
@@ -365,48 +369,13 @@ Nginx API for php
 * [ngx_log::error](#ngx_logerror)
 * [ngx_time::sleep](#ngx_timesleep)
 
-ngx_location::capture_async
----------------------------
-**syntax:** *ngx_location::capture_async(string $uri, mixed $closure)*  
-
-**context:** *content_async_by_php*  
-
-* With nginx underlying strong subrequest, fully non-blocking asynchronous realize 
-  php code calls.
-
-```php
-ngx_location::capture_async('/foo', function($callback = 'callback'){
-    echo $callback;
-});
-```
-
-ngx_location::capture_multi_async
----------------------------------
-**syntax:** *ngx_location::capture_multi_async(array $uri, mixed $closure)*  
-
-**context:** *content_async_by_php*  
-
-* And ngx location :: capture async similar, but can support fully non-blocking asynchronous 
-  parallel code calls.
-
-```php
-$capture_multi = array(
-    '/foo',
-    '/bar',
-    '/baz'
-);
-ngx_location::capture_multi_async($capture_multi, function($callback = 'callback'){
-    var_dump($callback);
-});
-```
-
 ngx_location::capture
 ---------------------
 **syntax:** *ngx_location::capture(string $uri)*  
 
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
-* With nginx underlying strong subrequest, php achieve full non-blocking calls.
+With nginx underlying strong subrequest, php achieve full non-blocking calls.
 
 ```php
 $result = ngx_location::capture('/foo');
@@ -442,7 +411,7 @@ $tcpsock = new ngx_socket_tcp();
 ```
 
 ngx_socket_tcp::connect
----------------------------
+-----------------------
 **syntax:** *ngx_socket_tcp::connect(string $host, int $port)*  
 
 **context:** *content_thread_by_php* *content_sync_by_php*  
@@ -455,7 +424,7 @@ $tcpsock->connect('127.0.0.1',11211));
 ```
 
 ngx_socket_tcp::send
----------------------------
+--------------------
 **syntax:** *ngx_socket_tcp::send(string $buf)* 
 
 **context:** *content_thread_by_php* *content_sync_by_php*  
@@ -467,7 +436,7 @@ $tcpsock->send('stats\r\n');
 ```
 
 ngx_socket_tcp::receive
----------------------------
+-----------------------
 **syntax:** *ngx_socket_tcp::receive()* 
 
 **context:** *content_thread_by_php* *content_sync_by_php* 
@@ -482,13 +451,13 @@ $tcpsock->close();
 ```
 
 ngx_socket_tcp::close
----------------------------
+---------------------
 **syntax:** *ngx_socket_tcp::close()*  
 
 **context:** *content_thread_by_php* *content_sync_by_php*  
 
 ngx_socket_tcp::settimeout
----------------------------
+--------------------------
 **syntax:** *ngx_socket_tcp::settimeout(int time)*  
 
 **context:** *content_thread_by_php* *content_sync_by_php*  
