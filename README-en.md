@@ -280,6 +280,16 @@ content_by_php
 **phase:** *content*
 
 Most central command, run php script nginx stage of content.
+```nginx
+location /content_by_php {    
+    content_by_php "
+        header('Content-Type: text/html;charset=UTF-8');
+    
+        echo phpinfo();
+    ";
+        
+}
+```
 
 content_by_php_file
 -------------------
@@ -290,6 +300,11 @@ content_by_php_file
 **phase:** *content*
 
 Most central command, run php script file nginx stage of content.
+```nginx
+location /content_by_php_file {
+        content_by_php_file /home/www/index.php;
+}
+```
 
 log_by_php
 ----------
@@ -314,6 +329,36 @@ content_thread_by_php
 **context:** *http, server, location, location if*  
 
 **phase:** *content*  
+
+```nginx
+location /content_thread_by_php {
+    content_thread_by_php "
+        echo 'hello world';
+
+        $res = ngx_location::capture('/list=s_sh000001');
+        var_dump($res);
+        
+        $capture_multi = array(
+                            '/list=s_sh000001',
+                            '/list=s_sh000001',
+                            '/list=s_sh000001'
+                    );
+        $res = ngx_location::capture_multi($capture_multi);
+        var_dump($res);
+        
+        $res = ngx_location::capture('/list=s_sh000001');
+        var_dump($res);
+        
+        $res = ngx_location::capture('/list=s_sh000001');
+        #var_dump($res);
+    ";
+}
+
+location /list {
+    proxy_pass http://hq.sinajs.cn;
+    proxy_set_header Accept-Encoding "";
+}
+```
 
 content_thread_by_php_file
 --------------------------

@@ -5,65 +5,61 @@ ngx_php
 [![GitHub release](https://img.shields.io/github/release/rryqszq4/ngx_php.svg)](https://github.com/rryqszq4/ngx_php/releases/latest)
 [![license](https://img.shields.io/badge/license-BSD--2--Clause-blue.svg)](https://github.com/rryqszq4/ngx_php/blob/master/LICENSE)
 
-[ngx_php](https://github.com/rryqszq4/ngx_php)是嵌入php脚本的nginx模块。你也可以称它为nginx-php5-module。  
+[ngx_php](https://github.com/rryqszq4/ngx_php) - Embedded php script language for nginx-module. Another name is nginx-php5-module.   
 [English document](https://github.com/rryqszq4/ngx_php/blob/master/README-en.md) | [中文文档](https://github.com/rryqszq4/ngx_php)  
-QQ 群：558795330
 
-特性
+Features
 --------
-* 支持加载php.ini配置文件  
-可以在nginx的配置文件中加载php的配置文件
-* 支持原生php的全局变量$_GET, $_POST, $_COOKIE, $_SERVER, $_FILES, $_SESSION...
-* 支持运行php代码与文件  
-可以在nginx的配置文件中书写代码，也可以在配置文件中加载代码
-* 支持RFC 1867文件上传协议
-* 支持php错误输出
-* 支持加载与运行PECL扩展  
-遗憾的是部分扩展是阻塞方式的，可以正常运行但在ngx_php中并不能换来性能的提升
-* 支持nginx的API在php中调用  
-利用php扩展封装了一些nginx的底层接口，方便在php中调用
+* Load php.ini config file
+* Global variable support $_GET, $_POST, $_COOKIE, $_SERVER, $_FILES, $_SESSION...
+* PHP script code and file execute
+* RFC 1867 protocol file upload
+* PHP error reporting output
+* Support PECL PHP extension
+* Support Nginx API for php
 
-环境
+Requirement
 -----------
 - PHP 5.3.* ~ PHP 5.6.*
 - nginx-1.4.7 ~ nginx-1.11.4
 
-安装
+Installation
 -------
-- 安装php  
-需要编译php，并且需要开启线程安全和编译动态共享库
+- **build php**
+
 ```sh
-$ wget http://php.net/distributions/php-5.3.29.tar.gz
-$ tar xf php-5.3.29.tar.gz
-$ cd php-5.3.29
-$ ./configure --prefix=/path/to/php \
-$             --enable-maintainer-zts \
-$             --enable-embed
-$ make && make install
+wget 'http://php.net/distributions/php-5.3.29.tar.gz'
+tar xf php-5.3.29.tar.gz
+cd php-5.3.29
+
+./configure --prefix=/path/to/php \
+            --enable-maintainer-zts \
+            --enable-embed
+make && make install
 ```
 
-- 安装ngx_php  
-编译完php就可以开始安装ngx_php，需要重新编译nginx并加入ngx_php模块
+- **build ngx_php**
+
 ```sh
-$ git clone https://github.com/rryqszq4/ngx_php.git
+git clone https://github.com/rryqszq4/ngx_php.git
 
-$ wget 'http://nginx.org/download/nginx-1.6.3.tar.gz'
-$ tar xf nginx-1.6.3.tar.gz
-$ cd nginx-1.6.3
+wget 'http://nginx.org/download/nginx-1.6.3.tar.gz'
+tar xf nginx-1.6.3.tar.gz
+cd nginx-1.6.3
 
-$ export PHP_BIN=/path/to/php/bin
-$ export PHP_INC=/path/to/php/include/php
-$ export PHP_LIB=/path/to/php/lib
+export PHP_BIN=/path/to/php/bin
+export PHP_INC=/path/to/php/include/php
+export PHP_LIB=/path/to/php/lib
 
-$ ./configure --user=www --group=www \
-$             --prefix=/path/to/nginx \
-$             --with-ld-opt="-Wl,-rpath,$PHP_LIB" \
-$             --add-module=/path/to/ngx_php/dev/ngx_devel_kit \
-$             --add-module=/path/to/ngx_php
-$ make && make install
+./configure --user=www --group=www \
+            --prefix=/path/to/nginx \
+            --with-ld-opt="-Wl,-rpath,$PHP_LIB" \
+            --add-module=/path/to/ngx_php/dev/ngx_devel_kit \
+            --add-module=/path/to/ngx_php
+make && make install
 ```
 
-摘要
+Synopsis
 --------
 
 ```nginx
@@ -98,10 +94,10 @@ http {
 }
 ```
 
-典型框架配置
+Framework conf
 --------------
 
-**yaf & yii (单一入口模式):**
+**yaf & yii :**
 
 ```nginx
 server {
@@ -129,7 +125,7 @@ server {
 }  
 ```
 
-**wordpress (多入口模式):**
+**wordpress :**
 
 ```nginx
 server {
@@ -145,17 +141,16 @@ server {
 }
 ```
 
-测试
+Test
 ----
-使用perl语言开发的[Test::Nginx](https://github.com/openresty/test-nginx)的测试模块进行测试, 用来发现ngx_php在开发与使用中存在的问题与缺陷。 
+Using the perl of [Test::Nginx](https://github.com/openresty/test-nginx) module to testing, searching and finding out problem in ngx_php. 
 
 ```sh
 cd /path/to/ngx_php
 export PATH=/path/to/nginx/sbin:$PATH
 prove -r t
 ```
-
-测试结果:
+Test result:
 
 ```sh
 t/001-hello.t ........... ok
@@ -173,7 +168,7 @@ Files=10, Tests=22,  3 wallclock secs ( 0.04 usr  0.01 sys +  0.94 cusr  0.27 cs
 Result: PASS
 ```
 
-nginx指令
+Directives
 ----------
 * [php_ini_path](#php_ini_path)
 * [init_by_php](#init_by_php)
@@ -195,13 +190,13 @@ nginx指令
 
 php_ini_path
 ------------
-**语法:** *php_ini_path &lt;php.ini file path&gt;*  
+**syntax:** *php_ini_path &lt;php.ini file path&gt;*  
 
-**环境:** *http*  
+**context:** *http*  
 
-**阶段:** *loading-config*  
+**phase:** *loading-config*  
 
-加载php配置文件
+Loading php configuration file in nginx configuration initialization.
 
 ```nginx
 php_ini_path /usr/local/php/etc/php.ini;
@@ -209,65 +204,82 @@ php_ini_path /usr/local/php/etc/php.ini;
 
 init_by_php
 -----------
-**语法:** *init_by_php &lt;php script code&gt;*  
+**syntax:** *init_by_php &lt;php script code&gt;*  
 
-**环境:** *http*  
+**context:** *http*  
 
-**阶段:** *loading-config*
+**phase:** *loading-config*
+
+In nginx configuration initialization or boot time, run some php scripts.
 
 init_by_php_file
 ----------------
-**语法:** *init_by_php_file &lt;php script file&gt;*  
+**syntax:** *init_by_php_file &lt;php script file&gt;*  
 
-**环境:** *http*  
+**context:** *http*  
 
-**阶段:** *loading-config*
+**phase:** *loading-config*
+
+In nginx configuration initialization or boot time, run some php script file.
 
 rewrite_by_php
 --------------
-**语法:** *rewrite_by_php &lt;php script code&gt;*  
+**syntax:** *rewrite_by_php &lt;php script code&gt;*  
 
-**环境:** *http, server, location, location if*  
+**context:** *http, server, location, location if*  
 
-**阶段:** *rewrite*  
+**phase:** *rewrite*
 
-nginx的rewrite阶段运行php代码。
+Use php script redirect in nginx rewrite stage of.
+
+```nginx
+location /rewrite_by_php {
+        rewrite_by_php "
+            echo "rewrite_by_php";
+            header('Location: http://www.baidu.com/');
+        ";
+    }
+```
 
 rewrite_by_php_file
 -------------------
-**语法:** *rewrite_by_php_file &lt;php script file&gt;*  
+**syntax:** *rewrite_by_php_file &lt;php script file&gt;*  
 
-**环境:** *http, server, location, location if*  
+**context:** *http, server, location, location if*  
 
-**阶段:** *rewrite*
+**phase:** *rewrite*
+
+Use php script file, redirect in nginx rewrite stage of.
 
 access_by_php
 -------------
-**语法:** *access_by_php &lt;php script code&gt;*  
+**syntax:** *access_by_php &lt;php script code&gt;*  
 
-**环境:** *http, server, location, location if*  
+**context:** *http, server, location, location if*  
 
-**阶段:** *access*  
+**phase:** *access*
 
-nginx的access阶段运行php代码。
+Nginx in the access phase, the php script determine access.
 
 access_by_php_file
 ------------------
-**语法:** *access_by_php_file &lt;php script file&gt;*  
+**syntax:** *access_by_php_file &lt;php script file&gt;*  
 
-**环境:** *http, server, location, location if*  
+**context:** *http, server, location, location if*  
 
-**阶段:** *access*
+**phase:** *access*
+
+Nginx in the access phase, the php script file Analyzing access.
 
 content_by_php
 --------------
-**语法:** *content_by_php &lt;php script code&gt;*  
+**syntax:** *content_by_php &lt;php script code&gt;*  
 
-**环境:** *http, server, location, location if*  
+**context:** *http, server, location, location if*  
 
-**阶段:** *content*  
+**phase:** *content*
 
-ngx_php核心处理阶段，可以执行php代码，但是这个指令被设计为以阻塞方式运行php代码，因此不要使用此指令做io操作。
+Most central command, run php script nginx stage of content.
 ```nginx
 location /content_by_php {    
     content_by_php "
@@ -281,13 +293,13 @@ location /content_by_php {
 
 content_by_php_file
 -------------------
-**语法:** *content_by_php_file &lt;php script file&gt;*  
+**syntax:** *content_by_php_file &lt;php script file&gt;*  
 
-**环境:** *http, server, location, location if*  
+**context:** *http, server, location, location if*  
 
-**阶段:** *content*  
+**phase:** *content*
 
-ngx_php核心处理阶段，可以执行php文件，但是这个指令被设计为以阻塞方式执行php文件，因此不要使用此指令做io操作。
+Most central command, run php script file nginx stage of content.
 ```nginx
 location /content_by_php_file {
         content_by_php_file /home/www/index.php;
@@ -296,31 +308,28 @@ location /content_by_php_file {
 
 log_by_php
 ----------
-**语法:** *log_by_php &lt;php script code&gt;*  
+**syntax:** *log_by_php &lt;php script code&gt;*  
 
-**环境:** *http, server, location, location if*  
+**context:** *http, server, location, location if*  
 
-**阶段:** *log*  
-
-nginx的log阶段运行php代码。
+**phase:** *log*
 
 log_by_php_file
 ---------------
-**语法:** *log_by_php_file &lt;php script file&gt;*  
+**syntax:** *log_by_php_file &lt;php script file&gt;*  
 
-**环境:** *http, server, location, location if*  
+**context:** *http, server, location, location if*  
 
-**阶段:** *log*
+**phase:** *log*
 
 content_thread_by_php
 ---------------------
-**语法:** *content_thread_by_php &lt;php script code&gt;*  
+**syntax:** *content_thread_by_php &lt;php script code&gt;*  
 
-**环境:** *http, server, location, location if*  
+**context:** *http, server, location, location if*  
 
-**阶段:** *content*  
+**phase:** *content*  
 
-ngx_php核心处理阶段，可以执行php代码，底层使用nginx异步机制＋多线程实现以非阻塞方式运行php代码。
 ```nginx
 location /content_thread_by_php {
     content_thread_by_php "
@@ -353,49 +362,47 @@ location /list {
 
 content_thread_by_php_file
 --------------------------
-**语法:** *content_thread_by_php_file &lt;php script file&gt;*  
+**syntax:** *content_thread_by_php_file &lt;php script file&gt;*  
 
-**环境:** *http, server, location, location if*  
+**context:** *http, server, location, location if*  
 
-**阶段:** *content*  
-
-ngx_php核心处理阶段，可以执行php文件，底层使用nginx异步机制＋多线程实现以非阻塞方式运行php文件。
+**phase:** *content* 
 
 set_by_php
 ----------
-**语法:** *set_by_php &lt;php script code&gt;*  
+**syntax:** *set_by_php &lt;php script code&gt;*  
 
-**环境:** *server, server if, location, location if*  
+**context:** *server, server if, location, location if*  
 
-**阶段:** *content*
+**phase:** *content*
 
 set_run_by_php
 --------------
-**语法:** *set_run_by_php &lt;php script code&gt;*  
+**syntax:** *set_run_by_php &lt;php script code&gt;*  
 
-**环境:** *server, server if, location, location if*  
+**context:** *server, server if, location, location if*  
 
-**阶段:** *content*
+**phase:** *content*
 
 set_by_php_file
 ---------------
-**语法:** *set_by_php_file &lt;php script file&gt;*  
+**syntax:** *set_by_php_file &lt;php script file&gt;*  
 
-**环境:** *server, server if, location, location if*  
+**context:** *server, server if, location, location if*  
 
-**阶段:** *content*
+**phase:** *content*
 
 set_run_by_php_file
 -------------------
-**语法:** *set_run_by_php_file &lt;php script file&gt;*  
+**syntax:** *set_run_by_php_file &lt;php script file&gt;*  
 
-**环境:** *server, server if, location, location if*  
+**context:** *server, server if, location, location if*  
 
-**阶段:** *content*
+**phase:** *content*
 
 
-Nginx的php接口
--------------
+Nginx API for php
+-----------------
 * [ngx_location::capture](#ngx_locationcapture)
 * [ngx_location::capture_multi](#ngx_locationcapture_multi)
 * [ngx_socket_tcp::__construct](#ngx_socket_tcp__construct)
@@ -409,11 +416,11 @@ Nginx的php接口
 
 ngx_location::capture
 ---------------------
-**语法:** *ngx_location::capture(string $uri)*  
+**syntax:** *ngx_location::capture(string $uri)*  
 
-**环境:** *content_thread_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
-借助nginx底层强大的subrequest，实现php完全非阻塞调用
+With nginx underlying strong subrequest, php achieve full non-blocking calls.
 
 ```php
 $result = ngx_location::capture('/foo');
@@ -422,11 +429,11 @@ echo $result;
 
 ngx_location::capture_multi
 ---------------------------
-**语法:** *ngx_location::capture_multi(array $uri)*  
+**syntax:** *ngx_location::capture_multi(array $uri)*  
 
-**环境:** *content_thread_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
-和ngx_location::capture相似，但是可以支持完全非阻塞的并行调用
+* And ngx location :: capture similar, but can support full non-blocking concurrent calls.
 
 ```php
 $capture_multi = array(
@@ -440,19 +447,19 @@ var_dump($result);
 
 ngx_socket_tcp::__construct
 ---------------------------
-**语法:** *ngx_socket_tcp::__construct()*  
+**syntax:** *ngx_socket_tcp::__construct()*  
 
-**环境:** *content_thread_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
 ```
 
 ngx_socket_tcp::connect
----------------------------
-**语法:** *ngx_socket_tcp::connect(string $host, int $port)*  
+-----------------------
+**syntax:** *ngx_socket_tcp::connect(string $host, int $port)*  
 
-**环境:** *content_thread_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 resolver 8.8.8.8;
 
@@ -462,10 +469,10 @@ $tcpsock->connect('127.0.0.1',11211));
 ```
 
 ngx_socket_tcp::send
----------------------------
-**语法:** *ngx_socket_tcp::send(string $buf)*  
+--------------------
+**syntax:** *ngx_socket_tcp::send(string $buf)* 
 
-**环境:** *content_thread_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -474,10 +481,10 @@ $tcpsock->send('stats\r\n');
 ```
 
 ngx_socket_tcp::receive
----------------------------
-**语法:** *ngx_socket_tcp::receive()*  
+-----------------------
+**syntax:** *ngx_socket_tcp::receive()* 
 
-**环境:** *content_thread_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php* 
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -489,24 +496,24 @@ $tcpsock->close();
 ```
 
 ngx_socket_tcp::close
----------------------------
-**语法:** *ngx_socket_tcp::close()*  
+---------------------
+**syntax:** *ngx_socket_tcp::close()*  
 
-**环境:** *content_thread_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 ngx_socket_tcp::settimeout
----------------------------
-**语法:** *ngx_socket_tcp::settimeout(int time)*  
+--------------------------
+**syntax:** *ngx_socket_tcp::settimeout(int time)*  
 
-**环境:** *content_thread_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php*  
 
 ngx_log::error
 --------------
-**语法:** *ngx_log::error(int level, string log)* 
+**syntax:** *ngx_log::error(int level, string log)* 
 
-**环境:** *content_thread_by_php*  
+**context:** *content_thread_by_php* *content_sync_by_php* 
 
-Nginx的错误日志等级，在php中的实现。
+Nginx log of level in php.
 * ngx_log::STDERR
 * ngx_log::EMERG
 * ngx_log::ALERT
@@ -532,8 +539,6 @@ ngx_time::sleep
 
 **环境:** *content_thread_by_php*  
 
-由于php的标准sleep函数会阻塞nginx，所以基于nginx底层的定时器实现了ngx_time::sleep，可以在nginx中实现非阻塞sleep
-
 ```php
 echo "sleep_start\n";
 
@@ -542,9 +547,9 @@ ngx_time::sleep(3);
 echo "sleep_end\n"; 
 ```
 
-问题
+Question
 --------
-[issues #6](https://github.com/rryqszq4/ngx_php/issues/6) - 注意在 php-5.3.29 中, libxml2 2.7.6 不是线程安全的. 可以尝试在安装php阶段，禁用xml.
+[issues #6](https://github.com/rryqszq4/ngx_php/issues/6) - Using in php-5.3.29, libxml2 2.7.6 not thread safety. Please disable xml in php install.
 ```sh
 ./configure --prefix=/usr/local/php5329 \
             --with-config-file-path=/usr/local/php5329/etc \
@@ -560,7 +565,7 @@ echo "sleep_end\n";
             --enable-embed
 ```
 
-拷贝与授权
+Copyright and License
 ---------------------
 Copyright (c) 2016-2017, rryqszq4 <ngxphp@gmail.com>
 All rights reserved.
