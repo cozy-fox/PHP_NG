@@ -418,7 +418,7 @@ ngx_location::capture
 ---------------------
 **syntax:** *ngx_location::capture(string $uri)*  
 
-**context:** *content_thread_by_php* *content_sync_by_php*  
+**context:** *content_thread_by_php*  
 
 With nginx underlying strong subrequest, php achieve full non-blocking calls.
 
@@ -431,7 +431,7 @@ ngx_location::capture_multi
 ---------------------------
 **syntax:** *ngx_location::capture_multi(array $uri)*  
 
-**context:** *content_thread_by_php* *content_sync_by_php*  
+**context:** *content_thread_by_php*  
 
 * And ngx location :: capture similar, but can support full non-blocking concurrent calls.
 
@@ -449,7 +449,7 @@ ngx_socket_tcp::__construct
 ---------------------------
 **syntax:** *ngx_socket_tcp::__construct()*  
 
-**context:** *content_thread_by_php* *content_sync_by_php*  
+**context:** *content_thread_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -459,7 +459,7 @@ ngx_socket_tcp::connect
 -----------------------
 **syntax:** *ngx_socket_tcp::connect(string $host, int $port)*  
 
-**context:** *content_thread_by_php* *content_sync_by_php*  
+**context:** *content_thread_by_php*  
 
 resolver 8.8.8.8;
 
@@ -472,7 +472,7 @@ ngx_socket_tcp::send
 --------------------
 **syntax:** *ngx_socket_tcp::send(string $buf)* 
 
-**context:** *content_thread_by_php* *content_sync_by_php*  
+**context:** *content_thread_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -484,7 +484,7 @@ ngx_socket_tcp::receive
 -----------------------
 **syntax:** *ngx_socket_tcp::receive()* 
 
-**context:** *content_thread_by_php* *content_sync_by_php* 
+**context:** *content_thread_by_php* 
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -499,19 +499,19 @@ ngx_socket_tcp::close
 ---------------------
 **syntax:** *ngx_socket_tcp::close()*  
 
-**context:** *content_thread_by_php* *content_sync_by_php*  
+**context:** *content_thread_by_php*  
 
 ngx_socket_tcp::settimeout
 --------------------------
 **syntax:** *ngx_socket_tcp::settimeout(int time)*  
 
-**context:** *content_thread_by_php* *content_sync_by_php*  
+**context:** *content_thread_by_php*  
 
 ngx_log::error
 --------------
 **syntax:** *ngx_log::error(int level, string log)* 
 
-**context:** *content_thread_by_php* *content_sync_by_php* 
+**context:** *content_thread_by_php* 
 
 Nginx log of level in php.
 * ngx_log::STDERR
