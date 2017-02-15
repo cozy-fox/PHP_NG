@@ -24,7 +24,7 @@ char *ngx_http_php_access_inline_phase(ngx_conf_t *cf, ngx_command_t *cmd, void 
 
 char *ngx_http_php_content_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 char *ngx_http_php_content_inline_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
-char *ngx_http_php_content_async_inline_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+//char *ngx_http_php_content_async_inline_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 
 char *ngx_http_php_log_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 char *ngx_http_php_log_inline_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);

@@ -114,6 +114,12 @@ ngx_http_php_code_t *ngx_http_php_code_from_string(ngx_pool_t *pool, ngx_str_t *
 		ngx_http_php_request_clean(TSRMLS_C);			\
 		php_ngx_request_shutdown(TSRMLS_C);
 
+#define NGX_HTTP_PHP_R_INIT ngx_http_php_request_init(r TSRMLS_CC); 	\
+		php_ngx_request_init(TSRMLS_C);
+
+#define NGX_HTTP_PHP_R_SHUTDOWN ngx_http_php_request_clean(TSRMLS_C);	\
+		php_ngx_request_shutdown(TSRMLS_C);
+
 // php_ngx run
 ngx_int_t ngx_php_embed_run(ngx_http_request_t *r, ngx_http_php_code_t *code);
 ngx_int_t ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_state_t *state, ngx_http_php_code_t *code);

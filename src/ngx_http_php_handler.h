@@ -30,6 +30,7 @@ ngx_int_t ngx_http_php_access_inline_handler(ngx_http_request_t *r);
 ngx_int_t ngx_http_php_content_handler(ngx_http_request_t *r);
 ngx_int_t ngx_http_php_content_file_handler(ngx_http_request_t *r);
 ngx_int_t ngx_http_php_content_inline_handler(ngx_http_request_t *r);
+
 ngx_int_t ngx_http_php_content_post_handler(ngx_http_request_t *r);
 
 ngx_int_t ngx_http_php_content_async_handler(ngx_http_request_t *r);

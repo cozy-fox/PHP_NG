@@ -271,6 +271,7 @@ ngx_http_php_content_inline_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf
 	return NGX_CONF_OK;
 }
 
+/*
 char *
 ngx_http_php_content_async_inline_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
@@ -303,6 +304,7 @@ ngx_http_php_content_async_inline_phase(ngx_conf_t *cf, ngx_command_t *cmd, void
 
 	return NGX_CONF_OK;
 }
+*/
 
 char *
 ngx_http_php_log_phase(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)

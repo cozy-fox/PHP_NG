@@ -110,6 +110,7 @@ static ngx_command_t ngx_http_php_commands[] = {
 	 ngx_http_php_content_inline_handler
 	},
 
+	/*
 	{ngx_string("content_async_by_php"),
 	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
 	 	|NGX_CONF_TAKE1,
@@ -127,6 +128,7 @@ static ngx_command_t ngx_http_php_commands[] = {
 	 0,
 	 ngx_http_php_content_sync_inline_handler
 	},
+	*/
 
 	{ngx_string("content_thread_by_php_file"),
 	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
@@ -320,13 +322,13 @@ ngx_http_php_handler_init(ngx_http_core_main_conf_t *cmcf, ngx_http_php_main_con
 					}
 					*h = ngx_http_php_content_handler;
 				}
-				if (pmcf->enabled_content_async_handler){
+				/*if (pmcf->enabled_content_async_handler){
 					h = ngx_array_push(&cmcf->phases[phase].handlers);
 					if (h == NULL){
 						return NGX_ERROR;
 					}
 					*h = ngx_http_php_content_async_handler;
-				}
+				}*/
 				break;
 			case NGX_HTTP_LOG_PHASE:
 				if (pmcf->enabled_log_handler) {
