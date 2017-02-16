@@ -761,7 +761,7 @@ ngx_http_php_content_post_handler(ngx_http_request_t *r)
 	return NGX_OK;
 }
 
-
+/*
 ngx_int_t 
 ngx_http_php_content_async_handler(ngx_http_request_t *r)
 {
@@ -903,26 +903,7 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 
 	//NGX_HTTP_PHP_NGX_INIT;
 		// main init
-		/*if (pmcf->init_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, pmcf->init_inline_code);
-		}
-		if (pmcf->init_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, pmcf->init_code);
-		}
-		// location rewrite
-		if (plcf->rewrite_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->rewrite_code);
-		}
-		if (plcf->rewrite_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->rewrite_inline_code);
-		}
-		// location access
-		if (plcf->access_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->access_code);
-		}
-		if (plcf->access_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->access_inline_code);
-		}*/
+		
 		//pthread_t id_1;
 		pthread_create(&(ctx->pthread_id), NULL, ngx_http_php_async_inline_thread, r);
 
@@ -964,11 +945,11 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 		// location content
 		//ngx_php_ngx_run(r, pmcf->state, plcf->content_async_inline_code);
 
-		/*ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+		//ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
-		if (ctx->enable_async == 1){
-			return NGX_DONE;
-		}*/
+		//if (ctx->enable_async == 1){
+		//	return NGX_DONE;
+		//}
 
 
 	//NGX_HTTP_PHP_NGX_SHUTDOWN;
@@ -976,9 +957,9 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 	ngx_http_php_rputs_chain_list_t *chain;
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-	/*if (ctx->enable_async == 1){
-		return NGX_DONE;
-	}*/
+	//if (ctx->enable_async == 1){
+	//	return NGX_DONE;
+	//}
 	chain = ctx->rputs_chain;
 
 	if (ctx->rputs_chain == NULL){
@@ -1039,7 +1020,7 @@ ngx_http_php_content_async_inline_handler(ngx_http_request_t *r)
 	return NGX_OK;
 
 }
-
+*/
 
 void *
 ngx_http_php_sync_inline_thread(void *arg)
@@ -1075,6 +1056,7 @@ ngx_http_php_sync_inline_thread(void *arg)
 	return NULL;
 }
 
+/*
 ngx_int_t 
 ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
 {
@@ -1219,7 +1201,7 @@ ngx_http_php_content_sync_inline_handler(ngx_http_request_t *r)
 
 
 }
-
+*/
 
 ngx_int_t 
 ngx_http_php_content_thread_inline_handler(ngx_http_request_t *r)
