@@ -37,7 +37,9 @@ ngx_http_php_post_read_handler(ngx_http_request_t *r)
 	cln->data = r;
 	*/
 
-	NGX_HTTP_PHP_R_INIT(r);
+	if (r->method != NGX_HTTP_POST) {
+		NGX_HTTP_PHP_R_INIT(r);
+	}
 
 	return NGX_OK;
 }
@@ -756,6 +758,8 @@ ngx_http_php_content_post_handler(ngx_http_request_t *r)
 		// location content
 		ngx_php_ngx_run(r, pmcf->state, plcf->content_inline_code);
 	NGX_HTTP_PHP_NGX_SHUTDOWN;*/
+
+	NGX_HTTP_PHP_R_INIT(r);
 
 	zend_first_try {
 
