@@ -34,7 +34,7 @@ ngx_http_php_post_read_handler(ngx_http_request_t *r)
 	}
 
 	cln->handler = ngx_http_php_request_cleanup_handler;
-	cln->data = NULL;
+	cln->data = r;
 
 	NGX_HTTP_PHP_R_INIT;
 
@@ -46,8 +46,9 @@ ngx_http_php_request_cleanup_handler(void *data)
 {
 	TSRMLS_FETCH();
 
-	//ngx_http_request_t *r;
+	ngx_http_request_t *r;
 
+	r = (ngx_http_request_t *)(data);
 	//r = ngx_php_request;
 
 	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_http_php_request_cleanup_handler");
