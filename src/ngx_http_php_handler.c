@@ -50,7 +50,8 @@ ngx_http_php_request_cleanup_handler(void *data)
 	ngx_http_request_t *r;
 
 	r = (ngx_http_request_t *)(data);
-	//r = ngx_php_request;
+	
+	ngx_php_request = r;
 
 	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_http_php_request_cleanup_handler");
 
