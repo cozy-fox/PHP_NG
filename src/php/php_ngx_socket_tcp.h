@@ -4,8 +4,8 @@
  *
  */
 
-#ifndef _PHP_NGX_SOCKET_TCP_H
-#define _PHP_NGX_SOCKET_TCP_H
+#ifndef _PHP_NGX_SOCKET_TCP_H_
+#define _PHP_NGX_SOCKET_TCP_H_
 
 #include <ngx_http.h>
  

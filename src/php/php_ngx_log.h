@@ -4,8 +4,8 @@
  *
  */
 
-#ifndef _PHP_NGX_LOG_H
-#define _PHP_NGX_LOG_H
+#ifndef _PHP_NGX_LOG_H_
+#define _PHP_NGX_LOG_H_
 
 #include <ngx_http.h>
  
