@@ -115,7 +115,8 @@ ngx_http_php_code_t *ngx_http_php_code_from_string(ngx_pool_t *pool, ngx_str_t *
 		php_ngx_request_shutdown(TSRMLS_C);
 
 #define NGX_HTTP_PHP_R_INIT(r) ngx_http_php_request_init(r TSRMLS_CC); 	\
-		php_ngx_request_init(TSRMLS_C);
+		php_ngx_request_init(TSRMLS_C);									\
+		PHP_NGX_G(global_r) = r;
 
 #define NGX_HTTP_PHP_R_SHUTDOWN(r) ngx_http_php_request_clean(TSRMLS_C);	\
 		php_ngx_request_shutdown(TSRMLS_C);

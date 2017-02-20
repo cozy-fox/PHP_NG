@@ -9,6 +9,7 @@
 #include "../ngx_http_php_module.h"
 #include "../ngx_http_php_request.h"
 
+#include "php_ngx_core.h"
 #include "php_ngx_location.h"
 #include "php_ngx_log.h"
 #include "php_ngx_socket_tcp.h"
@@ -84,6 +85,7 @@ PHP_MINIT_FUNCTION(php_ngx)
 	*/
 	ZEND_INIT_MODULE_GLOBALS(php_ngx, php_php_ngx_init_globals,NULL);
 
+	//php_ngx_core_init(module_number TSRMLS_CC);
 	//ngx_location_init(module_number TSRMLS_CC);
 	//php_ngx_log_init(module_number TSRMLS_CC);
 	//ngx_socket_tcp_init(module_number TSRMLS_CC);

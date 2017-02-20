@@ -12,6 +12,7 @@
 #include "ngx_http_php_socket_tcp.h"
 #include "ngx_http_php_sleep.h"
 
+#include "php/php_ngx_core.h"
 #include "php/php_ngx_location.h"
 #include "php/php_ngx_socket_tcp.h"
 #include "php/php_ngx_log.h"
@@ -36,6 +37,9 @@ ngx_http_php_post_read_handler(ngx_http_request_t *r)
 	cln->handler = ngx_http_php_request_cleanup_handler;
 	cln->data = r;
 	*/
+
+	php_ngx_core_init(0 TSRMLS_CC);
+	php_ngx_log_init(0 TSRMLS_CC);
 
 	if (r->method != NGX_HTTP_POST) {
 		NGX_HTTP_PHP_R_INIT(r);
@@ -1107,6 +1111,7 @@ ngx_http_php_sync_inline_thread(void *arg)
 
 	NGX_HTTP_PHP_NGX_INIT;
 
+		php_ngx_core_init(0 TSRMLS_CC);
 		ngx_location_init(0 TSRMLS_CC);
 		php_ngx_log_init(0 TSRMLS_CC);
 		ngx_socket_tcp_init(0 TSRMLS_CC);
@@ -1440,6 +1445,7 @@ ngx_http_php_sync_file_thread(void *arg)
 
 	NGX_HTTP_PHP_NGX_INIT;
 
+		php_ngx_core_init(0 TSRMLS_CC);
 		ngx_location_init(0 TSRMLS_CC);
 		php_ngx_log_init(0 TSRMLS_CC);
 		ngx_socket_tcp_init(0 TSRMLS_CC);
