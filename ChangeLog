@@ -2,6 +2,8 @@
 	* dev code "ngx_http_php_output.h", "ngx_http_php_output.c"
 
 	* add nginx directive "log_by_php", "log_by_php_file"
+
+	* add php api "ngx::_exit"
 	
 	
 2016-11-09 rryqszq4 <ngxphp@gmail.com>

@@ -396,6 +396,7 @@ set_run_by_php_file
 
 Nginx的php接口
 -------------
+* [ngx::_exit](#ngx_exit)
 * [ngx_location::capture](#ngx_locationcapture)
 * [ngx_location::capture_multi](#ngx_locationcapture_multi)
 * [ngx_socket_tcp::__construct](#ngx_socket_tcp__construct)
@@ -406,6 +407,18 @@ Nginx的php接口
 * [ngx_socket_tcp::settimeout](#ngx_socket_tcpsettimeout)
 * [ngx_log::error](#ngx_logerror)
 * [ngx_time::sleep](#ngx_timesleep)
+
+ngx::_exit
+----------
+**语法:** *ngx::_exit(int $status)*  
+
+**环境:** *content_by_php* *content_thread_by_php*  
+
+```php
+echo "start\n";
+ngx::_exit(200);
+echo "end\n";
+```
 
 ngx_location::capture
 ---------------------

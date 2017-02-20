@@ -403,6 +403,7 @@ set_run_by_php_file
 
 Nginx API for php
 -----------------
+* [ngx::_exit](#ngx_exit)
 * [ngx_location::capture](#ngx_locationcapture)
 * [ngx_location::capture_multi](#ngx_locationcapture_multi)
 * [ngx_socket_tcp::__construct](#ngx_socket_tcp__construct)
@@ -413,6 +414,18 @@ Nginx API for php
 * [ngx_socket_tcp::settimeout](#ngx_socket_tcpsettimeout)
 * [ngx_log::error](#ngx_logerror)
 * [ngx_time::sleep](#ngx_timesleep)
+
+ngx::_exit
+----------
+**syntax:** *ngx::_exit(int $status)*  
+
+**context:** *content_by_php* *content_thread_by_php*  
+
+```php
+echo "start\n";
+ngx::_exit(200);
+echo "end\n";
+```
 
 ngx_location::capture
 ---------------------
