@@ -9,7 +9,25 @@
 
 static zend_class_entry *php_ngx_class_entry;
 
+ZEND_BEGIN_ARG_INFO_EX(ngx_exit_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, status)
+ZEND_END_ARG_INFO()
+
+PHP_METHOD(ngx, exit)
+{
+    long status = 0;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &status) == FAILURE){
+        RETURN_NULL();
+    }
+
+    EG(exit_status) = status;
+
+    zend_bailout();
+}
+
 static const zend_function_entry php_ngx_class_functions[] = {
+    PHP_ME(ngx, exit, ngx_exit_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     {NULL, NULL, NULL, 0, 0}
 };
 
