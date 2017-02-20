@@ -10,9 +10,11 @@
 #include <ngx_http.h>
 
 #include <php.h>
-#include <ngx_init.h>
+#include <php_ini.h>
 #include <ext/standard/info.h>
 
+PHP_METHOD(ngx, exit);
 
+void php_ngx_core_init(int module_number TSRMLS_DC);
 
 #endif

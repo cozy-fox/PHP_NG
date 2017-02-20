@@ -13,7 +13,7 @@ ZEND_BEGIN_ARG_INFO_EX(ngx_exit_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, status)
 ZEND_END_ARG_INFO()
 
-PHP_METHOD(ngx, exit)
+PHP_METHOD(ngx, _exit)
 {
     long status = 0;
 
@@ -27,7 +27,7 @@ PHP_METHOD(ngx, exit)
 }
 
 static const zend_function_entry php_ngx_class_functions[] = {
-    PHP_ME(ngx, exit, ngx_exit_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(ngx, _exit, ngx_exit_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     {NULL, NULL, NULL, 0, 0}
 };
 
@@ -35,7 +35,7 @@ void php_ngx_core_init(int module_number TSRMLS_DC)
 {
     zend_class_entry ngx_class_entry;
     INIT_CLASS_ENTRY(ngx_class_entry, "ngx", php_ngx_class_functions);
-    php_ngx_class_entry = zend_redister_internal_class(&ngx_class_entry TSRMLS_CC);
+    php_ngx_class_entry = zend_register_internal_class(&ngx_class_entry TSRMLS_CC);
 
     zend_declare_class_constant_long(php_ngx_class_entry, "OK", sizeof("OK")-1, NGX_OK TSRMLS_CC);
     zend_declare_class_constant_long(php_ngx_class_entry, "ERROR", sizeof("ERROR")-1, NGX_ERROR TSRMLS_CC);
