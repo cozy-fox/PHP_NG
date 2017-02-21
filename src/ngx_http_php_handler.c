@@ -521,9 +521,12 @@ ngx_http_php_content_file_handler(ngx_http_request_t *r)
 
 	zend_first_try {
 
-		ngx_php_ngx_run(r, pmcf->state, plcf->content_code);
+		//ngx_php_ngx_run(r, pmcf->state, plcf->content_code);
+		ngx_php_eval_file(r, pmcf->state, plcf->content_code TSRMLS_CC);
 		
 	} zend_end_try();
+
+	rc = EG(exit_status);
 
 	ngx_http_php_request_cleanup_handler(r);
 
@@ -598,7 +601,7 @@ ngx_http_php_content_inline_handler(ngx_http_request_t *r)
 	ngx_http_php_main_conf_t *pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
 	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
 
-	ngx_int_t rc;
+	ngx_int_t rc = 0;
 	ngx_http_php_ctx_t *ctx;
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
@@ -646,9 +649,12 @@ ngx_http_php_content_inline_handler(ngx_http_request_t *r)
 
 	zend_first_try {
 
-		ngx_php_ngx_run(r, pmcf->state, plcf->content_inline_code);
-		
+		//ngx_php_ngx_run(r, pmcf->state, plcf->content_inline_code);
+		ngx_php_eval_code(r, pmcf->state, plcf->content_inline_code TSRMLS_CC);
+
 	} zend_end_try();
+
+	rc = EG(exit_status);
 
 	ngx_http_php_request_cleanup_handler(r);
 
