@@ -18,4 +18,4 @@ location = /error {
 --- request
 GET /error
 --- response_body
-hello ngx_php{! Fatal error: Class 'abc' not found in ngx_php run code on line 3 !}
+hello ngx_php{! Fatal error: Class 'abc' not found in ngx_php eval code on line 3 !}
