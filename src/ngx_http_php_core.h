@@ -127,6 +127,9 @@ ngx_int_t ngx_php_ngx_run(ngx_http_request_t *r, ngx_http_php_state_t *state, ng
 ngx_int_t ngx_php_eval_code(ngx_http_request_t *r, ngx_http_php_state_t *state, ngx_http_php_code_t *code TSRMLS_DC);
 ngx_int_t ngx_php_eval_file(ngx_http_request_t *r, ngx_http_php_state_t *state, ngx_http_php_code_t *code TSRMLS_DC);
 
+ngx_int_t ngx_php_get_request_status(TSRMLS_D);
+ngx_int_t ngx_php_set_request_status(ngx_int_t rc TSRMLS_DC);
+
 // php_ngx sapi call_back
 int ngx_http_php_code_ub_write(const char *str, unsigned int str_length TSRMLS_DC);
 void ngx_http_php_code_flush(void *server_context);

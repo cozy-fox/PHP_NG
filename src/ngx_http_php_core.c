@@ -620,4 +620,16 @@ ngx_php_eval_file(ngx_http_request_t *r, ngx_http_php_state_t *state, ngx_http_p
 	return 0;
 }
 
+ngx_int_t 
+ngx_php_get_request_status(TSRMLS_D)
+{
+	return EG(exit_status);
+}
+
+ngx_int_t ngx_php_set_request_status(ngx_int_t rc TSRMLS_DC)
+{
+	EG(exit_status) = rc;
+
+	return 0;
+}
 
