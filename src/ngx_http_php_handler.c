@@ -1715,8 +1715,9 @@ ngx_http_php_log_file_handler(ngx_http_request_t *r)
 	
 	zend_first_try {
 
-		ngx_php_ngx_run(r, pmcf->state, plcf->log_inline_code);
-		
+		//ngx_php_ngx_run(r, pmcf->state, plcf->log_code);
+		ngx_php_eval_file(r, pmcf->state, plcf->log_code TSRMLS_CC);
+
 	} zend_end_try();
 
 	ngx_http_php_request_cleanup_handler(r);
@@ -1773,7 +1774,8 @@ ngx_http_php_log_inline_handler(ngx_http_request_t *r)
 	
 	zend_first_try {
 
-		ngx_php_ngx_run(r, pmcf->state, plcf->log_inline_code);
+		//ngx_php_ngx_run(r, pmcf->state, plcf->log_inline_code);
+		ngx_php_eval_file(r, pmcf->state, plcf->log_inline_code TSRMLS_CC);
 		
 	} zend_end_try();
 
