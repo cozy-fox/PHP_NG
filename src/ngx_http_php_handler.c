@@ -554,7 +554,7 @@ ngx_http_php_content_file_handler(ngx_http_request_t *r)
 
 	rc = ngx_php_get_request_status(TSRMLS_C);
 
-	if (rc == NGX_OK || NGX_HTTP_OK) {
+	if (rc == NGX_OK || rc == NGX_HTTP_OK) {
 		ngx_http_php_request_cleanup_handler(r);
 
 		ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
@@ -691,7 +691,7 @@ ngx_http_php_content_inline_handler(ngx_http_request_t *r)
 
 	rc = ngx_php_get_request_status(TSRMLS_C);
 
-	if (rc == NGX_OK || NGX_HTTP_OK) {
+	if (rc == NGX_OK || rc == NGX_HTTP_OK) {
 		ngx_http_php_request_cleanup_handler(r);
 
 		ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
@@ -1698,7 +1698,7 @@ ngx_http_php_log_file_handler(ngx_http_request_t *r)
 		return ngx_http_php_content_post_handler(r);
 	}*/
 
-	NGX_HTTP_PHP_NGX_INIT;
+	/*NGX_HTTP_PHP_NGX_INIT;
 		// main init
 		if (pmcf->init_inline_code != NGX_CONF_UNSET_PTR){
 			ngx_php_ngx_run(r, pmcf->state, pmcf->init_inline_code);
@@ -1709,7 +1709,17 @@ ngx_http_php_log_file_handler(ngx_http_request_t *r)
 		
 		// location log
 		ngx_php_ngx_run(r, pmcf->state, plcf->log_code);
-	NGX_HTTP_PHP_NGX_SHUTDOWN;
+	NGX_HTTP_PHP_NGX_SHUTDOWN;*/
+
+	NGX_HTTP_PHP_R_INIT(r);
+	
+	zend_first_try {
+
+		ngx_php_ngx_run(r, pmcf->state, plcf->log_inline_code);
+		
+	} zend_end_try();
+
+	ngx_http_php_request_cleanup_handler(r);
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
@@ -1746,7 +1756,7 @@ ngx_http_php_log_inline_handler(ngx_http_request_t *r)
 
 	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, " %s", plcf->log_inline_code->code.string);
 
-	NGX_HTTP_PHP_NGX_INIT;
+	/*NGX_HTTP_PHP_NGX_INIT;
 		// main init
 		if (pmcf->init_inline_code != NGX_CONF_UNSET_PTR){
 			ngx_php_ngx_run(r, pmcf->state, pmcf->init_inline_code);
@@ -1757,7 +1767,17 @@ ngx_http_php_log_inline_handler(ngx_http_request_t *r)
 		
 		// location log
 		ngx_php_ngx_run(r, pmcf->state, plcf->log_inline_code);
-	NGX_HTTP_PHP_NGX_SHUTDOWN;
+	NGX_HTTP_PHP_NGX_SHUTDOWN;*/
+
+	NGX_HTTP_PHP_R_INIT(r);
+	
+	zend_first_try {
+
+		ngx_php_ngx_run(r, pmcf->state, plcf->log_inline_code);
+		
+	} zend_end_try();
+
+	ngx_http_php_request_cleanup_handler(r);
 	
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
