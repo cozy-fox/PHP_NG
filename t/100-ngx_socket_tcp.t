@@ -37,6 +37,7 @@ location = /content_thread_by_php {
     content_thread_by_php "
         header('Content-Type: application/x-javascript; charset=GBK');
         $tcpsock = new ngx_socket_tcp();
+        $tcpsock->settimeout(6000);
         $tcpsock->connect('hq.sinajs.cn',80);
         $tcpsock->send('GET /list=s_sh000001 HTTP/1.0\r\nHost: hq.sinajs.cn\r\nConnection: close\r\n\r\n');
         $res = $tcpsock->receive();
