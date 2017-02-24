@@ -32,7 +32,7 @@ string(15) "HTTP/1.1 200 OK"
 === TEST 1: ngx_socket_tcp for resolver hostname
 ngx_socket_tcp
 --- config
-resolver 8.8.8.8;
+resolver 223.5.5.5;
 location = /content_thread_by_php {
     content_thread_by_php "
         header('Content-Type: application/x-javascript; charset=GBK');
