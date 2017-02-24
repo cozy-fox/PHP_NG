@@ -24,7 +24,7 @@
 extern ngx_module_t	ngx_http_php_module;
 ngx_http_request_t *ngx_php_request;
 
-typedef struct {
+typedef struct ngx_http_php_main_conf_s {
 
 	ngx_str_t ini_path;
 	ngx_http_php_code_t *init_code;
@@ -40,7 +40,7 @@ typedef struct {
 
 } ngx_http_php_main_conf_t;
 
-typedef struct {
+typedef struct ngx_http_php_loc_conf_s {
 	ngx_str_t document_root;
 
 	ngx_http_upstream_conf_t upstream;

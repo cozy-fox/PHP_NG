@@ -13,17 +13,17 @@
 
 extern ngx_http_request_t *ngx_php_request;
 
-typedef struct ngx_http_php_state_t {
+typedef struct ngx_http_php_state_s {
 	unsigned php_init;
 	unsigned php_shutdown;
 } ngx_http_php_state_t;
 
-typedef enum code_type_t {
+typedef enum code_type_s {
 	NGX_HTTP_PHP_CODE_TYPE_FILE,
 	NGX_HTTP_PHP_CODE_TYPE_STRING
 } code_type_t;
 
-typedef struct ngx_http_php_code_t {
+typedef struct ngx_http_php_code_s {
 	union code {
 		char *file;
 		char *string;
@@ -32,7 +32,7 @@ typedef struct ngx_http_php_code_t {
 } ngx_http_php_code_t;
 
 #if defined(NDK) && NDK
-typedef struct {
+typedef struct ngx_http_php_set_var_data_s {
 	size_t size;
 	ngx_str_t var_name;
 	ngx_str_t script;
@@ -41,22 +41,22 @@ typedef struct {
 } ngx_http_php_set_var_data_t;
 #endif
 
-typedef struct ngx_http_php_rputs_chain_list_t {
+typedef struct ngx_http_php_rputs_chain_list_s {
 	ngx_chain_t **last;
 	ngx_chain_t *out;
 } ngx_http_php_rputs_chain_list_t;
 
-typedef struct ngx_http_php_capture_node_t {
+typedef struct ngx_http_php_capture_node_s {
 	ngx_str_t capture_uri;
 	ngx_buf_t *capture_buf;
 	ngx_str_t capture_str;
 } ngx_http_php_capture_node_t;
 
-typedef struct ngx_http_php_ctx_t {
+typedef struct ngx_http_php_ctx_s {
 	ngx_http_php_rputs_chain_list_t *rputs_chain;
 	size_t body_length;
 	ngx_str_t request_body_ctx;
-	unsigned request_body_more : 1;
+	unsigned request_body_more : 1;		//post request flag
 
 	unsigned enable_async : 1;
 	unsigned enable_thread : 1;

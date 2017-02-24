@@ -5,6 +5,9 @@
 
 	* add php api "ngx::_exit"
 	
+	* optimize nginx request phase, rewrite, access, content, log
+
+	* optimize in nginx request process, rewrite, access and content use one zend vm reuqest
 	
 2016-11-09 rryqszq4 <ngxphp@gmail.com>
 	* fixd ngx_socket_tcp receive complete
