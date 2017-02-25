@@ -45,3 +45,41 @@ running access
 
 
 
+=== TEST 3: linked access and content_thread
+--- config
+    location /access-content-thread {
+        access_by_php '
+            $var = "var access\n";
+            echo "running access\n";
+        ';
+        content_thread_by_php '
+            echo "running content thread\n";
+            echo "end content thread\n";
+        ';
+    }
+--- request
+GET /access-content-thread
+--- response_body
+running access
+running content thread
+end content thread
+
+
+
+=== TEST 2: linked access-content-thread, access block
+--- config
+    location /access-content-thread {
+        access_by_php '
+            echo "running access\n";
+            ngx::_exit(ngx::OK);
+        ';
+        content_by_php '
+            echo "running content\n";
+        ';
+    }
+--- request
+GET /access-content-thread
+--- response_body
+running access
+
+
