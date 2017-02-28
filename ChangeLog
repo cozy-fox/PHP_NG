@@ -8,6 +8,8 @@
 	* optimize nginx request phase, rewrite, access, content, log
 
 	* optimize in nginx request process, rewrite, access and content use one zend vm reuqest
+
+	* bumped version to 0.0.8
 	
 2016-11-09 rryqszq4 <ngxphp@gmail.com>
 	* fixd ngx_socket_tcp receive complete
