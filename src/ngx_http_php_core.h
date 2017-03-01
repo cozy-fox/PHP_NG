@@ -59,6 +59,7 @@ typedef struct ngx_http_php_ctx_s {
 	unsigned request_body_more : 1;		//post request flag
 
 	unsigned enable_async : 1;
+	unsigned enable_subrequest : 1;
 	unsigned enable_thread : 1;
 	unsigned is_capture_multi : 1;
 	unsigned is_capture_multi_complete : 1;
