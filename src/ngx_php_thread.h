@@ -50,7 +50,7 @@ typedef uint64_t ngx_php_tid_t;
 
 ngx_php_tid_t ngx_php_thread_tid(void);
 
-#define ngx_log_tid ngx_php_thread_tid()
+//#define ngx_log_tid ngx_php_thread_tid()
 
 
 #endif

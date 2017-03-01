@@ -16,8 +16,8 @@ typedef struct {
     ngx_php_thread_task_t   **last;
 } ngx_php_thread_pool_queue_t;
 
-#define ngx_php_thread_pool_queue_init(q)
-    (q)->first = NULL;
+#define ngx_php_thread_pool_queue_init(q)   \
+    (q)->first = NULL;                      \
     (q)->last = &(q)->first;
 
 struct ngx_php_thread_pool_s {
@@ -33,11 +33,17 @@ struct ngx_php_thread_pool_s {
     ngx_int_t                       max_queue;
 };
 
+ngx_int_t ngx_php_thread_pool_init(ngx_php_thread_pool_t *tp, ngx_log_t *log, ngx_pool_t *pool);
+void ngx_php_thread_pool_destroy(ngx_php_thread_pool_t *tp);
+static void ngx_php_thread_pool_exit_handler(void *data, ngx_log_t *log);
+static void *ngx_php_thread_pool_cycle(void *data);
+static void ngx_php_thread_pool_handler(ngx_event_t *ev);
+
 static ngx_uint_t                   ngx_php_thread_pool_task_id;
 static ngx_atomic_t                 ngx_php_thread_pool_done_lock;
 static ngx_php_thread_pool_queue_t  ngx_php_thread_pool_done;
 
-static ngx_int_t
+ngx_int_t
 ngx_php_thread_pool_init(ngx_php_thread_pool_t *tp, ngx_log_t *log, ngx_pool_t *pool)
 {
     int             err;
@@ -81,7 +87,7 @@ ngx_php_thread_pool_init(ngx_php_thread_pool_t *tp, ngx_log_t *log, ngx_pool_t *
 #endif
 
     for (n = 0; n < tp->threads; n++) {
-        err = pthread_create(&tid, $attr, ngx_php_thread_pool_cycle, tp);
+        err = pthread_create(&tid, &attr, ngx_php_thread_pool_cycle, tp);
         if (err) {
             ngx_log_error(NGX_LOG_ALERT, log, err,
                           "pthread_create() failed");
@@ -94,7 +100,7 @@ ngx_php_thread_pool_init(ngx_php_thread_pool_t *tp, ngx_log_t *log, ngx_pool_t *
     return NGX_OK;
 }
 
-static void
+void
 ngx_php_thread_pool_destroy(ngx_php_thread_pool_t *tp)
 {
     ngx_uint_t              n;
@@ -122,7 +128,7 @@ ngx_php_thread_pool_destroy(ngx_php_thread_pool_t *tp)
 
     (void) ngx_php_thread_cond_destroy(&tp->cond, tp->log);
 
-    (void) ngx_php_thread_mutext_destory(&tp->mutex, tp->log);
+    (void) ngx_php_thread_mutex_destroy(&tp->mutex, tp->log);
 }
 
 static void
@@ -159,12 +165,12 @@ ngx_php_thread_task_post(ngx_php_thread_pool_t *tp, ngx_php_thread_task_t *task)
         return NGX_ERROR;
     }
 
-    if (ngx_php_thread_mutex_lock(&tp->mtx, tp->log) != NGX_OK) {
+    if (ngx_php_thread_mutex_lock(&tp->mutex, tp->log) != NGX_OK) {
         return NGX_ERROR;
     }
 
     if (tp->waiting >= tp->max_queue) {
-        (void) ngx_thread_mutex_unlock(&tp->mtx, tp->log);
+        (void) ngx_php_thread_mutex_unlock(&tp->mutex, tp->log);
 
         ngx_log_error(NGX_LOG_ERR, tp->log, 0,
                       "thread pool \"%V\" queue overflow: %i tasks waiting",
@@ -174,11 +180,11 @@ ngx_php_thread_task_post(ngx_php_thread_pool_t *tp, ngx_php_thread_task_t *task)
 
     task->event.active = 1;
 
-    task->id = ngx_thread_pool_task_id++;
+    task->id = ngx_php_thread_pool_task_id++;
     task->next = NULL;
 
-    if (ngx_thread_cond_signal(&tp->cond, tp->log) != NGX_OK) {
-        (void) ngx_thread_mutex_unlock(&tp->mtx, tp->log);
+    if (ngx_php_thread_cond_signal(&tp->cond, tp->log) != NGX_OK) {
+        (void) ngx_php_thread_mutex_unlock(&tp->mutex, tp->log);
         return NGX_ERROR;
     }
 
@@ -187,7 +193,7 @@ ngx_php_thread_task_post(ngx_php_thread_pool_t *tp, ngx_php_thread_task_t *task)
 
     tp->waiting++;
 
-    (void) ngx_thread_mutex_unlock(&tp->mtx, tp->log);
+    (void) ngx_php_thread_mutex_unlock(&tp->mutex, tp->log);
 
     ngx_log_debug2(NGX_LOG_DEBUG_CORE, tp->log, 0,
                    "task #%ui added to thread pool name: \"%V\" complete",
@@ -239,7 +245,7 @@ ngx_php_thread_pool_cycle(void *data)
             }
         }
 
-        task = tp->queue.fitst;
+        task = tp->queue.first;
         tp->queue.first = task->next;
 
         if (tp->queue.first == NULL) {

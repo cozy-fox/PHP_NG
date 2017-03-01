@@ -152,7 +152,7 @@ ngx_php_thread_cond_create(ngx_php_thread_cond_t *cond, ngx_log_t *log)
         return NGX_OK;
     }
 
-    ngx_log_err(NGX_LOG_EMERG, log, err, "pthread_cond_init() failed");
+    ngx_log_error(NGX_LOG_EMERG, log, err, "pthread_cond_init() failed");
     return NGX_ERROR;
 }
 
@@ -205,7 +205,7 @@ ngx_php_thread_cond_wait(ngx_php_thread_cond_t *cond, ngx_php_thread_mutex_t *mu
         return NGX_OK;
     }
 
-    ngx_log_err(NGX_LOG_ALERT, log, err, "pthread_cond_wait() failed");
+    ngx_log_error(NGX_LOG_ALERT, log, err, "pthread_cond_wait() failed");
 
     return NGX_ERROR;
 }
