@@ -1,5 +1,12 @@
-ngx_php
-======
+<p align="center">
+<img align="left" width="450" src="https://github.com/rryqszq4/ngx_php/blob/master/doc/ngx_php_logo.png">
+</p>
+<ul>
+<ol>&nbsp;</ol>
+<ol>&nbsp;</ol>
+<ol>&nbsp;</ol>
+</ul>
+
 [![Build Status](https://travis-ci.org/rryqszq4/ngx_php.svg?branch=master)](https://travis-ci.org/rryqszq4/ngx_php) 
 [![Gitter](https://badges.gitter.im/rryqszq4/ngx_php.svg)](https://gitter.im/rryqszq4/ngx_php?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![GitHub release](https://img.shields.io/github/release/rryqszq4/ngx_php.svg)](https://github.com/rryqszq4/ngx_php/releases/latest)
@@ -548,9 +555,9 @@ ngx_log::error(ngx_log::ERR, "test");
 
 ngx_time::sleep
 ---------------
-**语法:** *ngx_time::sleep(int seconds)* 
+**syntax:** *ngx_time::sleep(int seconds)* 
 
-**环境:** *content_thread_by_php*  
+**context:** *content_thread_by_php*  
 
 ```php
 echo "sleep_start\n";

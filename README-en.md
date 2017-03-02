@@ -548,9 +548,9 @@ ngx_log::error(ngx_log::ERR, "test");
 
 ngx_time::sleep
 ---------------
-**语法:** *ngx_time::sleep(int seconds)* 
+**syntax:** *ngx_time::sleep(int seconds)* 
 
-**环境:** *content_thread_by_php*  
+**context:** *content_thread_by_php*  
 
 ```php
 echo "sleep_start\n";
