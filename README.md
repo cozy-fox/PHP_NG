@@ -1,5 +1,5 @@
 <p align="center">
-<img align="left" width="450" src="https://github.com/rryqszq4/ngx_php/blob/master/doc/ngx_php_logo.png">
+<a href="https://github.com/rryqszq4/ngx_php"><img align="left" width="450" src="https://github.com/rryqszq4/ngx_php/blob/master/doc/ngx_php_logo.png"></a>
 </p>
 <ul>
 <ol>&nbsp;</ol>
