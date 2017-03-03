@@ -10,11 +10,15 @@
 #include <ngx_core.h>
 #include <ngx_http.h>
 #include <ngx_config.h>
+#include <ngx_event.h>
 #include <nginx.h>
 
 #if defined(NDK) && NDK
 #include <ndk.h>
 #endif
+
+#include "ngx_php_thread.h"
+#include "ngx_php_thread_pool.h"
 
 #include "ngx_http_php_core.h"
 
@@ -37,6 +41,8 @@ typedef struct ngx_http_php_main_conf_s {
 	unsigned enabled_log_handler:1;
 
 	ngx_http_php_state_t *state;
+
+	ngx_array_t thread_pools;
 
 } ngx_http_php_main_conf_t;
 

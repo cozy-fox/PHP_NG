@@ -8,6 +8,7 @@
 #include <ngx_core.h>
 #include <ngx_http.h>
 #include <ngx_conf_file.h>
+#include <ngx_event.h>
 #include <nginx.h>
 
 #include "php/php_ngx.h"
@@ -357,6 +358,11 @@ ngx_http_php_create_main_conf(ngx_conf_t *cf)
 		return NULL;
 	}
 
+	//-> alloc array thread_pools
+	if (ngx_array_init(&pmcf->thread_pools, cf->pool, 1, sizeof(ngx_php_thread_pool_t *)) != NGX_OK) {
+		return NULL;
+	}
+
 	pmcf->state = ngx_pcalloc(cf->pool, sizeof(ngx_http_php_state_t));
 	if (pmcf->state == NULL){
 		return NULL;
@@ -375,6 +381,22 @@ ngx_http_php_create_main_conf(ngx_conf_t *cf)
 static char *
 ngx_http_php_init_main_conf(ngx_conf_t *cf, void *conf)
 {
+	ngx_http_php_main_conf_t *pmcf = conf;
+
+	ngx_uint_t i;
+	ngx_php_thread_pool_t  **tpp;
+
+	tpp = pmcf->thread_pools.elts;
+
+	for (i = 0; i < pmcf->thread_pools.nelts; i++) {
+		if (tpp[i]->threads) {
+			continue;
+		}
+
+		tpp[i]->threads = 32;
+		tpp[i]->max_queue = 65536;
+	}
+
 	return NGX_CONF_OK;
 }
 
@@ -478,11 +500,24 @@ static ngx_int_t
 ngx_http_php_init_worker(ngx_cycle_t *cycle)
 {
 	//TSRMLS_FETCH();
-
-	ngx_http_php_main_conf_t *pmcf;
+	ngx_uint_t					i;
+	ngx_php_thread_pool_t 		**tpp;
+	ngx_http_php_main_conf_t 	*pmcf;
 
 	pmcf = ngx_http_cycle_get_module_main_conf(cycle, ngx_http_php_module);
 
+	//-> init run thread_pool
+	ngx_php_thread_pool_queue_init(&ngx_php_thread_pool_done);
+
+	tpp = pmcf->thread_pools.elts;
+
+	for (i = 0; i < pmcf->thread_pools.nelts; i++) {
+		if (ngx_php_thread_pool_init(tpp[i], cycle->log, cycle->pool) != NGX_OK) {
+			return NGX_ERROR;
+		}
+	}
+
+	//-> init run php
 	php_ngx_module.ub_write = ngx_http_php_code_ub_write;
 	php_ngx_module.flush = ngx_http_php_code_flush;
 	//php_ngx_module.log_message = ngx_http_php_code_log_message;
@@ -509,7 +544,20 @@ static void
 ngx_http_php_exit_worker(ngx_cycle_t *cycle)
 {
 	TSRMLS_FETCH();
+
+	ngx_uint_t 					i;
+	ngx_php_thread_pool_t 		**tpp;
+	ngx_http_php_main_conf_t 	*pmcf;
+
+	pmcf = ngx_http_cycle_get_module_main_conf(cycle, ngx_http_php_module);
+
 	php_ngx_module_shutdown(TSRMLS_C);
+
+	tpp = pmcf->thread_pools.elts;
+
+	for (i = 0; i < pmcf->thread_pools.nelts; i++) {
+		ngx_php_thread_pool_destroy(tpp[i]);
+	}
 }
 
 
