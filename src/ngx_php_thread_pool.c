@@ -10,38 +10,12 @@
 #include "ngx_php_thread.h"
 #include "ngx_php_thread_pool.h"
 
-typedef struct {
-    ngx_php_thread_task_t   *first;
-
-    ngx_php_thread_task_t   **last;
-} ngx_php_thread_pool_queue_t;
-
-#define ngx_php_thread_pool_queue_init(q)   \
-    (q)->first = NULL;                      \
-    (q)->last = &(q)->first;
-
-struct ngx_php_thread_pool_s {
-    ngx_php_thread_mutex_t          mutex;
-    ngx_php_thread_pool_queue_t     queue;
-    ngx_int_t                       waiting;
-    ngx_php_thread_cond_t           cond;
-
-    ngx_log_t                       *log;
-
-    ngx_str_t                       name;
-    ngx_uint_t                      threads;
-    ngx_int_t                       max_queue;
-};
-
-ngx_int_t ngx_php_thread_pool_init(ngx_php_thread_pool_t *tp, ngx_log_t *log, ngx_pool_t *pool);
-void ngx_php_thread_pool_destroy(ngx_php_thread_pool_t *tp);
 static void ngx_php_thread_pool_exit_handler(void *data, ngx_log_t *log);
 static void *ngx_php_thread_pool_cycle(void *data);
 static void ngx_php_thread_pool_handler(ngx_event_t *ev);
 
 static ngx_uint_t                   ngx_php_thread_pool_task_id;
 static ngx_atomic_t                 ngx_php_thread_pool_done_lock;
-static ngx_php_thread_pool_queue_t  ngx_php_thread_pool_done;
 
 ngx_int_t
 ngx_php_thread_pool_init(ngx_php_thread_pool_t *tp, ngx_log_t *log, ngx_pool_t *pool)
