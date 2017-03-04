@@ -6,7 +6,7 @@ ngx_php
 [![license](https://img.shields.io/badge/license-BSD--2--Clause-blue.svg)](https://github.com/rryqszq4/ngx_php/blob/master/LICENSE)
 
 [ngx_php](https://github.com/rryqszq4/ngx_php)是嵌入php脚本的nginx模块。你也可以称它为nginx-php5-module。  
-[English document](https://github.com/rryqszq4/ngx_php/blob/master/README-en.md) | [中文文档](https://github.com/rryqszq4/ngx_php/blob/master/README-zh.md)  
+[English document](https://github.com/rryqszq4/ngx_php/blob/master/doc/README-en.md) | [中文文档](https://github.com/rryqszq4/ngx_php/blob/master/doc/README-zh.md)  
 QQ 群：558795330
 
 特性
