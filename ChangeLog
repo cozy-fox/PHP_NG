@@ -1,4 +1,7 @@
 2017-01-30 rryqszq4 <ngxphp@gmail.com>
+	* add ngx_php_thread and ngx_php_thread_pool
+
+2017-01-30 rryqszq4 <ngxphp@gmail.com>
 	* dev code "ngx_http_php_output.h", "ngx_http_php_output.c"
 
 	* add nginx directive "log_by_php", "log_by_php_file"

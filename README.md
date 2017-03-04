@@ -29,7 +29,7 @@ Features
 Requirement
 -----------
 - PHP 5.3.* ~ PHP 5.6.*
-- nginx-1.4.7 ~ nginx-1.11.4
+- nginx-1.7.12 ~ nginx-1.11.8
 
 Installation
 -------
