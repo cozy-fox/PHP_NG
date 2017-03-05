@@ -13,6 +13,7 @@
 #include "php_ngx_location.h"
 #include "php_ngx_log.h"
 #include "php_ngx_socket_tcp.h"
+#include "php_ngx_time.h"
 
 // If you declare any globals in php_php_ngx.h uncomment this:
 ZEND_DECLARE_MODULE_GLOBALS(php_ngx)

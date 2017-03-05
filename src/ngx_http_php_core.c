@@ -187,7 +187,8 @@ ngx_php_error_cb(int type,
 		u_char *u_str;
 		ngx_str_t ns;
 
-		r = ngx_php_request;
+		//r = ngx_php_request;
+		r = PHP_NGX_G(global_r);
 		ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 		ns.data = (u_char *)buffer;
@@ -247,7 +248,8 @@ int ngx_http_php_code_ub_write(const char *str, unsigned int str_length TSRMLS_D
 	u_char *u_str;
 	ngx_str_t ns;
 
-	r = ngx_php_request;
+	//r = ngx_php_request;
+	r = PHP_NGX_G(global_r);
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	ns.data = (u_char *)str;
@@ -301,7 +303,8 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 	php_import_environment_variables(track_vars_array TSRMLS_CC);
 
 	ngx_http_request_t *r;
-	r = ngx_php_request;
+	//r = ngx_php_request;
+	r = PHP_NGX_G(global_r);
 
 	//ngx_http_headers_in_t *headers_in;
 	//headers_in = &r->headers_in;
@@ -468,7 +471,10 @@ ngx_http_php_code_read_post(char *buffer, uint count_bytes TSRMLS_DC)
 	uint read_bytes = 0;
 	int tmp_read_bytes;
 
-	ngx_http_request_t *r = ngx_php_request;
+	ngx_http_request_t *r;
+	//r = ngx_php_request;
+	r = PHP_NGX_G(global_r);
+
 	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	ngx_http_headers_in_t *headers_in;
@@ -520,6 +526,8 @@ ngx_http_php_code_header_handler(sapi_header_struct *sapi_header,
 	}
 
 	r = ngx_php_request;
+	//r = PHP_NGX_G(global_r);
+
 	h = ngx_list_push(&r->headers_out.headers);
 
 	if (h == NULL){
