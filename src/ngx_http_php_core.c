@@ -303,8 +303,8 @@ void ngx_http_php_code_register_server_variables(zval *track_vars_array TSRMLS_D
 	php_import_environment_variables(track_vars_array TSRMLS_CC);
 
 	ngx_http_request_t *r;
-	//r = ngx_php_request;
-	r = PHP_NGX_G(global_r);
+	r = ngx_php_request;
+	//r = PHP_NGX_G(global_r);
 
 	//ngx_http_headers_in_t *headers_in;
 	//headers_in = &r->headers_in;
@@ -472,8 +472,8 @@ ngx_http_php_code_read_post(char *buffer, uint count_bytes TSRMLS_DC)
 	int tmp_read_bytes;
 
 	ngx_http_request_t *r;
-	//r = ngx_php_request;
-	r = PHP_NGX_G(global_r);
+	r = ngx_php_request;
+	//r = PHP_NGX_G(global_r);
 
 	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
