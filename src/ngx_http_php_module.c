@@ -359,7 +359,7 @@ ngx_http_php_create_main_conf(ngx_conf_t *cf)
 	}
 
 	//-> alloc array thread_pools
-	if (ngx_array_init(&pmcf->thread_pools, cf->pool, 1, sizeof(ngx_php_thread_pool_t *)) != NGX_OK) {
+	if (ngx_array_init(&pmcf->thread_pools, cf->pool, 4, sizeof(ngx_php_thread_pool_t *)) != NGX_OK) {
 		return NULL;
 	}
 
@@ -383,19 +383,37 @@ ngx_http_php_init_main_conf(ngx_conf_t *cf, void *conf)
 {
 	ngx_http_php_main_conf_t *pmcf = conf;
 
-	ngx_uint_t i;
-	ngx_php_thread_pool_t  **tpp;
+	//ngx_uint_t i;
+	ngx_php_thread_pool_t  *tp, **tpp;
 
-	tpp = pmcf->thread_pools.elts;
+	//tpp = pmcf->thread_pools.elts;
 
-	for (i = 0; i < pmcf->thread_pools.nelts; i++) {
+	tp = ngx_pcalloc(cf->pool, sizeof(ngx_php_thread_pool_t));
+	if (tp == NULL) {
+		return NULL;
+	}
+
+	tp->name = (ngx_str_t) ngx_string("ngx_php tp");
+	tp->threads = 32;
+	tp->max_queue = 65536;
+
+	tpp = ngx_array_push(&pmcf->thread_pools);
+	if (tpp == NULL) {
+		return NULL;
+	}
+
+	*tpp = tp;
+
+	//ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "%d", pmcf->thread_pools.nelts);
+
+	/*for (i = 0; i < pmcf->thread_pools.nelts; i++) {
 		if (tpp[i]->threads) {
 			continue;
 		}
 
 		tpp[i]->threads = 32;
 		tpp[i]->max_queue = 65536;
-	}
+	}*/
 
 	return NGX_CONF_OK;
 }
