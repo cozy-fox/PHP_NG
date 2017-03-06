@@ -114,6 +114,8 @@ PHP_RINIT_FUNCTION(php_ngx)
 	//ngx_location_init(0 TSRMLS_CC);
 	PHP_NGX_G(global_r) = NULL;
 
+	REGISTER_LONG_CONSTANT("NGX_OK", NGX_OK, CONST_CS);
+
 	return SUCCESS;
 }
 /* }}} */
