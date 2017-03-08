@@ -43,10 +43,6 @@ void *ngx_http_php_sync_inline_thread(void *arg);
 ngx_int_t ngx_http_php_content_thread_file_handler(ngx_http_request_t *r);
 void *ngx_http_php_sync_file_thread(void *arg);
 
-ngx_int_t ngx_http_php_content_thread_inline_handler_1(ngx_http_request_t *r);
-void *ngx_http_php_content_inline_thread_routine(void *data, ngx_log_t *log);
-void *ngx_http_php_content_thread_event_handler(ngx_event_t *ev);
-
 ngx_int_t ngx_http_php_log_handler(ngx_http_request_t *r);
 ngx_int_t ngx_http_php_log_file_handler(ngx_http_request_t *r);
 ngx_int_t ngx_http_php_log_inline_handler(ngx_http_request_t *r);
