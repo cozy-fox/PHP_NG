@@ -28,6 +28,11 @@
 extern ngx_module_t	ngx_http_php_module;
 ngx_http_request_t *ngx_php_request;
 
+extern ngx_php_thread_pool_queue_t  ngx_php_thread_pool_done;
+extern ngx_php_thread_pool_queue_t  ngx_php_thread_pool_running;
+extern ngx_uint_t                   ngx_php_thread_pool_task_id;
+extern ngx_atomic_t                 ngx_php_thread_pool_done_lock;
+
 typedef struct ngx_http_php_main_conf_s {
 
 	ngx_str_t ini_path;

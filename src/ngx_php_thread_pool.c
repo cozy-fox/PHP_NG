@@ -13,9 +13,10 @@
 static void ngx_php_thread_pool_exit_handler(void *data, ngx_log_t *log);
 static void *ngx_php_thread_pool_cycle(void *data);
 static void ngx_php_thread_pool_handler(ngx_event_t *ev);
+static void ngx_php_thread_task_notify_handler(ngx_event_t *ev);
 
-static ngx_uint_t                   ngx_php_thread_pool_task_id;
-static ngx_atomic_t                 ngx_php_thread_pool_done_lock;
+//static ngx_uint_t                   ngx_php_thread_pool_task_id;
+//static ngx_atomic_t                 ngx_php_thread_pool_done_lock;
 
 ngx_int_t
 ngx_php_thread_pool_init(ngx_php_thread_pool_t *tp, ngx_log_t *log, ngx_pool_t *pool)
@@ -288,7 +289,42 @@ ngx_php_thread_pool_handler(ngx_event_t *ev)
     }
 }
 
+void 
+ngx_php_thread_task_notify(ngx_php_thread_task_t *task)
+{
+    ngx_spinlock(&ngx_php_thread_pool_done_lock, 1, 2048);
 
+    *ngx_php_thread_pool_running.last = task;
+    ngx_php_thread_pool_running.last = &task->next;
+
+    ngx_unlock(&ngx_php_thread_pool_done_lock);
+
+    (void) ngx_notify(ngx_php_thread_task_notify_handler);
+}
+
+static void 
+ngx_php_thread_task_notify_handler(ngx_event_t *ev)
+{
+    ngx_php_thread_task_t   *task;
+
+    ngx_spinlock(&ngx_php_thread_pool_done_lock, 1, 2048);
+
+    task = ngx_php_thread_pool_running.first;
+    ngx_php_thread_pool_running.first = NULL;
+    ngx_php_thread_pool_running.last = &ngx_php_thread_pool_running.first;
+
+    ngx_unlock(&ngx_php_thread_pool_done_lock);
+
+    while (task) {
+        
+        if (task->notify_handler) {
+            task->notify_handler(task->ctx, ev->log);
+        }
+
+        task = task->next;
+
+    }
+}
 
 
 

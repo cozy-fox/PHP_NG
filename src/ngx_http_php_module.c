@@ -526,6 +526,10 @@ ngx_http_php_init_worker(ngx_cycle_t *cycle)
 
 	//-> init run thread_pool
 	ngx_php_thread_pool_queue_init(&ngx_php_thread_pool_done);
+	ngx_php_thread_pool_queue_init(&ngx_php_thread_pool_running);
+
+	//ngx_log_error(NGX_LOG_ERR, cycle->log, 0, "thread pool done %p", &ngx_php_thread_pool_done);
+	//ngx_log_error(NGX_LOG_ERR, cycle->log, 0, "thread pool running %p", &ngx_php_thread_pool_running);
 
 	tpp = pmcf->thread_pools.elts;
 
