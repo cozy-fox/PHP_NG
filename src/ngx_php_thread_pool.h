@@ -20,6 +20,8 @@ struct ngx_php_thread_task_s {
     void                    *ctx;
     void                    (*handler)(void *data, ngx_log_t *log);
     ngx_event_t             event;
+
+    void                    (*notify_handler)(void *data, ngx_log_t *log);
 };
 
 typedef struct {
@@ -46,6 +48,9 @@ struct ngx_php_thread_pool_s {
     (q)->last = &(q)->first;
 
 ngx_php_thread_pool_queue_t  ngx_php_thread_pool_done;
+ngx_php_thread_pool_queue_t  ngx_php_thread_pool_running;
+ngx_uint_t                   ngx_php_thread_pool_task_id;
+ngx_atomic_t                 ngx_php_thread_pool_done_lock;
 
 ngx_int_t ngx_php_thread_pool_init(ngx_php_thread_pool_t *tp, ngx_log_t *log, ngx_pool_t *pool);
 void ngx_php_thread_pool_destroy(ngx_php_thread_pool_t *tp);
@@ -55,5 +60,6 @@ ngx_php_thread_pool_t *ngx_php_thread_pool_get(ngx_cycle_t *cycle, ngx_str_t *na
 
 ngx_php_thread_task_t *ngx_php_thread_task_alloc(ngx_pool_t *pool, size_t size);
 ngx_int_t ngx_php_thread_task_post(ngx_php_thread_pool_t *tp, ngx_php_thread_task_t *task);
+void ngx_php_thread_task_notify(ngx_php_thread_task_t *task);
 
 #endif
