@@ -11,6 +11,9 @@
 #include <php_embed.h>
 #include "php/php_ngx.h"
 
+#include "ngx_php_thread.h"
+#include "ngx_php_thread_pool.h"
+
 extern ngx_http_request_t *ngx_php_request;
 
 typedef struct ngx_http_php_state_s {
@@ -99,6 +102,8 @@ typedef struct ngx_http_php_ctx_s {
 	unsigned enable_sleep : 1;
 	ngx_int_t delay_time;
 	ngx_event_t sleep;
+
+	ngx_php_thread_task_t *thread_task;
 	
 } ngx_http_php_ctx_t;
 
