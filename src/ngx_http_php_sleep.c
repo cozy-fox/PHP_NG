@@ -183,4 +183,68 @@ void ngx_http_php_sleep_handler(ngx_event_t *ev)
     ngx_http_finalize_request(r,rc);
 }
 
+ngx_int_t 
+ngx_http_php_sleep_thread_run(ngx_http_request_t *r)
+{
+    ngx_http_cleanup_t *cln;
+
+    //ngx_php_request = r;
+
+    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    if (ctx == NULL){
+        return NGX_HTTP_INTERNAL_SERVER_ERROR;
+    }
+
+    ngx_memzero(&ctx->sleep, sizeof(ngx_event_t));
+
+    //ev.timer_set = 0;
+    ctx->sleep.handler = ngx_http_php_sleep_thread_handler;
+    ctx->sleep.log = r->connection->log;
+    ctx->sleep.data = r;
+
+    /*wev = c->write;
+    wev->log = c->log;
+    wev->handler = ngx_http_php_sleep_handler;
+    wev->data = c;*/
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_add_timer %p",ctx->sleep);
+
+    ngx_add_timer(&ctx->sleep, (ngx_msec_t) ctx->delay_time);
+
+    cln = ngx_http_cleanup_add(r, 0);
+    if (cln == NULL) {
+        return NGX_ERROR;
+    }
+
+    cln->handler = ngx_http_php_sleep_cleanup;
+    cln->data = r;
+
+    return NGX_OK;
+}
+
+void 
+ngx_http_php_sleep_thread_handler(ngx_event_t *ev)
+{
+    ngx_http_request_t *r;
+
+    r = ev->data;
+
+    //ngx_php_request = r;
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "sleep handler");
+
+    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    // close keep-alive
+    //r->keepalive = 0;
+
+
+    ctx->enable_sleep = 0;
+    //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+    pthread_mutex_lock(&(ctx->mutex));
+    pthread_cond_signal(&(ctx->cond));
+    pthread_mutex_unlock(&(ctx->mutex));
+}
 

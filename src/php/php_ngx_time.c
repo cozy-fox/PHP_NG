@@ -54,6 +54,10 @@ PHP_METHOD(ngx_time, sleep)
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "sleep start");
 
+    if (ctx->thread_task) {
+        ngx_php_thread_task_notify(ctx->thread_task);
+    }
+
     //pthread_cleanup_push(_ngx_time_pthread_cleanup, NULL);
     pthread_mutex_lock(&(ctx->mutex));
     pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
