@@ -25,38 +25,38 @@ Requirement
 
 Installation
 -------
-- **build php**
+**build php**
 
 ```sh
-wget 'http://php.net/distributions/php-5.3.29.tar.gz'
-tar xf php-5.3.29.tar.gz
-cd php-5.3.29
+$ wget 'http://php.net/distributions/php-5.3.29.tar.gz'
+$ tar xf php-5.3.29.tar.gz
+$ cd php-5.3.29
 
-./configure --prefix=/path/to/php \
-            --enable-maintainer-zts \
-            --enable-embed
-make && make install
+$ ./configure --prefix=/path/to/php \
+$             --enable-maintainer-zts \
+$             --enable-embed
+$ make && make install
 ```
 
-- **build ngx_php**
+**build ngx_php**
 
 ```sh
-git clone https://github.com/rryqszq4/ngx_php.git
+$ git clone https://github.com/rryqszq4/ngx_php.git
 
-wget 'http://nginx.org/download/nginx-1.6.3.tar.gz'
-tar xf nginx-1.6.3.tar.gz
-cd nginx-1.6.3
+$ wget 'http://nginx.org/download/nginx-1.7.12.tar.gz'
+$ tar xf nginx-1.7.12.tar.gz
+$ cd nginx-1.7.12
 
-export PHP_BIN=/path/to/php/bin
-export PHP_INC=/path/to/php/include/php
-export PHP_LIB=/path/to/php/lib
+$ export PHP_BIN=/path/to/php/bin
+$ export PHP_INC=/path/to/php/include/php
+$ export PHP_LIB=/path/to/php/lib
 
-./configure --user=www --group=www \
-            --prefix=/path/to/nginx \
-            --with-ld-opt="-Wl,-rpath,$PHP_LIB" \
-            --add-module=/path/to/ngx_php/dev/ngx_devel_kit \
-            --add-module=/path/to/ngx_php
-make && make install
+$ ./configure --user=www --group=www \
+$             --prefix=/path/to/nginx \
+$             --with-ld-opt="-Wl,-rpath,$PHP_LIB" \
+$             --add-module=/path/to/ngx_php/dev/ngx_devel_kit \
+$             --add-module=/path/to/ngx_php
+$ make && make install
 ```
 
 Synopsis

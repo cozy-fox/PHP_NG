@@ -30,26 +30,27 @@ QQ 群：558795330
 
 安装
 -------
-- 安装php  
+**安装php**  
 需要编译php，并且需要开启线程安全和编译动态共享库
 ```sh
 $ wget http://php.net/distributions/php-5.3.29.tar.gz
 $ tar xf php-5.3.29.tar.gz
 $ cd php-5.3.29
+
 $ ./configure --prefix=/path/to/php \
 $             --enable-maintainer-zts \
 $             --enable-embed
 $ make && make install
 ```
 
-- 安装ngx_php  
+**安装ngx_php**  
 编译完php就可以开始安装ngx_php，需要重新编译nginx并加入ngx_php模块
 ```sh
 $ git clone https://github.com/rryqszq4/ngx_php.git
 
-$ wget 'http://nginx.org/download/nginx-1.6.3.tar.gz'
-$ tar xf nginx-1.6.3.tar.gz
-$ cd nginx-1.6.3
+$ wget 'http://nginx.org/download/nginx-1.7.12.tar.gz'
+$ tar xf nginx-1.7.12.tar.gz
+$ cd nginx-1.7.12
 
 $ export PHP_BIN=/path/to/php/bin
 $ export PHP_INC=/path/to/php/include/php
