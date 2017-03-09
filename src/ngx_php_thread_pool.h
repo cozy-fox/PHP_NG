@@ -21,7 +21,8 @@ struct ngx_php_thread_task_s {
     void                    (*handler)(void *data, ngx_log_t *log);
     ngx_event_t             event;
 
-    void                    (*notify_handler)(void *data, ngx_log_t *log);
+    //void                    (*notify_handler)(void *data, ngx_log_t *log);
+    ngx_event_t             notify_event;
 };
 
 typedef struct {
