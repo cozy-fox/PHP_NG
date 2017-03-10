@@ -54,15 +54,15 @@ ngx_http_php_request_cleanup_handler(void *data)
 {
 	TSRMLS_FETCH();
 
-	ngx_http_request_t *r;
+	//ngx_http_request_t *r;
 
-	r = (ngx_http_request_t *)(data);
+	//r = (ngx_http_request_t *)(data);
 	
 	//ngx_php_request = r;
 
 	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_http_php_request_cleanup_handler");
 
-	NGX_HTTP_PHP_R_SHUTDOWN(r);
+	NGX_HTTP_PHP_R_SHUTDOWN((ngx_http_request_t *)data);
 
 	return ;
 }
