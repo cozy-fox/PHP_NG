@@ -1575,6 +1575,7 @@ ngx_http_php_upstream_process_header(ngx_http_request_t *r, ngx_http_upstream_t 
 
         // ngx_php dev
         rc = u->input_filter(u->input_filter_ctx, n);
+        
         if (rc == NGX_OK){
             ngx_http_php_upstream_finalize_request(r, u, 0);
             return ;
@@ -1582,6 +1583,7 @@ ngx_http_php_upstream_process_header(ngx_http_request_t *r, ngx_http_upstream_t 
             ngx_http_php_upstream_finalize_request(r, u, NGX_ERROR);
             return ;
         }else {
+            ngx_http_php_upstream_finalize_request(r, u, rc);
             return ;
         }
     }

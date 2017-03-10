@@ -32,4 +32,16 @@ ngx_int_t ngx_http_php_socket_tcp_rediscovery(ngx_http_request_t *r);
 
 ngx_int_t ngx_http_php_socket_tcp_handler(ngx_http_request_t *r);
 
+
+// socket tcp in thread pool 
+ngx_int_t ngx_http_php_socket_tcp_thread_run(ngx_http_request_t *r);
+ngx_int_t ngx_http_php_socket_tcp_thread_create_request(ngx_http_request_t *r);
+ngx_int_t ngx_http_php_socket_tcp_thread_reinit_request(ngx_http_request_t *r);
+ngx_int_t ngx_http_php_socket_tcp_thread_process_header(ngx_http_request_t *r);
+ngx_int_t ngx_http_php_socket_tcp_thread_receive_parse(ngx_http_request_t *r);
+void ngx_http_php_socket_tcp_thread_abort_request(ngx_http_request_t *r);
+void ngx_http_php_socket_tcp_thread_finalize_request(ngx_http_request_t *r, ngx_int_t rc);
+ngx_int_t ngx_http_php_socket_tcp_thread_filter_init(void *data);
+ngx_int_t ngx_http_php_socket_tcp_thread_filter(void *data, ssize_t bytes);
+
 #endif

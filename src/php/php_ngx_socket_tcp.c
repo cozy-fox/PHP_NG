@@ -155,6 +155,10 @@ PHP_METHOD(ngx_socket_tcp, receive)
 
     //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
+    if (ctx->thread_task) {
+        ngx_php_thread_task_notify(ctx->thread_task);
+    }
+
     pthread_cleanup_push(_ngx_socket_tcp_pthread_cleanup, r);
     pthread_mutex_lock(&(ctx->mutex));
     pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
