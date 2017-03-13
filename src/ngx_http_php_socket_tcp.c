@@ -890,8 +890,7 @@ ngx_http_php_socket_tcp_thread_filter(void *data, ssize_t bytes)
     ngx_http_request_t *r;
     r = ctx->request;
 
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-                   "ngx_http_php_socket_tcp filter");
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_http_php_socket_tcp filter");
 
     pthread_mutex_lock(&(ctx->mutex));
     pthread_cond_signal(&(ctx->cond));
