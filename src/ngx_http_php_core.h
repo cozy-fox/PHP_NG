@@ -76,6 +76,7 @@ typedef struct ngx_http_php_ctx_s {
 	ngx_uint_t capture_multi_complete_total;
 
 	unsigned enable_upstream : 1;
+	unsigned enable_upstream_continue : 1;
 
 	unsigned read_or_write : 1;
 

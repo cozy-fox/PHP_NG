@@ -6,6 +6,7 @@
 
 #include "php_ngx_socket_tcp.h"
 #include "../ngx_http_php_module.h"
+#include "../ngx_http_php_upstream.h"
 
 static zend_class_entry *php_ngx_socket_tcp_class_entry;
 
@@ -220,10 +221,14 @@ PHP_METHOD(ngx_socket_tcp, close)
         
     }
 
+    ctx->enable_upstream_continue = 0;
+
     ngx_http_upstream_t *u;
     u = ctx->request->upstream;
 
-    if (u->peer.connection) {
+    ngx_http_php_upstream_finalize_request(r, u, NGX_DECLINED);
+
+    /*if (u->peer.connection) {
 
         ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                        "close http upstream connection: %d",
@@ -236,7 +241,7 @@ PHP_METHOD(ngx_socket_tcp, close)
         ngx_close_connection(u->peer.connection);
     }
 
-    u->peer.connection = NULL;
+    u->peer.connection = NULL;*/
 
     //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 }
