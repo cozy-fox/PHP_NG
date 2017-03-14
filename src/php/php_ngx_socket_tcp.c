@@ -223,6 +223,9 @@ PHP_METHOD(ngx_socket_tcp, close)
 
     ctx->enable_upstream_continue = 0;
 
+    ctx->send_buf.len = 0;
+    ctx->send_buf.data = NULL;
+
     ngx_http_upstream_t *u;
     u = ctx->request->upstream;
 
