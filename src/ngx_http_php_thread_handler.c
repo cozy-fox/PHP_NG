@@ -63,6 +63,8 @@ ngx_http_php_content_inline_thread_handler(ngx_http_request_t *r)
     ctx->receive_stat = 0;
     ctx->receive_total = 0;
 
+    ctx->thread_wait = 0;
+
     pthread_mutex_init(&(ctx->mutex), NULL);
     pthread_cond_init(&(ctx->cond), NULL);
 
@@ -76,6 +78,8 @@ ngx_http_php_content_inline_thread_handler(ngx_http_request_t *r)
 
     tpp = pmcf->thread_pools.elts;
     tp = tpp[0];
+
+    ctx->thread_pool = tp;
 
     task = ngx_php_thread_task_alloc(r->pool, 0);
 
@@ -270,7 +274,14 @@ ngx_http_php_content_thread_notify_event_handler(ngx_event_t *ev)
     r = ev->data;
     ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
-    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "notify event handler test");
+    for (;;) {
+        //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "task #%ui notify event handler test %d %d %d", 
+        //    ctx->thread_task->id, ctx->thread_wait,ctx->enable_upstream_continue, ctx->enable_upstream );
+
+        if (ctx->thread_wait == 1) {
+            break;
+        }
+    }
 
     if (ctx->enable_sleep == 1) {
         ngx_http_php_sleep_thread_run(r);

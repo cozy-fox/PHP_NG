@@ -292,6 +292,8 @@ ngx_php_thread_pool_handler(ngx_event_t *ev)
 void 
 ngx_php_thread_task_notify(ngx_php_thread_task_t *task)
 {
+    task->next = NULL;
+
     ngx_spinlock(&ngx_php_thread_pool_done_lock, 1, 2048);
 
     *ngx_php_thread_pool_running.last = task;
@@ -325,7 +327,12 @@ ngx_php_thread_task_notify_handler(ngx_event_t *ev)
         event = &task->notify_event;
         task = task->next;
 
-        event->handler(event);
+        //event->complete = 1;
+        //event->active = 0;
+
+        if (event) {
+            event->handler(event);
+        }
 
     }
 }

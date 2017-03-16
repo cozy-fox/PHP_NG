@@ -898,7 +898,13 @@ ngx_http_php_socket_tcp_thread_filter(void *data, ssize_t bytes)
     pthread_cond_signal(&(ctx->cond));
     pthread_mutex_unlock(&(ctx->mutex));
 
-    return NGX_DONE;
+    /*ngx_php_thread_mutex_lock(&(ctx->thread_pool)->mutex, ctx->thread_pool->log);
+    ngx_php_thread_cond_signal(&(ctx->cond), ctx->thread_pool->log);
+    ngx_php_thread_mutex_unlock(&(ctx->thread_pool)->mutex, ctx->thread_pool->log);
+*/
+
+    return NGX_DECLINED;
+    //return NGX_DONE;
 }
 
 ngx_int_t 
