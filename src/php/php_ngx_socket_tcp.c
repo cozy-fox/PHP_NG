@@ -158,26 +158,38 @@ PHP_METHOD(ngx_socket_tcp, receive)
 
     //pthread_cleanup_push(_ngx_socket_tcp_pthread_cleanup, r);
 
+    /*ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+                   "task #%ui notify  %d",
+                   ctx->thread_task->id, ctx->thread_pool->waiting);
+    */
+    
+    if (ctx->thread_task) {
+        ngx_php_thread_task_notify(ctx->thread_task);
+    }
+    
+
     struct timeval now;
     struct timespec outtime;
 
     pthread_mutex_lock(&(ctx->mutex));
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-                   "task #%ui notify  %d",
-                   ctx->thread_task->id, ctx->thread_pool->waiting);
 
-    if (ctx->thread_task) {
-        ngx_php_thread_task_notify(ctx->thread_task);
-    }
     ctx->thread_wait = 1;
-    
+
     gettimeofday(&now, NULL);
     outtime.tv_sec = now.tv_sec + 5;
     outtime.tv_nsec = now.tv_usec * 1000;
     pthread_cond_timedwait(&(ctx->cond), &(ctx->mutex), &outtime);
     //pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
     ctx->thread_wait = 0;
+
     pthread_mutex_unlock(&(ctx->mutex));
+
+    /*if (ctx) {
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+                   "task #%ui timewait end  %d",
+                   ctx->thread_task->id, ctx->thread_pool->waiting);
+    }*/
+
     //pthread_cleanup_pop(0);
 
     /*ngx_php_thread_mutex_lock(&(ctx->thread_pool)->mutex, ctx->thread_pool->log);
@@ -252,7 +264,7 @@ PHP_METHOD(ngx_socket_tcp, close)
     ngx_http_upstream_t *u;
     u = ctx->request->upstream;
 
-    ngx_http_php_upstream_finalize_request(r, u, NGX_DECLINED);
+    //ngx_http_php_upstream_finalize_request(r, u, NGX_DECLINED);
 
     /*if (u->peer.connection) {
 

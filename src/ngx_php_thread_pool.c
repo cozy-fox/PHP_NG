@@ -330,6 +330,8 @@ ngx_php_thread_task_notify_handler(ngx_event_t *ev)
         //event->complete = 1;
         //event->active = 0;
 
+
+        //ngx_log_error(NGX_LOG_ERR, ev->log, 0, "notify handler event %p ", event);
         if (event) {
             event->handler(event);
         }

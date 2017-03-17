@@ -170,11 +170,14 @@ static void *ngx_http_php_content_thread_event_handler(ngx_event_t *ev)
     ngx_http_php_rputs_chain_list_t *chain;
     
     r = ev->data;
-
+    //r->keepalive = 0;
     ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                    "content_thread_event_handler");
 
     ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "task #%ui output event handler test thread_wait:%d, %d %d", 
+    //        ctx->thread_task->id, ctx->thread_wait,ctx->enable_upstream_continue, ctx->enable_upstream );
 
     pthread_cond_destroy(&(ctx->cond));
     pthread_mutex_destroy(&(ctx->mutex));
@@ -274,14 +277,20 @@ ngx_http_php_content_thread_notify_event_handler(ngx_event_t *ev)
     r = ev->data;
     ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
-    for (;;) {
-        //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "task #%ui notify event handler test %d %d %d", 
-        //    ctx->thread_task->id, ctx->thread_wait,ctx->enable_upstream_continue, ctx->enable_upstream );
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,"ctx: %p %p", r,ctx);
+
+    if (r == NULL || ctx == NULL) {
+        return NULL;
+    }
+
+    /*for (;;) {
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "task #%ui notify event handler test %d %d %d", 
+            ctx->thread_task->id, ctx->thread_wait,ctx->enable_upstream_continue, ctx->enable_upstream );
 
         if (ctx->thread_wait == 1) {
             break;
         }
-    }
+    }*/
 
     if (ctx->enable_sleep == 1) {
         ngx_http_php_sleep_thread_run(r);
