@@ -261,8 +261,8 @@ PHP_METHOD(ngx_socket_tcp, close)
     ctx->send_buf.len = 0;
     ctx->send_buf.data = NULL;
 
-    ngx_http_upstream_t *u;
-    u = ctx->request->upstream;
+    //ngx_http_upstream_t *u;
+    //u = ctx->request->upstream;
 
     //ngx_http_php_upstream_finalize_request(r, u, NGX_DECLINED);
 
