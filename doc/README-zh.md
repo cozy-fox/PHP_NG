@@ -521,15 +521,15 @@ ngx_log::error
 **环境:** *content_thread_by_php*  
 
 Nginx的错误日志等级，在php中的实现。
-* ngx_log::STDERR
-* ngx_log::EMERG
-* ngx_log::ALERT
-* ngx_log::CRIT
-* ngx_log::ERR
-* ngx_log::WARN
-* ngx_log::NOTICE
-* ngx_log::INFO
-* ngx_log::DEBUG
+* NGX_LOG_STDERR
+* NGX_LOG_EMERG
+* NGX_LOG_ALERT
+* NGX_LOG_CRIT
+* NGX_LOG_ERR
+* NGX_LOG_WARN
+* NGX_LOG_NOTICE
+* NGX_LOG_INFO
+* NGX_LOG_DEBUG
 
 ```php
 ngx_log::error(ngx_log::ERR, "test");

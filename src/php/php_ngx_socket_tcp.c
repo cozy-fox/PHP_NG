@@ -176,7 +176,7 @@ PHP_METHOD(ngx_socket_tcp, receive)
     ctx->thread_wait = 1;
 
     gettimeofday(&now, NULL);
-    outtime.tv_sec = now.tv_sec + 5;
+    outtime.tv_sec = now.tv_sec + 16;
     outtime.tv_nsec = now.tv_usec * 1000;
     pthread_cond_timedwait(&(ctx->cond), &(ctx->mutex), &outtime);
     //pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
