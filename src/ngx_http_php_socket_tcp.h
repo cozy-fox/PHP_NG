@@ -43,5 +43,6 @@ void ngx_http_php_socket_tcp_thread_abort_request(ngx_http_request_t *r);
 void ngx_http_php_socket_tcp_thread_finalize_request(ngx_http_request_t *r, ngx_int_t rc);
 ngx_int_t ngx_http_php_socket_tcp_thread_filter_init(void *data);
 ngx_int_t ngx_http_php_socket_tcp_thread_filter(void *data, ssize_t bytes);
+ngx_int_t ngx_http_php_socket_tcp_thread_rediscovery(ngx_http_request_t *r);
 
 #endif

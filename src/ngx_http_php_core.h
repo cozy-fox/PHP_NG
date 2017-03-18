@@ -76,6 +76,7 @@ typedef struct ngx_http_php_ctx_s {
 	ngx_uint_t capture_multi_complete_total;
 
 	unsigned enable_upstream : 1;
+	unsigned enable_upstream_continue : 1;
 
 	unsigned read_or_write : 1;
 
@@ -104,6 +105,8 @@ typedef struct ngx_http_php_ctx_s {
 	ngx_event_t sleep;
 
 	ngx_php_thread_task_t *thread_task;
+	ngx_php_thread_pool_t *thread_pool;
+	ngx_int_t thread_wait;
 	
 } ngx_http_php_ctx_t;
 

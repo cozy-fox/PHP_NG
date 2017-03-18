@@ -32,7 +32,7 @@ var rewrite
     location /rewrite-content {
         rewrite_by_php '
             echo "running rewrite\n";
-            ngx::_exit(ngx::OK);
+            ngx::_exit(NGX_OK);
         ';
         content_by_php '
             echo "running content\n";
@@ -71,7 +71,7 @@ end content thread
     location /rewrite-content-thread {
         rewrite_by_php '
             echo "running rewrite\n";
-            ngx::_exit(ngx::OK);
+            ngx::_exit(NGX_OK);
         ';
         content_thread_by_php '
             echo "running content thread\n";

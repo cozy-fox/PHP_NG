@@ -887,17 +887,45 @@ ngx_http_php_socket_tcp_thread_filter(void *data, ssize_t bytes)
 {
     ngx_http_php_ctx_t *ctx = data;
 
-    ngx_http_request_t *r;
-    r = ctx->request;
+    //ngx_http_request_t *r;
+    //r = ctx->request;
 
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-                   "ngx_http_php_socket_tcp filter");
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_http_php_socket_tcp filter");
+
+    ctx->enable_upstream_continue = 1;
 
     pthread_mutex_lock(&(ctx->mutex));
     pthread_cond_signal(&(ctx->cond));
     pthread_mutex_unlock(&(ctx->mutex));
 
+    /*ngx_php_thread_mutex_lock(&(ctx->thread_pool)->mutex, ctx->thread_pool->log);
+    ngx_php_thread_cond_signal(&(ctx->cond), ctx->thread_pool->log);
+    ngx_php_thread_mutex_unlock(&(ctx->thread_pool)->mutex, ctx->thread_pool->log);
+*/
+
     return NGX_DECLINED;
+    //return NGX_DONE;
+}
+
+ngx_int_t 
+ngx_http_php_socket_tcp_thread_rediscovery(ngx_http_request_t *r)
+{
+    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    ngx_http_upstream_t *u;
+
+    u = ctx->request->upstream;
+
+    ngx_http_php_socket_tcp_thread_create_request(r);
+    u->request_sent = 0;
+
+    ngx_connection_t  *c;
+    c = u->peer.connection;
+    ngx_add_timer(c->write, u->conf->send_timeout);
+    
+    ngx_http_php_upstream_send_request(r, u);
+
+    return NGX_OK;
 }
 
 

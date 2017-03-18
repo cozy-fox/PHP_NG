@@ -41,7 +41,7 @@ php_ngx_log_init(int module_number TSRMLS_DC)
     INIT_CLASS_ENTRY(ngx_log_class_entry, "ngx_log", php_ngx_log_class_functions);
     php_ngx_log_class_entry = zend_register_internal_class(&ngx_log_class_entry TSRMLS_CC);
 
-    zend_declare_class_constant_long(php_ngx_log_class_entry, "STDERR", sizeof("STDERR")-1, NGX_LOG_STDERR TSRMLS_CC);
+    /*zend_declare_class_constant_long(php_ngx_log_class_entry, "STDERR", sizeof("STDERR")-1, NGX_LOG_STDERR TSRMLS_CC);
     zend_declare_class_constant_long(php_ngx_log_class_entry, "EMERG", sizeof("EMERG")-1, NGX_LOG_EMERG TSRMLS_CC);
     zend_declare_class_constant_long(php_ngx_log_class_entry, "ALERT", sizeof("ALERT")-1, NGX_LOG_ALERT TSRMLS_CC);
     zend_declare_class_constant_long(php_ngx_log_class_entry, "CRIT", sizeof("CRIT")-1, NGX_LOG_CRIT TSRMLS_CC);
@@ -50,7 +50,7 @@ php_ngx_log_init(int module_number TSRMLS_DC)
     zend_declare_class_constant_long(php_ngx_log_class_entry, "NOTICE", sizeof("NOTICE")-1, NGX_LOG_NOTICE TSRMLS_CC);
     zend_declare_class_constant_long(php_ngx_log_class_entry, "INFO", sizeof("INFO")-1, NGX_LOG_INFO TSRMLS_CC);
     zend_declare_class_constant_long(php_ngx_log_class_entry, "DEBUG", sizeof("DEBUG")-1, NGX_LOG_DEBUG TSRMLS_CC);
-
+*/
 }
 
 

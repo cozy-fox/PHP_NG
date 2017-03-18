@@ -32,7 +32,7 @@ var access
     location /access-content {
         access_by_php '
             echo "running access\n";
-            ngx::_exit(ngx::OK);
+            ngx::_exit(NGX_OK);
         ';
         content_by_php '
             echo "running content\n";
@@ -71,7 +71,7 @@ end content thread
     location /access-content-thread {
         access_by_php '
             echo "running access\n";
-            ngx::_exit(ngx::OK);
+            ngx::_exit(NGX_OK);
         ';
         content_by_php '
             echo "running content\n";

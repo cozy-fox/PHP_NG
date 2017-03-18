@@ -438,8 +438,8 @@ PHP_METHOD(ngx_location, capture_multi)
 }
 
 static const zend_function_entry php_ngx_location_class_functions[] = {
-	PHP_ME(ngx_location, capture_async, arginfo_ngx_location_capture_async, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-	PHP_ME(ngx_location, capture_multi_async, arginfo_ngx_location_capture_multi_async, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+	//PHP_ME(ngx_location, capture_async, arginfo_ngx_location_capture_async, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+	//PHP_ME(ngx_location, capture_multi_async, arginfo_ngx_location_capture_multi_async, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(ngx_location, capture, arginfo_ngx_location_capture, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(ngx_location, capture_multi, arginfo_ngx_location_capture_multi, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 	{NULL, NULL, NULL, 0, 0}

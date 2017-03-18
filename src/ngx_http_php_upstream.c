@@ -1582,6 +1582,8 @@ ngx_http_php_upstream_process_header(ngx_http_request_t *r, ngx_http_upstream_t 
         }else if (rc == NGX_ERROR){
             ngx_http_php_upstream_finalize_request(r, u, NGX_ERROR);
             return ;
+        }else if (rc == NGX_DONE) {
+            return ;
         }else {
             ngx_http_php_upstream_finalize_request(r, u, rc);
             return ;

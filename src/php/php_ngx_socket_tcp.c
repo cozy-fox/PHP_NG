@@ -6,6 +6,7 @@
 
 #include "php_ngx_socket_tcp.h"
 #include "../ngx_http_php_module.h"
+#include "../ngx_http_php_upstream.h"
 
 static zend_class_entry *php_ngx_socket_tcp_class_entry;
 
@@ -155,16 +156,51 @@ PHP_METHOD(ngx_socket_tcp, receive)
 
     //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 
+    //pthread_cleanup_push(_ngx_socket_tcp_pthread_cleanup, r);
+
+    /*ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+                   "task #%ui notify  %d",
+                   ctx->thread_task->id, ctx->thread_pool->waiting);
+    */
+    
     if (ctx->thread_task) {
         ngx_php_thread_task_notify(ctx->thread_task);
     }
+    
 
-    pthread_cleanup_push(_ngx_socket_tcp_pthread_cleanup, r);
+    struct timeval now;
+    struct timespec outtime;
+
     pthread_mutex_lock(&(ctx->mutex));
-    pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
-    pthread_mutex_unlock(&(ctx->mutex));
-    pthread_cleanup_pop(0);
 
+    ctx->thread_wait = 1;
+
+    gettimeofday(&now, NULL);
+    outtime.tv_sec = now.tv_sec + 16;
+    outtime.tv_nsec = now.tv_usec * 1000;
+    pthread_cond_timedwait(&(ctx->cond), &(ctx->mutex), &outtime);
+    //pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
+    ctx->thread_wait = 0;
+
+    pthread_mutex_unlock(&(ctx->mutex));
+
+    /*if (ctx) {
+        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
+                   "task #%ui timewait end  %d",
+                   ctx->thread_task->id, ctx->thread_pool->waiting);
+    }*/
+
+    //pthread_cleanup_pop(0);
+
+    /*ngx_php_thread_mutex_lock(&(ctx->thread_pool)->mutex, ctx->thread_pool->log);
+    if (ctx->thread_task) {
+        ngx_php_thread_task_notify(ctx->thread_task);
+    }
+    ctx->thread_wait = 1;
+    ngx_php_thread_cond_wait(&(ctx->cond), &(ctx->thread_pool)->mutex, ctx->thread_pool->log);
+    ctx->thread_wait = 0;
+    ngx_php_thread_mutex_unlock(&(ctx->thread_pool)->mutex, ctx->thread_pool->log);
+*/
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "recv:%*s", ctx->receive_buf.len, ctx->receive_buf.data);
     
     if (ctx->receive_stat == 0){
@@ -220,10 +256,17 @@ PHP_METHOD(ngx_socket_tcp, close)
         
     }
 
-    ngx_http_upstream_t *u;
-    u = ctx->request->upstream;
+    ctx->enable_upstream_continue = 0;
 
-    if (u->peer.connection) {
+    ctx->send_buf.len = 0;
+    ctx->send_buf.data = NULL;
+
+    //ngx_http_upstream_t *u;
+    //u = ctx->request->upstream;
+
+    //ngx_http_php_upstream_finalize_request(r, u, NGX_DECLINED);
+
+    /*if (u->peer.connection) {
 
         ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                        "close http upstream connection: %d",
@@ -236,7 +279,7 @@ PHP_METHOD(ngx_socket_tcp, close)
         ngx_close_connection(u->peer.connection);
     }
 
-    u->peer.connection = NULL;
+    u->peer.connection = NULL;*/
 
     //ngx_http_set_ctx(r, ctx, ngx_http_php_module);
 }
