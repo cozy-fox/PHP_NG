@@ -170,7 +170,7 @@ static void *ngx_http_php_content_thread_event_handler(ngx_event_t *ev)
     ngx_http_php_rputs_chain_list_t *chain;
     
     r = ev->data;
-    //r->keepalive = 0;
+    r->keepalive = 0;
     ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                    "content_thread_event_handler");
 
