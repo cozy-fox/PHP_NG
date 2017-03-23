@@ -220,6 +220,8 @@ ngx_http_php_sleep_thread_run(ngx_http_request_t *r)
     cln->handler = ngx_http_php_sleep_cleanup;
     cln->data = r;
 
+    r->keepalive = 0;
+
     return NGX_OK;
 }
 
