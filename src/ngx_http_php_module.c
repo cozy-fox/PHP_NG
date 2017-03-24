@@ -16,6 +16,7 @@
 #include "ngx_http_php_module.h"
 #include "ngx_http_php_directive.h"
 #include "ngx_http_php_handler.h"
+#include "ngx_http_php_thread_handler.h"
 
 // http init
 static ngx_int_t ngx_http_php_init(ngx_conf_t *cf);
@@ -137,7 +138,7 @@ static ngx_command_t ngx_http_php_commands[] = {
 	 ngx_http_php_content_phase,
 	 NGX_HTTP_LOC_CONF_OFFSET,
 	 0,
-	 ngx_http_php_content_thread_file_handler
+	 ngx_http_php_content_file_thread_handler
 	},
 
 	{ngx_string("content_thread_by_php"),
@@ -146,7 +147,7 @@ static ngx_command_t ngx_http_php_commands[] = {
 	 ngx_http_php_content_inline_phase,
 	 NGX_HTTP_LOC_CONF_OFFSET,
 	 0,
-	 ngx_http_php_content_thread_inline_handler
+	 ngx_http_php_content_inline_thread_handler
 	},
 
 	{ngx_string("log_by_php_file"),
