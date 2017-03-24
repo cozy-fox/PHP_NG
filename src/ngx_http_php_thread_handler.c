@@ -19,6 +19,8 @@
 #include "php/php_ngx_time.h"
 
 static void *ngx_http_php_content_inline_thread_routine(void *data, ngx_log_t *log);
+static void *ngx_http_php_content_file_thread_routine(void *data, ngx_log_t *log);
+
 static void *ngx_http_php_content_thread_event_handler(ngx_event_t *ev);
 //static void *ngx_http_php_content_thread_notify_handler(void *data, ngx_log_t *log);
 static void *ngx_http_php_content_thread_notify_event_handler(ngx_event_t *ev);
@@ -128,6 +130,87 @@ ngx_http_php_content_inline_thread_handler(ngx_http_request_t *r)
     return NGX_DONE;
 }
 
+ngx_int_t 
+ngx_http_php_content_file_thread_handler(ngx_http_request_t *r)
+{
+    ngx_php_thread_pool_t       *tp, **tpp;
+    ngx_php_thread_task_t       *task;
+    ngx_http_php_main_conf_t    *pmcf;
+    ngx_http_php_ctx_t          *ctx;
+
+    pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+
+    ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    if (ctx == NULL){
+        ctx = ngx_pcalloc(r->pool, sizeof(*ctx));
+        if (ctx == NULL){
+            return NGX_ERROR;
+        }
+    }
+    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+    ctx->enable_async = 0;
+    ctx->enable_upstream = 0;
+    ctx->enable_upstream_continue = 0;
+    ctx->enable_sleep = 0;
+    ctx->enable_thread = 1;
+
+    ctx->read_or_write = 0;
+
+    ctx->is_capture_multi = 0;
+    ctx->capture_multi_complete_total = 0;
+    ctx->is_capture_multi_complete = 0;
+
+    ctx->error = NGX_OK;
+
+    ctx->request_body_more = 1;
+
+    ctx->receive_stat = 0;
+    ctx->receive_total = 0;
+
+    ctx->thread_wait = 0;
+
+    pthread_mutex_init(&(ctx->mutex), NULL);
+    pthread_cond_init(&(ctx->cond), NULL);
+
+    ngx_php_request = r;
+
+    if (r->method == NGX_HTTP_POST){
+        return ngx_http_php_content_post_handler(r);
+    }
+
+    ngx_http_php_request_cleanup_handler(r);
+
+    tpp = pmcf->thread_pools.elts;
+    tp = tpp[0];
+
+    ctx->thread_pool = tp;
+
+    task = ngx_php_thread_task_alloc(r->pool, 0);
+
+    ctx->thread_task = task;
+
+    task->ctx = r;
+    task->handler = (void *)ngx_http_php_content_file_thread_routine;
+
+    task->event.data = r;
+    task->event.handler = (void *)ngx_http_php_content_thread_event_handler;
+
+    //task->notify_handler = (void *)ngx_http_php_content_thread_notify_handler;
+    task->notify_event.data = r;
+    task->notify_event.handler = (void *)ngx_http_php_content_thread_notify_event_handler;
+
+
+    if (ngx_php_thread_task_post(tp, task) != NGX_OK) {
+        return NGX_HTTP_INTERNAL_SERVER_ERROR;
+    }
+
+    r->main->count++;
+
+    return NGX_DONE;
+}
+
 static void *ngx_http_php_content_inline_thread_routine(void *data, ngx_log_t *log)
 {
     TSRMLS_FETCH();
@@ -150,6 +233,40 @@ static void *ngx_http_php_content_inline_thread_routine(void *data, ngx_log_t *l
         PHP_NGX_G(global_r) = r;
 
         ngx_php_ngx_run(r, pmcf->state, plcf->content_inline_code);
+
+    NGX_HTTP_PHP_NGX_SHUTDOWN;
+
+    ngx_http_php_ctx_t *ctx;
+    ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+    ctx->enable_async = 0;
+    ctx->enable_thread = 0;
+    ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+    return NULL;
+}
+
+static void *ngx_http_php_content_file_thread_routine(void *data, ngx_log_t *log)
+{
+    TSRMLS_FETCH();
+    ngx_http_request_t *r = (ngx_http_request_t *)data;
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "pthread r %p %d", r , r->keepalive);
+    ngx_http_php_main_conf_t *pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+    ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+
+    //ngx_php_ngx_run(r, pmcf->state, plcf->content_async_inline_code);
+
+    NGX_HTTP_PHP_NGX_INIT;
+
+        php_ngx_core_init(0 TSRMLS_CC);
+        //ngx_location_init(0 TSRMLS_CC);
+        php_ngx_log_init(0 TSRMLS_CC);
+        ngx_socket_tcp_init(0 TSRMLS_CC);
+        php_ngx_time_init(0 TSRMLS_CC);
+
+        PHP_NGX_G(global_r) = r;
+
+        ngx_php_ngx_run(r, pmcf->state, plcf->content_code);
 
     NGX_HTTP_PHP_NGX_SHUTDOWN;
 

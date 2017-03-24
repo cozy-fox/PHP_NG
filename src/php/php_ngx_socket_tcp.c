@@ -180,14 +180,20 @@ PHP_METHOD(ngx_socket_tcp, receive)
     outtime.tv_nsec = now.tv_usec * 1000;
     pthread_cond_timedwait(&(ctx->cond), &(ctx->mutex), &outtime);
     //pthread_cond_wait(&(ctx->cond), &(ctx->mutex));
-    ctx->thread_wait = 0;
+    //ctx->thread_wait = 0;
 
     pthread_mutex_unlock(&(ctx->mutex));
 
+    if (ctx->thread_wait == 1 || ctx == NULL) {
+        EG(exit_status) = 0;
+        zend_bailout();
+        return ;
+    }
+
     /*if (ctx) {
         ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
-                   "task #%ui timewait end  %d",
-                   ctx->thread_task->id, ctx->thread_pool->waiting);
+                   "task #%ui timewait end  %d %d",
+                   ctx->thread_task->id, ctx->thread_pool->waiting, ctx->thread_wait);
     }*/
 
     //pthread_cleanup_pop(0);
@@ -261,10 +267,10 @@ PHP_METHOD(ngx_socket_tcp, close)
     ctx->send_buf.len = 0;
     ctx->send_buf.data = NULL;
 
-    //ngx_http_upstream_t *u;
-    //u = ctx->request->upstream;
+    /*ngx_http_upstream_t *u;
+    u = ctx->request->upstream;
 
-    //ngx_http_php_upstream_finalize_request(r, u, NGX_DECLINED);
+    ngx_http_php_upstream_finalize_request(r, u, NGX_DECLINED);*/
 
     /*if (u->peer.connection) {
 

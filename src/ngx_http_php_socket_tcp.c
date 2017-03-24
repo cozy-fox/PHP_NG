@@ -7,6 +7,8 @@
 #include "ngx_http_php_socket_tcp.h"
 #include "ngx_http_php_subrequest.h"
 
+static void ngx_http_php_socket_tcp_cleanup(void *data);
+
 ngx_int_t 
 ngx_http_php_socket_tcp_run(ngx_http_request_t *r)
 {
@@ -661,6 +663,7 @@ ngx_http_php_socket_tcp_thread_run(ngx_http_request_t *r)
     ngx_http_php_loc_conf_t     *plcf;
     ngx_http_php_ctx_t          *ctx;
     ngx_http_upstream_t         *u;
+    ngx_http_cleanup_t          *cln;
 
     //ngx_php_request = r;
 
@@ -741,6 +744,18 @@ ngx_http_php_socket_tcp_thread_run(ngx_http_request_t *r)
     r->subrequest_in_memory = 1;
 
     ngx_http_php_upstream_init(r);
+
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,"ctx: %p %p", r,ctx);
+
+    cln = ngx_http_cleanup_add(r, 0);
+    if (cln == NULL) {
+        return NGX_ERROR;
+    }
+
+    cln->handler = ngx_http_php_socket_tcp_cleanup;
+    cln->data = r;
+
+    r->keepalive = 0;
 
     return NGX_OK;
 }
@@ -893,6 +908,7 @@ ngx_http_php_socket_tcp_thread_filter(void *data, ssize_t bytes)
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_http_php_socket_tcp filter");
 
     ctx->enable_upstream_continue = 1;
+    ctx->thread_wait = 0;
 
     pthread_mutex_lock(&(ctx->mutex));
     pthread_cond_signal(&(ctx->cond));
@@ -903,8 +919,8 @@ ngx_http_php_socket_tcp_thread_filter(void *data, ssize_t bytes)
     ngx_php_thread_mutex_unlock(&(ctx->thread_pool)->mutex, ctx->thread_pool->log);
 */
 
-    return NGX_DECLINED;
-    //return NGX_DONE;
+    //return NGX_DECLINED;
+    return NGX_DONE;
 }
 
 ngx_int_t 
@@ -928,7 +944,17 @@ ngx_http_php_socket_tcp_thread_rediscovery(ngx_http_request_t *r)
     return NGX_OK;
 }
 
+static void
+ngx_http_php_socket_tcp_cleanup(void *data) 
+{
+    ngx_http_request_t *r = data;
+    
+    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                   "cleanup http upstream request: \"%V\"", &r->uri);
 
+    ngx_http_php_upstream_finalize_request(r, r->upstream, NGX_DECLINED);
+    
+}
 
 
 

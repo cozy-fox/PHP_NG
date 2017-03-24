@@ -14,5 +14,6 @@
 #include "ngx_http_php_module.h"
 
 ngx_int_t ngx_http_php_content_inline_thread_handler(ngx_http_request_t *r);
+ngx_int_t ngx_http_php_content_file_thread_handler(ngx_http_request_t *r);
 
 #endif
