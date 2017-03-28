@@ -1,5 +1,12 @@
-2017-01-30 rryqszq4 <ngxphp@gmail.com>
+2017-02-27 rryqszq4 <ngxphp@gmail.com>
 	* add ngx_php_thread and ngx_php_thread_pool
+
+	* optimize directive content_thread_by_php, content_thread_by_php_file be use to 
+	  new thread pool
+
+	* remove ngx_capture from content_thread_by_php
+
+	* bumped version to 0.0.9
 
 2017-01-30 rryqszq4 <ngxphp@gmail.com>
 	* dev code "ngx_http_php_output.h", "ngx_http_php_output.c"
