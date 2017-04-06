@@ -9,16 +9,15 @@
 #include "ngx_http_php_output.h"
 
 void
-ngx_http_php_set_output(char *buffer, int buffer_len)
+ngx_http_php_set_output_chain(ngx_http_request_t *r, char *buffer, int buffer_len)
 {
     ngx_buf_t *b;
     ngx_http_php_rputs_chain_list_t *chain;
     ngx_http_php_ctx_t *ctx;
-    ngx_http_request_t *r;
+
     u_char *u_str;
     ngx_str_t ns;
 
-    r = ngx_php_request;
     ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
     ns.data = (u_char *)buffer;
@@ -54,13 +53,11 @@ ngx_http_php_set_output(char *buffer, int buffer_len)
 }
 
 void 
-ngx_http_php_check_output_empty()
+ngx_http_php_check_output_chain_empty(ngx_http_request_t)
 {
     ngx_http_php_rputs_chain_list_t *chain;
     ngx_http_php_ctx_t *ctx;
-    ngx_http_request_t *r;
 
-    r = ngx_php_request;
     ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
     chain = ctx->rputs_chain;

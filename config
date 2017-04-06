@@ -18,6 +18,7 @@ NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/src/ngx_http_php_module.c \
 				$ngx_addon_dir/src/php/php_ngx_core.c \
 				$ngx_addon_dir/src/ngx_php_thread.c \
 				$ngx_addon_dir/src/ngx_php_thread_pool.c \
+				$ngx_addon_dir/src/ngx_php_uthread.c \
 				"
 NGX_ADDON_DEPS="$NGX_ADDON_DEPS $ngx_addon_dir/src/ngx_http_php_module.h \
 				$ngx_addon_dir/src/ngx_http_php_core.h \
@@ -37,6 +38,7 @@ NGX_ADDON_DEPS="$NGX_ADDON_DEPS $ngx_addon_dir/src/ngx_http_php_module.h \
 				$ngx_addon_dir/src/php/php_ngx_core.h \
 				$ngx_addon_dir/src/ngx_php_thread.h \
 				$ngx_addon_dir/src/ngx_php_thread_pool.h \
+				$ngx_addon_dir/src/ngx_php_uthread.h \
 				"
 
 CORE_INCS="$CORE_INCS $PHP_INC $PHP_INC/main $PHP_INC/TSRM $PHP_INC/Zend $PHP_INC/ext $PHP_INC/ext/date/lib $PHP_INC/sapi/embed "
