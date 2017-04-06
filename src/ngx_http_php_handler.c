@@ -132,18 +132,6 @@ ngx_http_php_rewrite_inline_uthread_routine(void *data)
 
 	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "routine start");
 
-	ngx_http_php_sleep_uthread_run(r);
-
-	ngx_php_uthread_yield(ctx->uthread);
-
-	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "content yield");
-
-	ngx_http_php_sleep_uthread_run(r);
-
-	ngx_php_uthread_yield(ctx->uthread);
-
-	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "content yield");
-
 	zend_first_try {
 
 		ngx_php_eval_code(r, pmcf->state, plcf->rewrite_inline_code TSRMLS_CC);
@@ -172,14 +160,10 @@ ngx_http_php_rewrite_file_handler(ngx_http_request_t *r)
 {
 	ngx_int_t 							rc;
 	ngx_http_php_rputs_chain_list_t 	*chain;
-	ngx_http_php_main_conf_t 			*pmcf;
-	ngx_http_php_loc_conf_t 			*plcf;
 	ngx_http_php_ctx_t 					*ctx;
 
 	TSRMLS_FETCH();
 
-	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
-	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (ctx == NULL){
@@ -276,14 +260,10 @@ ngx_http_php_rewrite_inline_handler(ngx_http_request_t *r)
 {
 	ngx_int_t 							rc;
 	ngx_http_php_rputs_chain_list_t 	*chain;
-	ngx_http_php_main_conf_t 			*pmcf;
-	ngx_http_php_loc_conf_t 			*plcf;
 	ngx_http_php_ctx_t 					*ctx;
 
 	TSRMLS_FETCH();
 
-	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
-	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (ctx == NULL){
@@ -445,14 +425,10 @@ ngx_http_php_access_file_handler(ngx_http_request_t *r)
 {
 	ngx_int_t 							rc;
 	ngx_http_php_rputs_chain_list_t 	*chain;
-	ngx_http_php_main_conf_t 			*pmcf;
-	ngx_http_php_loc_conf_t 			*plcf;
 	ngx_http_php_ctx_t 					*ctx;
 
 	TSRMLS_FETCH();
 
-	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
-	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (ctx == NULL){
@@ -548,14 +524,10 @@ ngx_http_php_access_inline_handler(ngx_http_request_t *r)
 {
 	ngx_int_t 							rc;
 	ngx_http_php_rputs_chain_list_t 	*chain;
-	ngx_http_php_main_conf_t 			*pmcf;
-	ngx_http_php_loc_conf_t 			*plcf;
 	ngx_http_php_ctx_t 					*ctx;
 
 	TSRMLS_FETCH();
 
-	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
-	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (ctx == NULL){
@@ -712,14 +684,10 @@ ngx_http_php_content_file_handler(ngx_http_request_t *r)
 {
 	ngx_int_t 							rc;
 	ngx_http_php_rputs_chain_list_t 	*chain;
-	ngx_http_php_main_conf_t 			*pmcf;
-	ngx_http_php_loc_conf_t 			*plcf;
 	ngx_http_php_ctx_t 					*ctx;
 
 	TSRMLS_FETCH();
 
-	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
-	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (ctx == NULL){
@@ -847,14 +815,10 @@ ngx_http_php_content_inline_handler(ngx_http_request_t *r)
 {
 	ngx_int_t 							rc;
 	ngx_http_php_rputs_chain_list_t 	*chain;
-	ngx_http_php_main_conf_t 			*pmcf;
-	ngx_http_php_loc_conf_t 			*plcf;
 	ngx_http_php_ctx_t 					*ctx;
 
 	TSRMLS_FETCH();
 
-	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
-	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (ctx == NULL){
