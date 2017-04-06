@@ -13,6 +13,7 @@
 
 #include "ngx_php_thread.h"
 #include "ngx_php_thread_pool.h"
+#include "ngx_php_uthread.h"
 
 extern ngx_http_request_t *ngx_php_request;
 
@@ -107,6 +108,15 @@ typedef struct ngx_http_php_ctx_s {
 	ngx_php_thread_task_t *thread_task;
 	ngx_php_thread_pool_t *thread_pool;
 	ngx_int_t thread_wait;
+
+	ngx_php_uthread_t *uthread;
+	ngx_php_uthread_t *rewrite_uthread;
+	ngx_php_uthread_t *access_uthread;
+	ngx_php_uthread_t *content_uthread;
+
+	unsigned rewrite_phase : 1;
+	unsigned access_phase : 1;
+	unsigned content_phase : 1;
 	
 } ngx_http_php_ctx_t;
 

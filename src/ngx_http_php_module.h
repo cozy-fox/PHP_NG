@@ -19,6 +19,7 @@
 
 #include "ngx_php_thread.h"
 #include "ngx_php_thread_pool.h"
+#include "ngx_php_uthread.h"
 
 #include "ngx_http_php_core.h"
 
@@ -32,6 +33,7 @@ extern ngx_php_thread_pool_queue_t  ngx_php_thread_pool_done;
 extern ngx_php_thread_pool_queue_t  ngx_php_thread_pool_running;
 extern ngx_uint_t                   ngx_php_thread_pool_task_id;
 extern ngx_atomic_t                 ngx_php_thread_pool_done_lock;
+extern ngx_uint_t 					ngx_php_uthread_max;
 
 typedef struct ngx_http_php_main_conf_s {
 
