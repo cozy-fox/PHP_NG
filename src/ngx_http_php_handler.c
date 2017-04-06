@@ -18,14 +18,37 @@
 #include "php/php_ngx_log.h"
 #include "php/php_ngx_time.h"
 
+static void ngx_http_php_rewrite_inline_uthread_routine(void *data);
+static void ngx_http_php_rewrite_file_uthread_routine(void *data);
+
+static void ngx_http_php_access_inline_uthread_routine(void *data);
+static void ngx_http_php_access_file_uthread_routine(void *data);
+
+static void ngx_http_php_content_inline_uthread_routine(void *data);
+static void ngx_http_php_content_file_uthread_routine(void *data);
+
 ngx_int_t
 ngx_http_php_post_read_handler(ngx_http_request_t *r)
 {
 	TSRMLS_FETCH();
-
-	//ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ngx_http_php_post_read_handler");
+	
+	ngx_http_php_ctx_t *ctx;
 	
 	ngx_php_request = r;
+
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+	if (ctx == NULL){
+		ctx = ngx_pcalloc(r->pool, sizeof(*ctx));
+		if (ctx == NULL){
+			return NGX_ERROR;
+		}
+	}
+	ngx_http_set_ctx(r, ctx, ngx_http_php_module);
+
+	ctx->rewrite_phase = 0;
+	ctx->access_phase = 0;
+	ctx->content_phase = 0;
 
 	/*
 	ngx_http_cleanup_t *cln;
@@ -38,8 +61,8 @@ ngx_http_php_post_read_handler(ngx_http_request_t *r)
 	cln->data = r;
 	*/
 
-	php_ngx_core_init(0 TSRMLS_CC);
-	php_ngx_log_init(0 TSRMLS_CC);
+	//php_ngx_core_init(0 TSRMLS_CC);
+	//php_ngx_log_init(0 TSRMLS_CC);
 
 	if (r->method != NGX_HTTP_POST) {
 		NGX_HTTP_PHP_R_INIT(r);
@@ -67,6 +90,72 @@ ngx_http_php_request_cleanup_handler(void *data)
 	return ;
 }
 
+static void 
+ngx_http_php_rewrite_file_uthread_routine(void *data)
+{
+	ngx_http_request_t *r;
+	ngx_http_php_ctx_t *ctx;
+	ngx_http_php_main_conf_t *pmcf;
+	ngx_http_php_loc_conf_t *plcf;
+
+	TSRMLS_FETCH();
+
+	r = data;
+	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+	zend_first_try {
+
+		ngx_php_eval_file(r, pmcf->state, plcf->rewrite_code TSRMLS_CC);
+
+	}zend_end_try();
+
+	ctx->rewrite_phase = 1;
+
+}
+
+static void
+ngx_http_php_rewrite_inline_uthread_routine(void *data)
+{
+	ngx_http_request_t *r;
+	ngx_http_php_ctx_t *ctx;
+	ngx_http_php_main_conf_t *pmcf;
+	ngx_http_php_loc_conf_t *plcf;
+
+	TSRMLS_FETCH();
+
+	r = data;
+	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "routine start");
+
+	ngx_http_php_sleep_uthread_run(r);
+
+	ngx_php_uthread_yield(ctx->uthread);
+
+	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "content yield");
+
+	ngx_http_php_sleep_uthread_run(r);
+
+	ngx_php_uthread_yield(ctx->uthread);
+
+	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "content yield");
+
+	zend_first_try {
+
+		ngx_php_eval_code(r, pmcf->state, plcf->rewrite_inline_code TSRMLS_CC);
+
+	}zend_end_try();
+
+	ctx->rewrite_phase = 1;
+
+	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "routine end");
+
+}
+
 ngx_int_t 
 ngx_http_php_rewrite_handler(ngx_http_request_t *r)
 {
@@ -81,20 +170,17 @@ ngx_http_php_rewrite_handler(ngx_http_request_t *r)
 ngx_int_t 
 ngx_http_php_rewrite_file_handler(ngx_http_request_t *r)
 {
+	ngx_int_t 							rc;
+	ngx_http_php_rputs_chain_list_t 	*chain;
+	ngx_http_php_main_conf_t 			*pmcf;
+	ngx_http_php_loc_conf_t 			*plcf;
+	ngx_http_php_ctx_t 					*ctx;
+
 	TSRMLS_FETCH();
 
-	ngx_int_t rc;
-	ngx_http_php_rputs_chain_list_t *chain;
-	ngx_http_php_main_conf_t *pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
-	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
-	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-
-	/*if (plcf->access_code != NGX_CONF_UNSET_PTR || 
-		plcf->access_inline_code != NGX_CONF_UNSET_PTR || 
-		plcf->content_code != NGX_CONF_UNSET_PTR || 
-		plcf->content_inline_code != NGX_CONF_UNSET_PTR){
-		return NGX_DECLINED;
-	}*/
+	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (ctx == NULL){
 		ctx = ngx_pcalloc(r->pool, sizeof(*ctx));
@@ -106,24 +192,36 @@ ngx_http_php_rewrite_file_handler(ngx_http_request_t *r)
 
 	ngx_php_request = r;
 
-	/*NGX_HTTP_PHP_NGX_INIT;
-		// main init
-		if (pmcf->init_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, pmcf->init_inline_code);
+	if (!ctx->rewrite_phase) {
+
+		if (ctx->rewrite_uthread == NULL) {
+			ctx->rewrite_uthread = ngx_pcalloc(r->pool, sizeof(ngx_php_uthread_t));
+			ctx->rewrite_uthread->stack = ngx_pcalloc(r->pool, PHP_UTHREAD_STACK_SIZE);
 		}
-		if (pmcf->init_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, pmcf->init_code);
+		ctx->rewrite_uthread->routine = ngx_http_php_rewrite_file_uthread_routine;
+		ctx->rewrite_uthread->data = r;
+
+		ctx->uthread = ctx->rewrite_uthread;
+
+		ngx_php_uthread_create(ctx->uthread);
+
+		if (ctx->rewrite_phase) {
+
+			goto set_output;
+			
+		} else {
+			
+			r->main->count++;
+
+			return NGX_AGAIN;
 		}
-		// location rewrite
-		ngx_php_ngx_run(r, pmcf->state, plcf->rewrite_code);
-	NGX_HTTP_PHP_NGX_SHUTDOWN;*/
 
-	zend_first_try {
+	}else {
+		ctx->rewrite_phase = 0;
+		goto set_output;
+	}
 
-		//ngx_php_ngx_run(r, pmcf->state, plcf->rewrite_code);
-		ngx_php_eval_code(r, pmcf->state, plcf->rewrite_code TSRMLS_CC);
-
-	} zend_end_try();
+set_output:
 
 	rc = ngx_php_get_request_status(TSRMLS_C);
 
@@ -176,20 +274,17 @@ ngx_http_php_rewrite_file_handler(ngx_http_request_t *r)
 ngx_int_t 
 ngx_http_php_rewrite_inline_handler(ngx_http_request_t *r)
 {
+	ngx_int_t 							rc;
+	ngx_http_php_rputs_chain_list_t 	*chain;
+	ngx_http_php_main_conf_t 			*pmcf;
+	ngx_http_php_loc_conf_t 			*plcf;
+	ngx_http_php_ctx_t 					*ctx;
+
 	TSRMLS_FETCH();
 
-	ngx_int_t rc;
-	ngx_http_php_rputs_chain_list_t *chain;
-	ngx_http_php_main_conf_t *pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
-	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
-	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-
-	/*if (plcf->access_code != NGX_CONF_UNSET_PTR || 
-		plcf->access_inline_code != NGX_CONF_UNSET_PTR || 
-		plcf->content_code != NGX_CONF_UNSET_PTR || 
-		plcf->content_inline_code != NGX_CONF_UNSET_PTR){
-		return NGX_DECLINED;
-	}*/
+	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (ctx == NULL){
 		ctx = ngx_pcalloc(r->pool, sizeof(*ctx));
@@ -201,25 +296,40 @@ ngx_http_php_rewrite_inline_handler(ngx_http_request_t *r)
 
 	ngx_php_request = r;
 
-	/*NGX_HTTP_PHP_NGX_INIT;
-		// main init
-		if (pmcf->init_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, pmcf->init_inline_code);
+	if (!ctx->rewrite_phase) {
+
+		if (ctx->rewrite_uthread == NULL) {
+			ctx->rewrite_uthread = ngx_pcalloc(r->pool, sizeof(ngx_php_uthread_t));
+			ctx->rewrite_uthread->stack = ngx_pcalloc(r->pool, PHP_UTHREAD_STACK_SIZE);
 		}
-		if (pmcf->init_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, pmcf->init_code);
+		ctx->rewrite_uthread->routine = ngx_http_php_rewrite_inline_uthread_routine;
+		ctx->rewrite_uthread->data = r;
+
+		ctx->uthread = ctx->rewrite_uthread;
+
+		ngx_php_uthread_create(ctx->uthread);
+
+		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", ctx->rewrite_phase);
+
+		if (ctx->rewrite_phase) {
+
+			goto set_output;
+			
+		} else {
+			
+			r->main->count++;
+
+			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "content done");
+
+			return NGX_AGAIN;
 		}
-		// location rewrite
-		ngx_php_ngx_run(r, pmcf->state, plcf->rewrite_inline_code);
-	NGX_HTTP_PHP_NGX_SHUTDOWN;*/
 
-	zend_first_try {
+	}else {
+		ctx->rewrite_phase = 0;
+		goto set_output;
+	}
 
-		//ngx_php_ngx_run(r, pmcf->state, plcf->rewrite_inline_code);
-		ngx_php_eval_code(r, pmcf->state, plcf->rewrite_inline_code TSRMLS_CC);
-
-	} zend_end_try();
-
+set_output:
 	rc = ngx_php_get_request_status(TSRMLS_C);
 
 	if (rc == NGX_OK || rc == NGX_HTTP_OK) {
@@ -269,6 +379,56 @@ ngx_http_php_rewrite_inline_handler(ngx_http_request_t *r)
 
 }
 
+static void 
+ngx_http_php_access_file_uthread_routine(void *data)
+{
+	ngx_http_request_t *r;
+	ngx_http_php_ctx_t *ctx;
+	ngx_http_php_main_conf_t *pmcf;
+	ngx_http_php_loc_conf_t *plcf;
+
+	TSRMLS_FETCH();
+
+	r = data;
+	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+	zend_first_try {
+
+		ngx_php_eval_file(r, pmcf->state, plcf->access_code TSRMLS_CC);
+
+	}zend_end_try();
+
+	ctx->access_phase = 1;
+
+}
+
+static void
+ngx_http_php_access_inline_uthread_routine(void *data)
+{
+	ngx_http_request_t *r;
+	ngx_http_php_ctx_t *ctx;
+	ngx_http_php_main_conf_t *pmcf;
+	ngx_http_php_loc_conf_t *plcf;
+
+	TSRMLS_FETCH();
+
+	r = data;
+	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+	zend_first_try {
+
+		ngx_php_eval_code(r, pmcf->state, plcf->access_inline_code TSRMLS_CC);
+
+	}zend_end_try();
+
+	ctx->access_phase = 1;
+
+}
+
 ngx_int_t 
 ngx_http_php_access_handler(ngx_http_request_t *r)
 {
@@ -283,17 +443,17 @@ ngx_http_php_access_handler(ngx_http_request_t *r)
 ngx_int_t 
 ngx_http_php_access_file_handler(ngx_http_request_t *r)
 {
+	ngx_int_t 							rc;
+	ngx_http_php_rputs_chain_list_t 	*chain;
+	ngx_http_php_main_conf_t 			*pmcf;
+	ngx_http_php_loc_conf_t 			*plcf;
+	ngx_http_php_ctx_t 					*ctx;
+
 	TSRMLS_FETCH();
 
-	ngx_http_php_main_conf_t *pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
-	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
-	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-	ngx_int_t rc;
-	ngx_http_php_rputs_chain_list_t *chain;
-
-	/*if (plcf->content_code != NGX_CONF_UNSET_PTR || plcf->content_inline_code != NGX_CONF_UNSET_PTR){
-		return NGX_DECLINED;
-	}*/
+	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (ctx == NULL){
 		ctx = ngx_pcalloc(r->pool, sizeof(*ctx));
@@ -305,32 +465,36 @@ ngx_http_php_access_file_handler(ngx_http_request_t *r)
 
 	ngx_php_request = r;
 
-	/*NGX_HTTP_PHP_NGX_INIT;
-		// main init
-		if (pmcf->init_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, pmcf->init_inline_code);
+	if (!ctx->access_phase) {
+
+		if (ctx->access_uthread == NULL) {
+			ctx->access_uthread = ngx_pcalloc(r->pool, sizeof(ngx_php_uthread_t));
+			ctx->access_uthread->stack = ngx_pcalloc(r->pool, PHP_UTHREAD_STACK_SIZE);
 		}
-		if (pmcf->init_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, pmcf->init_code);
-		}*/
-		// location rewrite
-		/*if (plcf->rewrite_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->rewrite_code);
+		ctx->access_uthread->routine = ngx_http_php_access_file_uthread_routine;
+		ctx->access_uthread->data = r;
+
+		ctx->uthread = ctx->access_uthread;
+
+		ngx_php_uthread_create(ctx->uthread);
+
+		if (ctx->access_uthread) {
+
+			goto set_output;
+			
+		} else {
+			
+			r->main->count++;
+
+			return NGX_AGAIN;
 		}
-		if (plcf->rewrite_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->rewrite_inline_code);
-		}*/
-		// location access
-		/*ngx_php_ngx_run(r, pmcf->state, plcf->access_code);
-	NGX_HTTP_PHP_NGX_SHUTDOWN;*/
 
-	zend_first_try {
+	}else {
+		ctx->access_phase = 0;
+		goto set_output;
+	}
 
-		//ngx_php_ngx_run(r, pmcf->state, plcf->access_code);
-		ngx_php_eval_code(r, pmcf->state, plcf->access_code TSRMLS_CC);
-		
-	} zend_end_try();
-
+set_output:
 	rc = ngx_php_get_request_status(TSRMLS_C);
 
 	if (rc == NGX_OK || rc == NGX_HTTP_OK) {
@@ -382,17 +546,17 @@ ngx_http_php_access_file_handler(ngx_http_request_t *r)
 ngx_int_t 
 ngx_http_php_access_inline_handler(ngx_http_request_t *r)
 {
+	ngx_int_t 							rc;
+	ngx_http_php_rputs_chain_list_t 	*chain;
+	ngx_http_php_main_conf_t 			*pmcf;
+	ngx_http_php_loc_conf_t 			*plcf;
+	ngx_http_php_ctx_t 					*ctx;
+
 	TSRMLS_FETCH();
 
-	ngx_http_php_main_conf_t *pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
-	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
-	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-	ngx_int_t rc;
-	ngx_http_php_rputs_chain_list_t *chain;
-
-	/*if (plcf->content_code != NGX_CONF_UNSET_PTR || plcf->content_inline_code != NGX_CONF_UNSET_PTR){
-		return NGX_DECLINED;
-	}*/
+	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (ctx == NULL){
 		ctx = ngx_pcalloc(r->pool, sizeof(*ctx));
@@ -404,32 +568,36 @@ ngx_http_php_access_inline_handler(ngx_http_request_t *r)
 
 	ngx_php_request = r;
 
-	/*NGX_HTTP_PHP_NGX_INIT;
-		// main init
-		if (pmcf->init_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, pmcf->init_inline_code);
-		}
-		if (pmcf->init_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, pmcf->init_code);
-		}*/
-		// location rewrite
-		/*if (plcf->rewrite_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->rewrite_code);
-		}
-		if (plcf->rewrite_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->rewrite_inline_code);
-		}*/
-		// location access
-		/*ngx_php_ngx_run(r, pmcf->state, plcf->access_inline_code);
-	NGX_HTTP_PHP_NGX_SHUTDOWN;*/
+	if (!ctx->access_phase) {
 
-	zend_first_try {
+		if (ctx->access_uthread == NULL) {
+			ctx->access_uthread = ngx_pcalloc(r->pool, sizeof(ngx_php_uthread_t));
+			ctx->access_uthread->stack = ngx_pcalloc(r->pool, PHP_UTHREAD_STACK_SIZE);
+		}
+		ctx->access_uthread->routine = ngx_http_php_access_inline_uthread_routine;
+		ctx->access_uthread->data = r;
 
-		//ngx_php_ngx_run(r, pmcf->state, plcf->access_inline_code);
-		ngx_php_eval_code(r, pmcf->state, plcf->access_inline_code TSRMLS_CC);
-		
-	} zend_end_try();
-	
+		ctx->uthread = ctx->access_uthread;
+
+		ngx_php_uthread_create(ctx->uthread);
+
+		if (ctx->access_uthread) {
+
+			goto set_output;
+			
+		} else {
+			
+			r->main->count++;
+
+			return NGX_AGAIN;
+		}
+
+	}else {
+		ctx->access_phase = 0;
+		goto set_output;
+	}
+
+set_output:
 	rc = ngx_php_get_request_status(TSRMLS_C);
 
 	if (rc == NGX_OK || rc == NGX_HTTP_OK) {
@@ -478,6 +646,56 @@ ngx_http_php_access_inline_handler(ngx_http_request_t *r)
 	return rc;
 }
 
+static void 
+ngx_http_php_content_file_uthread_routine(void *data)
+{
+	ngx_http_request_t *r;
+	ngx_http_php_ctx_t *ctx;
+	ngx_http_php_main_conf_t *pmcf;
+	ngx_http_php_loc_conf_t *plcf;
+
+	TSRMLS_FETCH();
+
+	r = data;
+	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+	zend_first_try {
+
+		ngx_php_eval_file(r, pmcf->state, plcf->content_code TSRMLS_CC);
+
+	} zend_end_try();
+
+	ctx->content_phase = 1;
+
+}
+
+static void 
+ngx_http_php_content_inline_uthread_routine(void *data)
+{
+	ngx_http_request_t *r;
+	ngx_http_php_ctx_t *ctx;
+	ngx_http_php_main_conf_t *pmcf;
+	ngx_http_php_loc_conf_t *plcf;
+
+	TSRMLS_FETCH();
+
+	r = data;
+	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+	zend_first_try {
+
+		ngx_php_eval_code(r, pmcf->state, plcf->content_inline_code TSRMLS_CC);
+
+	} zend_end_try();
+
+	ctx->content_phase = 1;
+
+}
+
 ngx_int_t
 ngx_http_php_content_handler(ngx_http_request_t *r)
 {
@@ -492,14 +710,17 @@ ngx_http_php_content_handler(ngx_http_request_t *r)
 ngx_int_t 
 ngx_http_php_content_file_handler(ngx_http_request_t *r)
 {
+	ngx_int_t 							rc;
+	ngx_http_php_rputs_chain_list_t 	*chain;
+	ngx_http_php_main_conf_t 			*pmcf;
+	ngx_http_php_loc_conf_t 			*plcf;
+	ngx_http_php_ctx_t 					*ctx;
+
 	TSRMLS_FETCH();
 
-	ngx_http_php_main_conf_t *pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
-	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
-	ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
-
-	ngx_int_t rc;
-	ngx_http_php_rputs_chain_list_t *chain;
+	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
+	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (ctx == NULL){
 		ctx = ngx_pcalloc(r->pool, sizeof(*ctx));
@@ -519,39 +740,36 @@ ngx_http_php_content_file_handler(ngx_http_request_t *r)
 		return ngx_http_php_content_post_handler(r);
 	}
 
-	/*NGX_HTTP_PHP_NGX_INIT;
-		// main init
-		if (pmcf->init_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, pmcf->init_inline_code);
-		}
-		if (pmcf->init_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, pmcf->init_code);
-		}*/
-		// location rewrite
-		/*if (plcf->rewrite_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->rewrite_code);
-		}
-		if (plcf->rewrite_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->rewrite_inline_code);
-		}
-		// location access
-		if (plcf->access_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->access_code);
-		}
-		if (plcf->access_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->access_inline_code);
-		}*/
-		// location content
-		/*ngx_php_ngx_run(r, pmcf->state, plcf->content_code);
-	NGX_HTTP_PHP_NGX_SHUTDOWN;*/
+	if (!ctx->content_phase) {
 
-	zend_first_try {
+		if (ctx->content_uthread == NULL) {
+			ctx->content_uthread = ngx_pcalloc(r->pool, sizeof(ngx_php_uthread_t));
+			ctx->content_uthread->stack = ngx_pcalloc(r->pool, PHP_UTHREAD_STACK_SIZE);
+		}
+		ctx->content_uthread->routine = ngx_http_php_content_file_uthread_routine;
+		ctx->content_uthread->data = r;
 
-		//ngx_php_ngx_run(r, pmcf->state, plcf->content_code);
-		ngx_php_eval_file(r, pmcf->state, plcf->content_code TSRMLS_CC);
-		
-	} zend_end_try();
+		ctx->uthread = ctx->content_uthread;
 
+		ngx_php_uthread_create(ctx->uthread);
+
+		if (ctx->content_uthread) {
+
+			goto set_output;
+			
+		} else {
+			
+			r->main->count++;
+
+			return NGX_AGAIN;
+		}
+
+	}else {
+		ctx->content_phase = 0;
+		goto set_output;
+	}
+
+set_output:
 	rc = ngx_php_get_request_status(TSRMLS_C);
 
 	if (rc == NGX_OK || rc == NGX_HTTP_OK) {
@@ -627,15 +845,16 @@ ngx_http_php_content_file_handler(ngx_http_request_t *r)
 ngx_int_t 
 ngx_http_php_content_inline_handler(ngx_http_request_t *r)
 {
+	ngx_int_t 							rc;
+	ngx_http_php_rputs_chain_list_t 	*chain;
+	ngx_http_php_main_conf_t 			*pmcf;
+	ngx_http_php_loc_conf_t 			*plcf;
+	ngx_http_php_ctx_t 					*ctx;
+
 	TSRMLS_FETCH();
 
-	ngx_http_php_main_conf_t *pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
-	ngx_http_php_loc_conf_t *plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
-
-	ngx_int_t rc = 0;
-	ngx_http_php_rputs_chain_list_t *chain;
-
-	ngx_http_php_ctx_t *ctx;
+	pmcf = ngx_http_get_module_main_conf(r, ngx_http_php_module);
+	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
 	if (ctx == NULL){
@@ -656,39 +875,36 @@ ngx_http_php_content_inline_handler(ngx_http_request_t *r)
 		return ngx_http_php_content_post_handler(r);
 	}
 
-	/*NGX_HTTP_PHP_NGX_INIT;
-		// main init
-		if (pmcf->init_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, pmcf->init_inline_code);
-		}
-		if (pmcf->init_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, pmcf->init_code);
-		}*/
-		// location rewrite
-		/*if (plcf->rewrite_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->rewrite_code);
-		}
-		if (plcf->rewrite_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->rewrite_inline_code);
-		}
-		// location access
-		if (plcf->access_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->access_code);
-		}
-		if (plcf->access_inline_code != NGX_CONF_UNSET_PTR){
-			ngx_php_ngx_run(r, pmcf->state, plcf->access_inline_code);
-		}*/
-		// location content
-		/*ngx_php_ngx_run(r, pmcf->state, plcf->content_inline_code);
-	NGX_HTTP_PHP_NGX_SHUTDOWN;*/
+	if (!ctx->content_phase) {
 
-	zend_first_try {
+		if (ctx->content_uthread == NULL) {
+			ctx->content_uthread = ngx_pcalloc(r->pool, sizeof(ngx_php_uthread_t));
+			ctx->content_uthread->stack = ngx_pcalloc(r->pool, PHP_UTHREAD_STACK_SIZE);
+		}
+		ctx->content_uthread->routine = ngx_http_php_content_inline_uthread_routine;
+		ctx->content_uthread->data = r;
 
-		//ngx_php_ngx_run(r, pmcf->state, plcf->content_inline_code);
-		ngx_php_eval_code(r, pmcf->state, plcf->content_inline_code TSRMLS_CC);
+		ctx->uthread = ctx->content_uthread;
 
-	} zend_end_try();
+		ngx_php_uthread_create(ctx->uthread);
 
+		if (ctx->content_uthread) {
+
+			goto set_output;
+			
+		} else {
+			
+			r->main->count++;
+
+			return NGX_AGAIN;
+		}
+
+	}else {
+		ctx->content_phase = 0;
+		goto set_output;
+	}
+
+set_output:
 	rc = ngx_php_get_request_status(TSRMLS_C);
 
 	if (rc == NGX_OK || rc == NGX_HTTP_OK) {
