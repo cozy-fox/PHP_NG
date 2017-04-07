@@ -17,7 +17,7 @@
 #define PHP_UTHREAD_RUNNING 2
 #define PHP_UTHREAD_SUSPEND 3
 
-#define PHP_UTHREAD_STACK_SIZE      1024*1024
+#define PHP_UTHREAD_STACK_SIZE      64*1024
 #define PHP_UTHREAD_MAX_SIZE        1024
 
 ngx_uint_t ngx_php_uthread_max;
