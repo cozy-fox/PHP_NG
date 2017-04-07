@@ -76,7 +76,7 @@ ngx_http_php_content_inline_thread_handler(ngx_http_request_t *r)
         return ngx_http_php_content_post_handler(r);
     }
 
-    ngx_http_php_request_cleanup_handler(r);
+    //ngx_http_php_request_cleanup_handler(r);
 
     tpp = pmcf->thread_pools.elts;
     tp = tpp[0];
@@ -180,7 +180,7 @@ ngx_http_php_content_file_thread_handler(ngx_http_request_t *r)
         return ngx_http_php_content_post_handler(r);
     }
 
-    ngx_http_php_request_cleanup_handler(r);
+    //ngx_http_php_request_cleanup_handler(r);
 
     tpp = pmcf->thread_pools.elts;
     tp = tpp[0];
