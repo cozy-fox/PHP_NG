@@ -23,7 +23,6 @@ GET /access-content
 --- response_body
 running access
 running content
-var access
 
 
 

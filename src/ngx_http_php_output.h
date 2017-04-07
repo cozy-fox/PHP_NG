@@ -10,8 +10,8 @@
 #include <nginx.h>
 #include <ngx_http.h>
 
-void ngx_http_php_set_output(char *buffer, int buffer_len);
+void ngx_http_php_set_output_chain(ngx_http_request_t *r, char *buffer, int buffer_len);
 
-void ngx_http_php_check_output_empty();
+void ngx_http_php_check_output_chain_empty(ngx_http_request_t *r);
 
 #endif
