@@ -532,7 +532,7 @@ Nginx的错误日志等级，在php中的实现。
 * NGX_LOG_DEBUG
 
 ```php
-ngx_log::error(ngx_log::ERR, "test");
+ngx_log::error(NGX_LOG_ERR, "test");
 
 /*
  2016/10/06 22:10:19 [error] 51402#0: *1 test while reading response header from upstream, client: 192.168.80.1, 

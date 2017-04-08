@@ -1,12 +1,6 @@
-<p align="center">
-<a href="https://github.com/rryqszq4/ngx_php"><img align="left" width="450" src="https://github.com/rryqszq4/ngx_php/blob/master/doc/ngx_php_logo.png"></a>
-</p>
-<ul>
-<ol>&nbsp;</ol>
-<ol>&nbsp;</ol>
-<ol>&nbsp;</ol>
-<ol>&nbsp;</ol>
-</ul>
+<div align="center">
+<a href="https://github.com/rryqszq4/ngx_php"><img width="320" src="https://raw.githubusercontent.com/rryqszq4/ngx_php/master/doc/ngx_php_logo.png"></a>
+</div>
 
 [![Build Status](https://travis-ci.org/rryqszq4/ngx_php.svg?branch=master)](https://travis-ci.org/rryqszq4/ngx_php) 
 [![Gitter](https://badges.gitter.im/rryqszq4/ngx_php.svg)](https://gitter.im/rryqszq4/ngx_php?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -546,7 +540,7 @@ Nginx log of level in php.
 * NGX_LOG_DEBUG
 
 ```php
-ngx_log::error(ngx_log::ERR, "test");
+ngx_log::error(NGX_LOG_ERR, "test");
 
 /*
  2016/10/06 22:10:19 [error] 51402#0: *1 test while reading response header from upstream, client: 192.168.80.1, 
