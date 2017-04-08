@@ -1,12 +1,6 @@
-<p align="center">
-<a href="https://github.com/rryqszq4/ngx_php"><img align="left" width="450" src="https://github.com/rryqszq4/ngx_php/blob/master/doc/ngx_php_logo.png"></a>
-</p>
-<ul>
-<ol>&nbsp;</ol>
-<ol>&nbsp;</ol>
-<ol>&nbsp;</ol>
-<ol>&nbsp;</ol>
-</ul>
+<div align="left">
+<a href="https://github.com/rryqszq4/ngx_php"><img width="320" src="https://raw.githubusercontent.com/rryqszq4/ngx_php/master/doc/ngx_php_logo.png"></a>
+</div>
 
 [![Build Status](https://travis-ci.org/rryqszq4/ngx_php.svg?branch=master)](https://travis-ci.org/rryqszq4/ngx_php) 
 [![Gitter](https://badges.gitter.im/rryqszq4/ngx_php.svg)](https://gitter.im/rryqszq4/ngx_php?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
@@ -171,8 +165,10 @@ t/007-_FILES.t .......... ok
 t/008-error.t ........... ok
 t/009-session.t ......... ok
 t/100-ngx_socket_tcp.t .. ok
+t/200-rewrite_by_php.t .. ok
+t/202-access_by_php.t ... ok
 All tests successful.
-Files=10, Tests=22,  3 wallclock secs ( 0.04 usr  0.01 sys +  0.94 cusr  0.27 csys =  1.26 CPU)
+Files=12, Tests=40,  4 wallclock secs ( 0.06 usr  0.01 sys +  1.23 cusr  0.46 csys =  1.76 CPU)
 Result: PASS
 ```
 
@@ -546,7 +542,7 @@ Nginx log of level in php.
 * NGX_LOG_DEBUG
 
 ```php
-ngx_log::error(ngx_log::ERR, "test");
+ngx_log::error(NGX_LOG_ERR, "test");
 
 /*
  2016/10/06 22:10:19 [error] 51402#0: *1 test while reading response header from upstream, client: 192.168.80.1, 
