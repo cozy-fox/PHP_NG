@@ -17,4 +17,6 @@ PHP_METHOD(ngx, exit);
 
 void php_ngx_core_init(int module_number TSRMLS_DC);
 
+void php_co_ngx_init(int module_number TSRMLS_DC);
+
 #endif
