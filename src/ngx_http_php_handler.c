@@ -137,7 +137,7 @@ ngx_http_php_rewrite_inline_uthread_routine(void *data)
 	NGX_HTTP_PHP_R_INIT(r);
 	
 	php_ngx_core_init(0 TSRMLS_CC);
-
+	ngx_php_set_request_status(NGX_DECLINED TSRMLS_CC);
 	zend_first_try {
 
 		ngx_php_eval_code(r, pmcf->state, plcf->rewrite_inline_code TSRMLS_CC);

@@ -65,7 +65,7 @@ end content thread
 
 
 
-=== TEST 2: linked access-content-thread, access block
+=== TEST 4: linked access-content-thread, access block
 --- config
     location /access-content-thread {
         access_by_php '
