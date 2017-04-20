@@ -134,16 +134,10 @@ ngx_http_php_rewrite_inline_uthread_routine(void *data)
 	plcf = ngx_http_get_module_loc_conf(r, ngx_http_php_module);
 	ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
-	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "routine start");
-
-	//ngx_http_php_sleep_uthread_run(r);
-
-	//ngx_php_uthread_yield(ctx->uthread);
-
 	NGX_HTTP_PHP_R_INIT(r);
-
+	
 	php_ngx_core_init(0 TSRMLS_CC);
-	ngx_php_set_request_status(NGX_DECLINED TSRMLS_CC);
+
 	zend_first_try {
 
 		ngx_php_eval_code(r, pmcf->state, plcf->rewrite_inline_code TSRMLS_CC);
@@ -152,8 +146,6 @@ ngx_http_php_rewrite_inline_uthread_routine(void *data)
 	NGX_HTTP_PHP_R_SHUTDOWN(r);
 
 	ctx->rewrite_phase = 1;
-
-	ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "routine end");
 
 }
 
@@ -301,8 +293,6 @@ ngx_http_php_rewrite_inline_handler(ngx_http_request_t *r)
 
 		ngx_php_uthread_create(ctx->uthread);
 
-		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "%d", ctx->rewrite_phase);
-
 		if (ctx->rewrite_phase) {
 
 			goto set_output;
@@ -310,8 +300,6 @@ ngx_http_php_rewrite_inline_handler(ngx_http_request_t *r)
 		} else {
 			
 			r->main->count++;
-
-			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "content done");
 
 			return NGX_AGAIN;
 		}
