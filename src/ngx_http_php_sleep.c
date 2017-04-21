@@ -250,3 +250,54 @@ ngx_http_php_sleep_thread_handler(ngx_event_t *ev)
     pthread_mutex_unlock(&(ctx->mutex));
 }
 
+ngx_int_t 
+ngx_http_php_sleep_uthread_run(ngx_http_request_t *r)
+{
+    ngx_http_cleanup_t *cln;
+
+    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    if (ctx == NULL){
+        return NGX_HTTP_INTERNAL_SERVER_ERROR;
+    }
+
+    ngx_memzero(&ctx->sleep, sizeof(ngx_event_t));
+
+    //ev.timer_set = 0;
+    ctx->sleep.handler = ngx_http_php_sleep_uthread_handler;
+    ctx->sleep.log = r->connection->log;
+    ctx->sleep.data = r;
+
+    ngx_add_timer(&ctx->sleep, (ngx_msec_t) 2000);
+
+    cln = ngx_http_cleanup_add(r, 0);
+    if (cln == NULL) {
+        return NGX_ERROR;
+    }
+
+    cln->handler = ngx_http_php_sleep_cleanup;
+    cln->data = r;
+
+    r->keepalive = 0;
+
+    return NGX_OK;
+}
+
+void 
+ngx_http_php_sleep_uthread_handler(ngx_event_t *ev)
+{
+    ngx_http_request_t *r;
+
+    r = ev->data;
+
+    ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
+
+    ngx_php_uthread_resume(ctx->uthread);
+
+    ctx->rewrite_phase = 1;
+
+    if (ctx->rewrite_phase || ctx->access_phase || ctx->content_phase) {
+        ngx_http_core_run_phases(r);
+    }
+}
+

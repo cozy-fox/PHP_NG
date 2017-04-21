@@ -3,6 +3,8 @@
 
 	* optimize use of uthread in rewrite, access and content handler
 
+	* zend engine not support ucontext in one zend vm
+
 2017-02-27 rryqszq4 <ngxphp@gmail.com>
 	* add ngx_php_thread and ngx_php_thread_pool
 
