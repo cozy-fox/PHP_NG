@@ -183,8 +183,8 @@ Directives
 * [content_by_php_file](#content_by_php_file)
 * [log_by_php](#log_by_php)
 * [log_by_php_file](#log_by_php_file)
-* [content_thread_by_php](#content_thread_by_php)
-* [content_thread_by_php_file](#content_thread_by_php_file)
+* [thread_by_php](#thread_by_php)
+* [thread_by_php_file](#thread_by_php_file)
 * [set_by_php](#set_by_php)
 * [set_run_by_php](#set_run_by_php)
 * [set_by_php_file](#set_by_php_file)
@@ -324,17 +324,17 @@ log_by_php_file
 
 **phase:** *log*
 
-content_thread_by_php
+thread_by_php
 ---------------------
-**syntax:** *content_thread_by_php &lt;php script code&gt;*  
+**syntax:** *thread_by_php &lt;php script code&gt;*  
 
 **context:** *http, server, location, location if*  
 
 **phase:** *content*  
 
 ```nginx
-location /content_thread_by_php {
-    content_thread_by_php "
+location /thread_by_php {
+    thread_by_php "
         echo 'hello world';
 
         $res = ngx_location::capture('/list=s_sh000001');
@@ -362,9 +362,9 @@ location /list {
 }
 ```
 
-content_thread_by_php_file
+thread_by_php_file
 --------------------------
-**syntax:** *content_thread_by_php_file &lt;php script file&gt;*  
+**syntax:** *thread_by_php_file &lt;php script file&gt;*  
 
 **context:** *http, server, location, location if*  
 
@@ -421,7 +421,7 @@ ngx::_exit
 ----------
 **syntax:** *ngx::_exit(int $status)*  
 
-**context:** *content_by_php* *content_thread_by_php*  
+**context:** *content_by_php* *thread_by_php*  
 
 ```php
 echo "start\n";
@@ -433,7 +433,7 @@ ngx_location::capture
 ---------------------
 **syntax:** *ngx_location::capture(string $uri)*  
 
-**context:** *content_thread_by_php*  
+**context:** *thread_by_php*  
 
 With nginx underlying strong subrequest, php achieve full non-blocking calls.
 
@@ -446,7 +446,7 @@ ngx_location::capture_multi
 ---------------------------
 **syntax:** *ngx_location::capture_multi(array $uri)*  
 
-**context:** *content_thread_by_php*  
+**context:** *thread_by_php*  
 
 * And ngx location :: capture similar, but can support full non-blocking concurrent calls.
 
@@ -464,7 +464,7 @@ ngx_socket_tcp::__construct
 ---------------------------
 **syntax:** *ngx_socket_tcp::__construct()*  
 
-**context:** *content_thread_by_php*  
+**context:** *thread_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -474,7 +474,7 @@ ngx_socket_tcp::connect
 -----------------------
 **syntax:** *ngx_socket_tcp::connect(string $host, int $port)*  
 
-**context:** *content_thread_by_php*  
+**context:** *thread_by_php*  
 
 resolver 8.8.8.8;
 
@@ -487,7 +487,7 @@ ngx_socket_tcp::send
 --------------------
 **syntax:** *ngx_socket_tcp::send(string $buf)* 
 
-**context:** *content_thread_by_php*  
+**context:** *thread_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -499,7 +499,7 @@ ngx_socket_tcp::receive
 -----------------------
 **syntax:** *ngx_socket_tcp::receive()* 
 
-**context:** *content_thread_by_php* 
+**context:** *thread_by_php* 
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -514,19 +514,19 @@ ngx_socket_tcp::close
 ---------------------
 **syntax:** *ngx_socket_tcp::close()*  
 
-**context:** *content_thread_by_php*  
+**context:** *thread_by_php*  
 
 ngx_socket_tcp::settimeout
 --------------------------
 **syntax:** *ngx_socket_tcp::settimeout(int time)*  
 
-**context:** *content_thread_by_php*  
+**context:** *thread_by_php*  
 
 ngx_log::error
 --------------
 **syntax:** *ngx_log::error(int level, string log)* 
 
-**context:** *content_thread_by_php* 
+**context:** *thread_by_php* 
 
 Nginx log of level in php.
 * NGX_LOG_STDERR
@@ -552,7 +552,7 @@ ngx_time::sleep
 ---------------
 **syntax:** *ngx_time::sleep(int seconds)* 
 
-**context:** *content_thread_by_php*  
+**context:** *thread_by_php*  
 
 ```php
 echo "sleep_start\n";

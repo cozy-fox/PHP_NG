@@ -189,8 +189,8 @@ nginx指令
 * [content_by_php_file](#content_by_php_file)
 * [log_by_php](#log_by_php)
 * [log_by_php_file](#log_by_php_file)
-* [content_thread_by_php](#content_thread_by_php)
-* [content_thread_by_php_file](#content_thread_by_php_file)
+* [thread_by_php](#thread_by_php)
+* [thread_by_php_file](#thread_by_php_file)
 * [set_by_php](#set_by_php)
 * [set_run_by_php](#set_run_by_php)
 * [set_by_php_file](#set_by_php_file)
@@ -315,9 +315,9 @@ log_by_php_file
 
 **阶段:** *log*
 
-content_thread_by_php
+thread_by_php
 ---------------------
-**语法:** *content_thread_by_php &lt;php script code&gt;*  
+**语法:** *thread_by_php &lt;php script code&gt;*  
 
 **环境:** *http, server, location, location if*  
 
@@ -325,8 +325,8 @@ content_thread_by_php
 
 ngx_php核心处理阶段，可以执行php代码，底层使用nginx异步机制＋多线程实现以非阻塞方式运行php代码。
 ```nginx
-location /content_thread_by_php {
-    content_thread_by_php "
+location /thread_by_php {
+    thread_by_php "
         echo 'hello world';
 
         $res = ngx_location::capture('/list=s_sh000001');
@@ -354,9 +354,9 @@ location /list {
 }
 ```
 
-content_thread_by_php_file
+thread_by_php_file
 --------------------------
-**语法:** *content_thread_by_php_file &lt;php script file&gt;*  
+**语法:** *thread_by_php_file &lt;php script file&gt;*  
 
 **环境:** *http, server, location, location if*  
 
@@ -415,7 +415,7 @@ ngx::_exit
 ----------
 **语法:** *ngx::_exit(int $status)*  
 
-**环境:** *content_by_php* *content_thread_by_php*  
+**环境:** *content_by_php* *thread_by_php*  
 
 ```php
 echo "start\n";
@@ -427,7 +427,7 @@ ngx_location::capture
 ---------------------
 **语法:** *ngx_location::capture(string $uri)*  
 
-**环境:** *content_thread_by_php*  
+**环境:** *thread_by_php*  
 
 借助nginx底层强大的subrequest，实现php完全非阻塞调用
 
@@ -440,7 +440,7 @@ ngx_location::capture_multi
 ---------------------------
 **语法:** *ngx_location::capture_multi(array $uri)*  
 
-**环境:** *content_thread_by_php*  
+**环境:** *thread_by_php*  
 
 和ngx_location::capture相似，但是可以支持完全非阻塞的并行调用
 
@@ -458,7 +458,7 @@ ngx_socket_tcp::__construct
 ---------------------------
 **语法:** *ngx_socket_tcp::__construct()*  
 
-**环境:** *content_thread_by_php*  
+**环境:** *thread_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -468,7 +468,7 @@ ngx_socket_tcp::connect
 ---------------------------
 **语法:** *ngx_socket_tcp::connect(string $host, int $port)*  
 
-**环境:** *content_thread_by_php*  
+**环境:** *thread_by_php*  
 
 resolver 8.8.8.8;
 
@@ -481,7 +481,7 @@ ngx_socket_tcp::send
 ---------------------------
 **语法:** *ngx_socket_tcp::send(string $buf)*  
 
-**环境:** *content_thread_by_php*  
+**环境:** *thread_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -493,7 +493,7 @@ ngx_socket_tcp::receive
 ---------------------------
 **语法:** *ngx_socket_tcp::receive()*  
 
-**环境:** *content_thread_by_php*  
+**环境:** *thread_by_php*  
 
 ```php
 $tcpsock = new ngx_socket_tcp();
@@ -508,19 +508,19 @@ ngx_socket_tcp::close
 ---------------------------
 **语法:** *ngx_socket_tcp::close()*  
 
-**环境:** *content_thread_by_php*  
+**环境:** *thread_by_php*  
 
 ngx_socket_tcp::settimeout
 ---------------------------
 **语法:** *ngx_socket_tcp::settimeout(int time)*  
 
-**环境:** *content_thread_by_php*  
+**环境:** *thread_by_php*  
 
 ngx_log::error
 --------------
 **语法:** *ngx_log::error(int level, string log)* 
 
-**环境:** *content_thread_by_php*  
+**环境:** *thread_by_php*  
 
 Nginx的错误日志等级，在php中的实现。
 * NGX_LOG_STDERR
@@ -546,7 +546,7 @@ ngx_time::sleep
 ---------------
 **语法:** *ngx_time::sleep(int seconds)* 
 
-**环境:** *content_thread_by_php*  
+**环境:** *thread_by_php*  
 
 由于php的标准sleep函数会阻塞nginx，所以基于nginx底层的定时器实现了ngx_time::sleep，可以在nginx中实现非阻塞sleep
 
