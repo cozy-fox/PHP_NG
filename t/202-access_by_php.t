@@ -51,7 +51,7 @@ running access
             $var = "var access\n";
             echo "running access\n";
         ';
-        content_thread_by_php '
+        thread_by_php '
             echo "running content thread\n";
             echo "end content thread\n";
         ';
