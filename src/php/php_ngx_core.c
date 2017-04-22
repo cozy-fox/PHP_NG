@@ -8,6 +8,8 @@
 #include "../ngx_http_php_module.h"
 
 static zend_class_entry *php_ngx_class_entry;
+static zend_class_entry *php_co_ngx_class_entry;
+//static zend_class_entry *php_thd_ngx_class_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(ngx_exit_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, status)
@@ -26,10 +28,36 @@ PHP_METHOD(ngx, _exit)
     zend_bailout();
 }
 
+
+PHP_METHOD(co_ngx, _exit)
+{
+    long status = 0;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &status) == FAILURE){
+        RETURN_NULL();
+    }
+
+    EG(exit_status) = status;
+
+    zend_bailout();
+}
+
 static const zend_function_entry php_ngx_class_functions[] = {
     PHP_ME(ngx, _exit, ngx_exit_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     {NULL, NULL, NULL, 0, 0}
 };
+
+static const zend_function_entry php_co_ngx_class_function[] = {
+    PHP_ME(co_ngx, _exit, ngx_exit_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    {NULL, NULL, NULL, 0, 0}
+};
+
+void php_co_ngx_init(int module_number TSRMLS_DC)
+{
+    zend_class_entry ngx_class_entry;
+    INIT_CLASS_ENTRY(ngx_class_entry, "ngx", php_co_ngx_class_function);
+    php_co_ngx_class_entry = zend_register_internal_class(&ngx_class_entry TSRMLS_CC);
+}
 
 void php_ngx_core_init(int module_number TSRMLS_DC)
 {

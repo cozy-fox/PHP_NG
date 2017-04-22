@@ -51,7 +51,7 @@ running access
             $var = "var access\n";
             echo "running access\n";
         ';
-        content_thread_by_php '
+        thread_by_php '
             echo "running content thread\n";
             echo "end content thread\n";
         ';
@@ -65,7 +65,7 @@ end content thread
 
 
 
-=== TEST 2: linked access-content-thread, access block
+=== TEST 4: linked access-content-thread, access block
 --- config
     location /access-content-thread {
         access_by_php '

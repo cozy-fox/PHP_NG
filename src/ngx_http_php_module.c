@@ -132,7 +132,7 @@ static ngx_command_t ngx_http_php_commands[] = {
 	},
 	*/
 
-	{ngx_string("content_thread_by_php_file"),
+	{ngx_string("thread_by_php_file"),
 	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
 	 	|NGX_CONF_TAKE1,
 	 ngx_http_php_content_phase,
@@ -141,7 +141,7 @@ static ngx_command_t ngx_http_php_commands[] = {
 	 ngx_http_php_content_file_thread_handler
 	},
 
-	{ngx_string("content_thread_by_php"),
+	{ngx_string("thread_by_php"),
 	 NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
 	 	|NGX_CONF_TAKE1,
 	 ngx_http_php_content_inline_phase,
@@ -547,7 +547,7 @@ ngx_http_php_init_worker(ngx_cycle_t *cycle)
 	php_ngx_module.register_server_variables = ngx_http_php_code_register_server_variables;
 	php_ngx_module.read_post = ngx_http_php_code_read_post;
 	php_ngx_module.read_cookies = ngx_http_php_code_read_cookies;
-	//php_ngx_module.header_handler = ngx_http_php_code_header_handler;
+	php_ngx_module.header_handler = ngx_http_php_code_header_handler;
 
 	if (pmcf->ini_path.len != 0){
 		php_ngx_module.php_ini_path_override = (char *)pmcf->ini_path.data;

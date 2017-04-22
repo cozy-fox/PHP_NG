@@ -51,7 +51,7 @@ running rewrite
             $var = "var rewrite\n";
             echo "running rewrite\n";
         ';
-        content_thread_by_php '
+        thread_by_php '
             echo "running content thread\n";
             echo "end content thread\n";
         ';
@@ -72,7 +72,7 @@ end content thread
             echo "running rewrite\n";
             ngx::_exit(NGX_OK);
         ';
-        content_thread_by_php '
+        thread_by_php '
             echo "running content thread\n";
         ';
     }
