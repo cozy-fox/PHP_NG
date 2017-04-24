@@ -7,6 +7,10 @@
 
 	* change directive content_thread_by_php to thread_by_php
 
+	* delete ngx_location::capture
+
+	* bumped version to 0.0.10
+
 2017-02-27 rryqszq4 <ngxphp@gmail.com>
 	* add ngx_php_thread and ngx_php_thread_pool
 

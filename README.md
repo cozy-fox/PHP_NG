@@ -9,6 +9,7 @@
 
 [ngx_php](https://github.com/rryqszq4/ngx_php) - Embedded php script language for nginx-module. Another name is nginx-php5-module.   
 [English document](https://github.com/rryqszq4/ngx_php/blob/master/doc/README-en.md) | [中文文档](https://github.com/rryqszq4/ngx_php/blob/master/doc/README-zh.md)  
+QQ Group：558795330
 
 Features
 --------
@@ -335,32 +336,20 @@ thread_by_php
 **phase:** *content*  
 
 ```nginx
-location /thread_by_php {
+resolver 8.8.8.8;
+
+location = /thread_by_php {
     thread_by_php "
-        echo 'hello world';
-
-        $res = ngx_location::capture('/list=s_sh000001');
-        var_dump($res);
-        
-        $capture_multi = array(
-                            '/list=s_sh000001',
-                            '/list=s_sh000001',
-                            '/list=s_sh000001'
-                    );
-        $res = ngx_location::capture_multi($capture_multi);
-        var_dump($res);
-        
-        $res = ngx_location::capture('/list=s_sh000001');
-        var_dump($res);
-        
-        $res = ngx_location::capture('/list=s_sh000001');
-        #var_dump($res);
+        header('Content-Type: application/x-javascript; charset=GBK');
+        $tcpsock = new ngx_socket_tcp();
+        $tcpsock->settimeout(30000);
+        $tcpsock->connect('hq.sinajs.cn',80);
+        $tcpsock->send('GET /list=s_sh000001 HTTP/1.0\r\nHost: hq.sinajs.cn\r\nConnection: close\r\n\r\n');
+        $res = $tcpsock->receive();
+        $tcpsock->close();
+        $res = explode('\r\n',$res);
+        var_dump($res[0]);
     ";
-}
-
-location /list {
-    proxy_pass http://hq.sinajs.cn;
-    proxy_set_header Accept-Encoding "";
 }
 ```
 
@@ -408,8 +397,6 @@ set_run_by_php_file
 Nginx API for php
 -----------------
 * [ngx::_exit](#ngx_exit)
-* [ngx_location::capture](#ngx_locationcapture)
-* [ngx_location::capture_multi](#ngx_locationcapture_multi)
 * [ngx_socket_tcp::__construct](#ngx_socket_tcp__construct)
 * [ngx_socket_tcp::connect](#ngx_socket_tcpconnect)
 * [ngx_socket_tcp::send](#ngx_socket_tcpsend)
@@ -429,37 +416,6 @@ ngx::_exit
 echo "start\n";
 ngx::_exit(200);
 echo "end\n";
-```
-
-ngx_location::capture
----------------------
-**syntax:** *ngx_location::capture(string $uri)*  
-
-**context:** *thread_by_php*  
-
-With nginx underlying strong subrequest, php achieve full non-blocking calls.
-
-```php
-$result = ngx_location::capture('/foo');
-echo $result;
-```
-
-ngx_location::capture_multi
----------------------------
-**syntax:** *ngx_location::capture_multi(array $uri)*  
-
-**context:** *thread_by_php*  
-
-* And ngx location :: capture similar, but can support full non-blocking concurrent calls.
-
-```php
-$capture_multi = array(
-    '/foo',
-    '/bar',
-    '/baz'
-);
-$result = ngx_location::capture_multi($capture_multi);
-var_dump($result);
 ```
 
 ngx_socket_tcp::__construct
@@ -584,7 +540,7 @@ Question
 
 Copyright and License
 ---------------------
-Copyright (c) 2016-2017, rryqszq4 <ngxphp@gmail.com>
+Copyright (c) 2016-2017, rryqszq4 <rryqszq@gmail.com>  
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
