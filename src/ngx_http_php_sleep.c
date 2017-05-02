@@ -263,7 +263,7 @@ ngx_http_php_sleep_generator_run(ngx_http_request_t *r)
 
     ctx->rewrite_phase = 1;
     ctx->phase_status = NGX_AGAIN;
-    TSRMLS_SET_CTX(ctx->uthread_ctx)
+    TSRMLS_SET_CTX(ctx->uthread_ctx);
 
     ngx_memzero(&ctx->sleep, sizeof(ngx_event_t));
 
