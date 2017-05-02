@@ -264,8 +264,8 @@ ngx_http_php_sleep_generator_run(ngx_http_request_t *r)
     ctx->rewrite_phase = 1;
     ctx->phase_status = NGX_AGAIN;
 
-    TSRMLS_FETCH();
-    TSRMLS_SET_CTX(ctx->uthread_ctx);
+    //TSRMLS_FETCH();
+    //TSRMLS_SET_CTX(ctx->uthread_ctx);
 
     ngx_memzero(&ctx->sleep, sizeof(ngx_event_t));
 
@@ -298,7 +298,8 @@ ngx_http_php_sleep_generator_handler(ngx_event_t *ev)
 
     ngx_http_php_ctx_t *ctx = ngx_http_get_module_ctx(r, ngx_http_php_module);
 
-    TSRMLS_FETCH_FROM_CTX(ctx->uthread_ctx);
+    TSRMLS_FETCH();
+    //TSRMLS_FETCH_FROM_CTX(ctx->uthread_ctx);
 
     //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "rewrite_phase: %d r:%p closure:%p", ctx->rewrite_phase,r,ctx->generator_closure);
 
