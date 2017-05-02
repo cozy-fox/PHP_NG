@@ -80,7 +80,7 @@ PHP_METHOD(ngx_generator, run)
     ctx->rewrite_phase = 0;
     ctx->phase_status = NGX_AGAIN;
 
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "rewrite_phase: %d r:%p closure:%p %p %d", ctx->rewrite_phase,r,closure,generator_closure,generator_closure->type);
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "rewrite_phase: %d r:%p closure:%p %p %d", ctx->rewrite_phase,r,closure,generator_closure,generator_closure->type);
 
 }
 
@@ -110,7 +110,7 @@ PHP_METHOD(ngx_generator, next)
 
     closure = ctx->generator_closure;
 
-    ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "rewrite_phase: %d r:%p closure:%p", ctx->rewrite_phase,r,closure);
+    //ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "rewrite_phase: %d r:%p closure:%p", ctx->rewrite_phase,r,closure);
 
     MAKE_STD_ZVAL(func_next);
     ZVAL_STRING(func_next, "next", 1);
