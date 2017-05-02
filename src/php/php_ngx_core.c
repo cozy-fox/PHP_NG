@@ -66,7 +66,7 @@ PHP_METHOD(co_ngx, sleep)
 
     ctx->enable_sleep = 1;
 
-    ngx_http_php_sleep_uthread_run(r);
+    ngx_http_php_sleep_generator_run(r);
 
 }
 
